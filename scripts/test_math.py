@@ -98,10 +98,15 @@ class MathQuality(unittest.TestCase):
 
     def test_conveyor(self):
         pts=SOURCE["orig-conveyor"]
-        self.assertEqual([half(p) for p in pts[:2]],[(-1,-2),(-4,-2)])
-        self.assertEqual([flip_v(p) for p in pts[:2]],[(-1,2),(-4,2)])
-        self.assertEqual([quarter(p) for p in pts[:2]],[(-2,1),(-2,4)])
+        self.assertEqual([half(p) for p in pts],[(-1,-2),(-4,-2),(-2,-4)])
+        self.assertEqual([flip_v(p) for p in pts],[(-1,2),(-4,2),(-2,4)])
+        self.assertEqual([quarter(p) for p in pts],[(-2,1),(-2,4),(-4,2)])
         self.assertEqual(quarter(quarter(pts[2])),half(pts[2]))
+        # Two collinear point images do not always distinguish a reflection
+        # from a half-turn about a different center; the third does.
+        for p in pts[:2]:
+            self.assertEqual(flip_v(p),half(p,(0,2)))
+        self.assertNotEqual(flip_v(pts[2]),half(pts[2],(0,2)))
 
     def test_mirror_route(self):
         for p in SOURCE["orig-mirror-route"]:

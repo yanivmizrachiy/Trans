@@ -85,6 +85,14 @@ class AnswerToWorksheetAlignment(unittest.TestCase):
         name="orig-conveyor";pts=SOURCE[name]
         verify_case(name,0,expected(*(half(p) for p in pts))+["√5"],"180-degree rotation and radius")
         verify_case(name,1,["א׳","ב׳","ג׳","90"],"identify all candidate machines")
+        sheet=(ROOT/"worksheets"/(name+".html")).read_text(encoding="utf-8").replace("−","-")
+        key=levels(name)[1].replace("−","-")
+        for title,op in (("א׳",half),("ב׳",flip_v),("ג׳",quarter)):
+            computed=[op(p) for p in pts]
+            for label,point in zip("ABC",computed):
+                token=label+"′"+show(point)
+                self.assertIn(token,sheet,f"Machine {title}: incomplete student prompt {token}")
+                self.assertIn(token,key,f"Machine {title}: teacher key omits {token}")
         verify_case(name,2,["90","180","שיקופים"],"half-turn composition")
         name="orig-mirror-route";pts=SOURCE[name]
         verify_case(name,0,expected(*(flip_v(p) for p in pts)),"reflect all vertices in y axis")

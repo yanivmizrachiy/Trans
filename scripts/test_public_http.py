@@ -14,21 +14,20 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://transformations-math.vercel.app"
-ORIGINAL = (
-    "orig-rectangles", "orig-translation", "orig-reflection",
-    "orig-rotation", "orig-composition", "orig-symmetry",
-    "orig-conveyor", "orig-mirror-route", "orig-center-p",
-    "orig-symbol-turn", "orig-robot-grid",
-)
-OTHER = ("349", "350", "351", "352", "385", "549", "rectangles", "true-false", "triangle")
+ROOT_HTML = ("index.html", "original.html", "curriculum.html", "teacher.html", "explore.html")
+# Discover the complete public HTML/PDF/assets inventory from the checked-out
+# repository. This prevents silently skipping new booklet parts or assets.
+def discover(directory,patterns):
+    root=ROOT/directory
+    return tuple(f"{directory}/{f.name}" for pattern in patterns
+                 for f in sorted(root.glob(pattern)) if f.is_file())
 ROUTES = (
-    "index.html", "original.html", "curriculum.html", "teacher.html", "explore.html",
-    "book/teacher.html", "book/official.html", "book/front.html",
-    "book/teacher.pdf", "book/official.pdf", "book/transformations-complete.pdf",
-    "assets/raz-logo.svg", "assets/original-grid.js", "assets/original.css",
-    *tuple("worksheets/"+s+".html" for s in ORIGINAL+OTHER),
-    *tuple("pdf/"+s+".pdf" for s in ORIGINAL+OTHER),
-    *tuple("sources/ministry/"+p.name for p in sorted((ROOT/"sources"/"ministry").glob("*.webp"))),
+    *ROOT_HTML,
+    *discover("book",("*.html","*.pdf")),
+    *discover("worksheets",("*.html",)),
+    *discover("pdf",("*.pdf",)),
+    *discover("assets",("*.css","*.js","*.svg")),
+    *discover("sources/ministry",("*.webp",)),
 )
 assert len(ROUTES)==len(set(ROUTES)), "Duplicate public asset route"
 
