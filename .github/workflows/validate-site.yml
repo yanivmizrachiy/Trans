@@ -26,10 +26,14 @@ on:
       - 'book/official.pdf'
       - '.github/workflows/validate-site.yml'
   workflow_dispatch:
+  workflow_run:
+    workflows: ['Build printable transformation PDFs']
+    types: [completed]
 permissions:
   contents: read
 jobs:
   check:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
