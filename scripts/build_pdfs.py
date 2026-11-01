@@ -7,7 +7,7 @@ from pypdf import PdfReader
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "worksheets"
 DEST = ROOT / "pdf"
-IDS = ("349", "350", "351", "352", "385", "549", "rectangles", "true-false", "triangle")
+IDS = ("349", "350", "351", "352", "385", "549", "rectangles", "true-false", "triangle", "orig-rectangles", "orig-translation", "orig-reflection", "orig-rotation", "orig-composition", "orig-symmetry")
 
 def main():
     DEST.mkdir(parents=True, exist_ok=True)
