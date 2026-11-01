@@ -23,6 +23,20 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - name: Check geometry script and homepage JavaScript syntax
+        run: |
+          node --check assets/original-grid.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess
+          for filename in ("index.html", "explore.html"):
+              html = Path(filename).read_text(encoding="utf-8")
+              blocks = re.findall(r"<script[^>]*>([\\s\\S]*?)</script>", html)
+              assert blocks, f"Missing JavaScript in {filename}"
+              for block in blocks:
+                  subprocess.run(["node", "--check"], input=block, text=True, check=True)
+              print(f"{filename}: {len(blocks)} JavaScript blocks syntactically valid")
+          PY
       - name: Independently test math and teacher-answer assumptions
         run: python3 scripts/test_math.py
       - name: Check exact source inventory, PDFs and author credits
