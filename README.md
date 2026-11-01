@@ -1,6 +1,6 @@
 # טרנספורמציות וחפיפת צורות — חוברת ומאגר הוראה
 
-[**פתיחת האתר**](https://transformations-math.vercel.app/) · [**החוברת המאוחדת — PDF, 51 עמודים**](https://transformations-math.vercel.app/book/transformations-complete.pdf) · [**מקור האמת היחיד**](./SOURCE_OF_TRUTH.md)
+[**פתיחת האתר**](https://transformations-math.vercel.app/) · [**החוברת המאוחדת — PDF, 56 עמודים**](https://transformations-math.vercel.app/book/transformations-complete.pdf) · [**מקור האמת היחיד**](./SOURCE_OF_TRUTH.md)
 
 מאגר לחטיבת הביניים, בדגש על כיתה ז׳: **הזזה, סיבוב ושיקוף (היפוך)**, חפיפת צורות, סימטרייה ופעולות עוקבות כהעמקה. מותאם לעברית RTL, למכשיר נייד ולהדפסת A4.
 
@@ -8,7 +8,7 @@
 
 | תוצר | קישור | מה כולל |
 |---|---|---|
-| **חוברת אחת מלאה** | [פתיחת PDF](https://transformations-math.vercel.app/book/transformations-complete.pdf) | **51 עמודים ו־25 סימניות**: שער, סיכומי מורה, מקור רשמי, דפי עבודה, מצגת ותשובות |
+| **חוברת אחת מלאה** | [פתיחת PDF](https://transformations-math.vercel.app/book/transformations-complete.pdf) | **56 עמודים ו־26 סימניות**: שער, סיכומי מורה, מקור רשמי, דפי עבודה, מצגת ותשובות |
 | **סיכומים למורה** | [14 עמודים להדפסה](https://transformations-math.vercel.app/book/teacher.pdf) | מונחים וניסוחי התוכנית, הסברים פשוטים, רצף הוראה, טעויות שכיחות והערכה |
 | **שאלות מתוך תוכנית הלימודים** | [8 צילומי מקור ללא שינוי](https://transformations-math.vercel.app/book/official.pdf) | עמודים 34–38, 48 ו־50–51 ממסמך גאומטריה ז׳; ללא שינוי ניסוח או שרטוט |
 | **דפי עבודה מקוריים — יניב רז** | [11 דפים בשלוש רמות](https://transformations-math.vercel.app/original.html) | הכנה, רמה מקבילה ואתגר, עם לוגו RAZ בתחתית **דפים אלה בלבד** |

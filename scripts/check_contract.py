@@ -49,19 +49,19 @@ def main():
     demand(SOT.count("## ו. שלבי העבודה")==1,"More than one current stage tracker")
     demand("11 דפי" in SOT and "20 דפי" in SOT and "14 עמוד" in SOT,
            "Authoritative inventory lacks verified totals")
-    demand("51 עמודים" in SOT and "25 סימניות" in SOT,
+    demand("56 עמודים" in SOT and "26 סימניות" in SOT,
            "Authoritative merged booklet metadata missing")
-    demand("20 דפי" in README and "11 דפים" in README and "51 עמודים" in README,
+    demand("20 דפי" in README and "11 דפים" in README and "56 עמודים" in README,
            "README is out of sync with actual inventory")
-    demand("ששת חלקי החוברת" in INTRO and "ארבעת חלקי החוברת" not in INTRO,
+    demand("שבעת חלקי החוברת" in INTRO and "ששת חלקי החוברת" not in INTRO,
            "Old four-part table of contents survives in the introduction")
-    for head in ("| א׳ —","| ב׳ —","| ג׳ —","| ד׳ —","| ה׳ —","| ו׳ —"):
+    for head in ("| א׳ —","| ב׳ —","| ג׳ —","| ד׳ —","| ה׳ —","| ו׳ —","| ז׳ —"):
         demand(head in INTRO,f"Missing real workbook part in introduction: {head}")
-    book=pdf_pages("book/transformations-complete.pdf",51)
+    book=pdf_pages("book/transformations-complete.pdf",56)
     pdf_pages("book/teacher.pdf",14)
     pdf_pages("book/official.pdf",8)
-    demand(len(book.outline)==25,
-           f"Book must have 25 navigation bookmarks, found {len(book.outline)}")
+    demand(len(book.outline)==26,
+           f"Book must have 26 navigation bookmarks, found {len(book.outline)}")
     for ident in ORIGINAL:
         pdf_pages(f"pdf/{ident}.pdf",1)
         html=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
@@ -73,10 +73,14 @@ def main():
         demand("raz-logo.svg" not in html,
                f"Imported content must not carry creator logo: {ident}")
     for path in ("book/teacher.html","book/official.html","original.html","curriculum.html",
-                 "book/front.html","book/answers.html","book/workshop.html","index.html"):
+                 "book/front.html","book/answers.html","book/workshop.html","book/sadna.html","index.html"):
         demand((ROOT/path).is_file(),f"Missing public part of the book: {path}")
+    sadna=(ROOT/"book"/"sadna.html").read_text(encoding="utf-8")
+    demand(sadna.count('class="sheet"')==3 and sadna.count("שרית מאירוביץ וסיגלית אטשי")>=3,
+           "Every workshop-deck page must credit its editors in the footer")
+    demand("שרית מאירוביץ וסיגלית אטשי" in SOT,"Editors credit rule missing from the source of truth")
     print("PASS: single authoritative requirements contract, README and introduction agree")
-    print("PASS: 51-page book with 25 bookmarks, 14 teacher pages, 8 original Ministry scans")
+    print("PASS: 56-page book with 26 bookmarks, 14 teacher pages, 8 original Ministry scans")
     print("PASS: 11 original 1-page A4 worksheets, 9 correctly attributed imported worksheets")
 
 if __name__=="__main__":
