@@ -80,7 +80,7 @@ def check_sources(page):
     check_page(page,"/curriculum.html",".entry")
     require(page.locator(".entry").count()==6,"Ministry source map must have exactly 6 groups")
     check_page(page,"/book/official.html",".scan")
-    require(page.locator(".scan").count()==7,"Unaltered Ministry viewer missing source scans")
+    require(page.locator(".scan").count()==len(list((Path("sources")/"ministry").glob("*.webp"))),"Unaltered Ministry viewer missing source scans")
     visible=page.locator(".scan img").evaluate_all(
         "(imgs)=>imgs.map(i=>({ok:i.complete&&i.naturalWidth>=1200,width:i.naturalWidth}))")
     require(all(item["ok"] for item in visible),f"Original official scans failed to load: {visible}")
