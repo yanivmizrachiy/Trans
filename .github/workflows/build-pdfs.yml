@@ -17,6 +17,7 @@ on:
       - 'docs/ANSWER_KEY.md'
       - 'docs/PRESENTATION_2026-10-21.md'
       - 'scripts/test_math.py'
+      - 'scripts/test_properties.py'
       - 'scripts/test_pedagogy.py'
       - 'scripts/validate_site.py'
       - '.github/workflows/build-pdfs.yml'
@@ -44,6 +45,8 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Check all original geometry questions and solutions
         run: python scripts/test_math.py
+      - name: Verify transformation identities against an independent complex-plane model
+        run: python3 scripts/test_properties.py
       - name: Independently audit all 33 graded original prompts and teacher keys
         run: python scripts/test_pedagogy.py
       - name: Render real worksheets to PDF
