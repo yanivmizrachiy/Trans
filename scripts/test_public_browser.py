@@ -135,6 +135,7 @@ def check_compact_viewports(page):
             check_page(page,route,selector)
         # The plot scales to the viewport by default and can be enlarged
         # without expanding the page's document width.
+        check_page(page,"/explore.html","#plot")
         zoom=page.locator("#zoom-plot")
         require(zoom.is_visible(),f"{width}px: missing usable graph zoom button")
         zoom.click()
