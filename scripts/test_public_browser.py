@@ -145,7 +145,10 @@ def check_compact_viewports(page):
         require(chart_width>=600,f"{width}px: graph enlargement is not readable")
         screen_width=page.evaluate("document.documentElement.scrollWidth")
         require(screen_width<=width+2,
-                f"{width}px: zoomed chart must scroll internally, not expand the page")
+                f"{width}px: zoomed chart must scroll internally, not expand the page: "
+                f"document={screen_width}, viewport={width}, "
+                f"graph={page.locator('.graph').evaluate('e=>e.getBoundingClientRect().width')}, "
+                f"scroller={page.locator('.plot-window').evaluate('e=>e.getBoundingClientRect().width')}")
         zoom.click()
         require(zoom.get_attribute("aria-pressed")=="false",
                 f"{width}px: graph does not restore fit-to-width layout")
