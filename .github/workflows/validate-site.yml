@@ -15,6 +15,7 @@ on:
       - 'scripts/test_math.py'
       - 'scripts/test_properties.py'
       - 'scripts/test_pedagogy.py'
+      - 'scripts/test_answer_keys.py'
       - 'scripts/check_contract.py'
       - 'SOURCE_OF_TRUTH.md'
       - 'README.md'
@@ -56,5 +57,7 @@ jobs:
         run: python3 -m pip install --disable-pip-version-check pypdf
       - name: Enforce the single up-to-date source of truth and real artifact inventory
         run: python3 scripts/check_contract.py
+      - name: Check numerical answers printed for all 33 original question levels
+        run: python3 scripts/test_answer_keys.py
       - name: Check all three difficulty levels and the teacher's answer keys
         run: python3 scripts/test_pedagogy.py
