@@ -31,7 +31,7 @@ jobs:
           import re, subprocess
           for filename in ("index.html", "explore.html"):
               html = Path(filename).read_text(encoding="utf-8")
-              blocks = re.findall(r"<script[^>]*>([\\s\\S]*?)</script>", html)
+              blocks = re.findall(r"<script[^>]*>([\s\S]*?)</script>", html)
               assert blocks, f"Missing JavaScript in {filename}"
               for block in blocks:
                   subprocess.run(["node", "--check"], input=block, text=True, check=True)
