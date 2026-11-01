@@ -9,7 +9,7 @@ regressions even when the transformation utilities remain mathematically valid.
 from pathlib import Path
 import re
 import unittest
-from test_math import ROOT, SOURCE, move, flip_v, flip_h, half, quarter, area2
+from test_math import ROOT, SOURCE, move, flip_v, flip_h, half, quarter, area2, squared
 
 ANSWER=(ROOT/"docs"/"ANSWER_KEY.md").read_text(encoding="utf-8")
 
