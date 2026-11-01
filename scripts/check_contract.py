@@ -5,6 +5,7 @@ This test is deliberately read-only. SOURCE_OF_TRUTH.md defines policy;
 all PDF files, worksheets and public guides must represent its verified inventory.
 """
 from pathlib import Path
+import os
 from pypdf import PdfReader
 import re
 import manifest as M
@@ -21,8 +22,18 @@ def demand(test,reason):
     if not test:
         raise AssertionError(reason)
 
+# CHECK_BUILT_PDFS=0 is set by the check workflow on push/pull_request events,
+# where the committed PDFs may legitimately lag behind the sources until the
+# build workflow has rebuilt and published them. The build workflow and the
+# post-build (workflow_run) check always compare against current PDFs.
+CHECK_BUILT_PDFS=os.environ.get("CHECK_BUILT_PDFS","1")!="0"
+
 def pdf_pages(relative,expected):
-    doc=PdfReader(str(ROOT/relative))
+    path=ROOT/relative
+    demand(path.is_file() and path.read_bytes().startswith(b"%PDF-"),f"{relative}: missing or not a PDF")
+    if not CHECK_BUILT_PDFS:
+        return None
+    doc=PdfReader(str(path))
     demand(len(doc.pages)==expected,f"{relative}: expected {expected} pages, got {len(doc.pages)}")
     return doc
 
@@ -60,8 +71,9 @@ def main():
             pdf_pages(part["file"],last-first+1)
     demand("| מפתח תשובות למורה | 6 עמודים בחוברת |" in SOT,
            "Answer-key page count in the single source of truth contradicts the printed PDF")
-    demand(len(book.outline)==M.TOTAL_BOOKMARKS,
-           f"Book must have {M.TOTAL_BOOKMARKS} navigation bookmarks, found {len(book.outline)}")
+    if book is not None:
+        demand(len(book.outline)==M.TOTAL_BOOKMARKS,
+               f"Book must have {M.TOTAL_BOOKMARKS} navigation bookmarks, found {len(book.outline)}")
     for ident in ORIGINAL:
         pdf_pages(f"pdf/{ident}.pdf",M.WORKSHEET_PAGES[ident])
         html=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
@@ -80,7 +92,10 @@ def main():
            "Every workshop-deck page must credit its editors in the footer")
     demand("שרית מאירוביץ וסיגלית אטשי" in SOT,"Editors credit rule missing from the source of truth")
     print("PASS: single authoritative requirements contract, README and introduction agree")
-    print(f"PASS: {M.TOTAL_PAGES}-page book with {M.TOTAL_BOOKMARKS} bookmarks, 14 teacher pages, {len(SCANS)} original Ministry scans")
+    if CHECK_BUILT_PDFS:
+        print(f"PASS: {M.TOTAL_PAGES}-page book with {M.TOTAL_BOOKMARKS} bookmarks, 14 teacher pages, {len(SCANS)} original Ministry scans")
+    else:
+        print(f"SKIPPED built-PDF page and bookmark counts (CHECK_BUILT_PDFS=0); {len(SCANS)} original Ministry scans listed")
     print(f"PASS: {len(ORIGINAL)} original 1-page A4 worksheets, {len(IMPORTED)} correctly attributed imported worksheets")
 
 if __name__=="__main__":

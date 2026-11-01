@@ -75,11 +75,11 @@ jobs:
         run: python scripts/build_pdfs.py
       - name: Render and strictly validate fourteen teacher summary pages
         run: python scripts/build_teacher.py
-      - name: Verify and render eight unchanged ministry curriculum pages
+      - name: Verify and render the unchanged ministry curriculum pages listed in the manifest
         run: python scripts/build_official.py
       - name: Build full multi-part transformation book with bookmarks and teacher answers
         run: python scripts/build_complete.py
-      - name: Independently raster-audit all 56 booklet pages including 8 landscape source pages
+      - name: Independently raster-audit every booklet page including the landscape source pages
         run: python scripts/visual_audit.py
       - name: Check paths, authorship, file counts and valid PDFs
         run: python scripts/validate_site.py
