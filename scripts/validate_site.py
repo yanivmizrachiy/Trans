@@ -21,7 +21,7 @@ def main():
     assert len(names)==15, ("worksheet count",len(names))
     assert {p.stem for p in pdfs}==names, "PDF inventory mismatch"
     index=(R/"index.html").read_text()
-    catalog=set(re.findall(r'^\\[(?:([0-9]+)|"([a-z0-9-]+)"),',index,re.M))
+    catalog=set(re.findall(r'^\[(?:([0-9]+)|"([a-z0-9-]+)"),',index,re.M))
     assert {a or b for a,b in catalog}==names,"Homepage catalog mismatch"
     build=(R/"scripts/build_pdfs.py").read_text()
     ids=set(re.findall(r'"([a-z0-9-]+)"',build.split("IDS =",1)[1].split("\n",1)[0]))
@@ -38,7 +38,7 @@ def main():
             own=p.stem in OWN
             assert ("raz-logo.svg" in html)==own,(p.name,"incorrect logo")
             assert ("יצירה מקורית: יניב רז" in html)==own,(p.name,"incorrect credit")
-            if own: assert len(re.findall(r'<section class=["\\\']level',html))==3,p.name
+            if own: assert (html.count('class="level"') + html.count("class='level'"))==3,p.name
     for p in pdfs:
         data=p.read_bytes()
         assert len(data)>3500 and data.startswith(b"%PDF-") and b"%%EOF" in data[-4096:],p.name
