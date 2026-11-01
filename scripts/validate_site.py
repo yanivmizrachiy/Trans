@@ -6,7 +6,7 @@ from urllib.parse import urlsplit, unquote
 import re
 
 R=Path(__file__).resolve().parents[1]
-OWN={"orig-rectangles","orig-translation","orig-reflection","orig-rotation","orig-composition","orig-symmetry"}
+OWN={"orig-rectangles","orig-translation","orig-reflection","orig-rotation","orig-composition","orig-symmetry","orig-conveyor","orig-mirror-route","orig-center-p","orig-symbol-turn","orig-robot-grid"}
 class Links(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -18,7 +18,7 @@ def main():
     pages=list((R/"worksheets").glob("*.html"))
     names={p.stem for p in pages}
     pdfs=list((R/"pdf").glob("*.pdf"))
-    assert len(names)==15, ("worksheet count",len(names))
+    assert len(names)==20, ("worksheet count",len(names))
     assert {p.stem for p in pdfs}==names, "PDF inventory mismatch"
     index=(R/"index.html").read_text()
     catalog=set(re.findall(r'^\[(?:([0-9]+)|"([a-z0-9-]+)"),',index,re.M))
@@ -26,7 +26,7 @@ def main():
     build=(R/"scripts/build_pdfs.py").read_text()
     ids=set(re.findall(r'"([a-z0-9-]+)"',build.split("IDS =",1)[1].split("\n",1)[0]))
     assert ids==names,"PDF generator inventory mismatch"
-    for p in [R/"index.html",R/"teacher.html",R/"explore.html",*pages]:
+    for p in [R/"index.html",R/"teacher.html",R/"explore.html",R/"curriculum.html",R/"original.html",*pages]:
         html=p.read_text()
         h=Links();h.feed(html)
         for link in h.urls:
