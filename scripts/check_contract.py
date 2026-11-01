@@ -51,11 +51,11 @@ def main():
            "Authoritative inventory lacks verified totals")
     demand("50 עמודים" in SOT and "25 סימניות" in SOT,
            "Authoritative merged booklet metadata missing")
-    demand("20 דפי" in README and "11 דפי" in README and "50 עמודים" in README,
+    demand("20 דפי" in README and "11 דפים" in README and "50 עמודים" in README,
            "README is out of sync with actual inventory")
     demand("ששת חלקי החוברת" in INTRO and "ארבעת חלקי החוברת" not in INTRO,
            "Old four-part table of contents survives in the introduction")
-    for head in ("חלק א","חלק ב","חלק ג","חלק ד","חלק ה","חלק ו"):
+    for head in ("| א׳ —","| ב׳ —","| ג׳ —","| ד׳ —","| ה׳ —","| ו׳ —"):
         demand(head in INTRO,f"Missing real workbook part in introduction: {head}")
     book=pdf_pages("book/transformations-complete.pdf",50)
     pdf_pages("book/teacher.pdf",14)
