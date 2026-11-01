@@ -14,5 +14,14 @@ if(svg.dataset.mirrorX!==undefined){const u=ox+kx*unit;add(svg,"line",{x1:u,y1:4
 if(svg.dataset.mirrorY!==undefined){const u=oy-ky*unit;add(svg,"line",{x1:4,y1:u,x2:246,y2:u,stroke:"#9b4b94","stroke-width":1.6,"stroke-dasharray":"5 4"})}
 add(svg,"polygon",{points:vertices.map(p=>pos(p).join(",")).join(" "),fill:"#b9e7dc","fill-opacity":".75",stroke:"#07766d","stroke-width":2.2});
 vertices.forEach((p,i)=>{const [x,y]=pos(p);add(svg,"circle",{cx:x,cy:y,r:3.5,fill:"#036b68",stroke:"#fff","stroke-width":1});add(svg,"text",{x:x+6,y:y-7,"font-size":12,"font-weight":"bold",fill:"#005954"},labels[i]||"")});
+if(svg.dataset.center){
+  const center=svg.dataset.center.split(",").map(Number);
+  if(center.length===2&&center.every(Number.isFinite)){
+    const [x,y]=pos(center);
+    add(svg,"circle",{cx:x,cy:y,r:5.2,fill:"#a341a3",stroke:"#fff","stroke-width":1.4});
+    add(svg,"text",{x:x+9,y:y-9,"font-size":13,"font-weight":"bold",fill:"#8e318e"},svg.dataset.centerLabel||"P");
+  }
+}
+
 }}
 )();
