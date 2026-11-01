@@ -20,12 +20,26 @@ def main():
                     raise FileNotFoundError(str(source))
                 page = browser.new_page(viewport={"width": 1250, "height": 1650}, device_scale_factor=1)
                 try:
+                    page_errors = []
+                    page.on("pageerror", lambda err: page_errors.append(str(err)))
                     page.goto(source.as_uri(), wait_until="load", timeout=60000)
                     if stem.startswith("orig-"):
                         page.wait_for_function(
                             '() => Array.from(document.querySelectorAll("svg[data-shape]")).every(s => !!s.querySelector("polygon"))',
                             timeout=15000
                         )
+                    if stem.startswith("orig-"):
+                        ok = page.evaluate("""() => {
+                          const img = document.querySelector('img[alt="לוגו יניב רז"]');
+                          const graph = document.querySelector('svg[data-shape] polygon');
+                          const sheet = document.querySelector('article.sheet');
+                          return !!(img && img.complete && img.naturalWidth > 0 &&
+                                    graph && sheet && getComputedStyle(document.documentElement).direction === 'rtl');
+                        }""")
+                        if not ok:
+                            raise RuntimeError(f"Failed visible logo, geometry drawing, or RTL check: {stem}")
+                        if page_errors:
+                            raise RuntimeError(f"JavaScript errors in original worksheet {stem}: {page_errors}")
                     page.evaluate("""async () => {
                       if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
                         await Promise.race([
