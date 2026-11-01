@@ -12,6 +12,7 @@ on:
       - 'sources/ministry/**'
       - 'scripts/build_official.py'
       - 'book/front.html'
+      - 'book/sadna.html'
       - 'scripts/build_complete.py'
       - 'scripts/visual_audit.py'
       - 'docs/ANSWER_KEY.md'
@@ -76,13 +77,13 @@ jobs:
           cp pdf/*.pdf "$TEMP/"
           cp book/teacher.pdf "$TEMP/teacher.pdf"
           cp book/official.pdf "$TEMP/official.pdf"
-          for name in front workshop answers transformations-complete; do cp "book/$name.pdf" "$TEMP/$name.pdf"; done
+          for name in front workshop sadna answers transformations-complete; do cp "book/$name.pdf" "$TEMP/$name.pdf"; done
           cp book/workshop.html book/answers.html "$TEMP/"
           mkdir -p "$TEMP/previews"
           cp qa/previews/*.jpg "$TEMP/previews/"
           for attempt in 1 2 3; do
             git fetch origin main
-            if ! git diff --quiet "$BASE" origin/main -- worksheets/ assets/ scripts/build_pdfs.py book/teacher.html scripts/build_teacher.py book/official.html sources/ministry/ scripts/build_official.py book/front.html scripts/build_complete.py scripts/visual_audit.py docs/ANSWER_KEY.md docs/PRESENTATION_2026-10-21.md; then
+            if ! git diff --quiet "$BASE" origin/main -- worksheets/ assets/ scripts/build_pdfs.py book/teacher.html scripts/build_teacher.py book/official.html sources/ministry/ scripts/build_official.py book/front.html book/sadna.html scripts/build_complete.py scripts/visual_audit.py docs/ANSWER_KEY.md docs/PRESENTATION_2026-10-21.md; then
               echo "A newer commit changed PDF source files. This build is superseded; publishing nothing."
               exit 0
             fi
@@ -94,7 +95,7 @@ jobs:
             for file in pdf/*.pdf; do cp "$TEMP/$(basename "$file")" "$file"; done
             cp "$TEMP/teacher.pdf" book/teacher.pdf
             cp "$TEMP/official.pdf" book/official.pdf
-            for name in front workshop answers transformations-complete; do cp "$TEMP/$name.pdf" "book/$name.pdf"; done
+            for name in front workshop sadna answers transformations-complete; do cp "$TEMP/$name.pdf" "book/$name.pdf"; done
             cp "$TEMP/workshop.html" "$TEMP/answers.html" book/
             mkdir -p qa/previews
             cp "$TEMP/previews/"*.jpg qa/previews/

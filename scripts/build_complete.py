@@ -103,6 +103,34 @@ def render_front(browser):
     tab.close()
     return validate_pdf(dest,2)
 
+SADNA_CREDIT="שרית מאירוביץ וסיגלית אטשי"
+def render_sadna(browser):
+    """Workshop deck pages; every page must credit the deck's editors in its footer."""
+    path=BOOK/"sadna.html"
+    dest=BOOK/"sadna.pdf"
+    tab=browser.new_page(viewport={"width":1250,"height":1700})
+    errors=[]
+    tab.on("pageerror",lambda e:errors.append(str(e)))
+    tab.goto(path.as_uri(),wait_until="load")
+    tab.emulate_media(media="print")
+    check=tab.evaluate("""(credit) => {
+      const pages=Array.from(document.querySelectorAll('article.sheet'));
+      return {count:pages.length,fail:pages.flatMap((p,i)=>{
+        const f=p.querySelector('.credit'), m=p.querySelector('.content'); let e=[];
+        if(!f||!f.textContent.includes(credit))return [[i+1,'missing editors credit']];
+        const b=p.getBoundingClientRect(), z=f.getBoundingClientRect();
+        if(p.scrollHeight>p.clientHeight+2)e.push([i+1,'overflow']);
+        if(m.getBoundingClientRect().bottom>z.top-2)e.push([i+1,'footer overlap']);
+        if(z.bottom>b.bottom-6)e.push([i+1,'footer outside page']);
+        return e;
+      })};
+    }""",SADNA_CREDIT)
+    if check["count"]!=3 or check["fail"] or errors:
+        raise RuntimeError(f"Workshop deck pages invalid: {check}, errors: {errors}")
+    tab.pdf(path=str(dest),format="A4",print_background=True,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
+    tab.close()
+    return validate_pdf(dest,3)
+
 def build():
     validate_pdf(BOOK/"teacher.pdf",14)
     validate_pdf(BOOK/"official.pdf",8)
@@ -114,6 +142,7 @@ def build():
         browser=p.chromium.launch(headless=True,args=["--no-sandbox"])
         try:
             front=render_front(browser)
+            sadna=render_sadna(browser)
             workshop=render_markdown(browser,ROOT/"docs"/"PRESENTATION_2026-10-21.md",
                                      BOOK/"workshop.html",BOOK/"workshop.pdf","סיכום מצגת קהילת המורים")
             answers=render_markdown(browser,ROOT/"docs"/"ANSWER_KEY.md",
@@ -137,14 +166,15 @@ def build():
     for ident,title in WORKSHEETS_ADDITIONAL:
         append(PDF/(ident+".pdf"),"חלק ד׳ — "+title,2 if ident=="triangle" else 1)
     append(BOOK/"workshop.pdf","חלק ה׳ — סיכום מצגת ההשתלמות",workshop)
-    append(BOOK/"answers.pdf","חלק ו׳ — מפתח תשובות למורה",answers)
+    append(BOOK/"sadna.pdf","חלק ו׳ — סדנה: צורות חופפות וטרנספורמציות (שרית מאירוביץ וסיגלית אטשי)",sadna)
+    append(BOOK/"answers.pdf","חלק ז׳ — מפתח תשובות למורה",answers)
     writer.add_metadata({"/Title":"טרנספורמציות — חוברת הוראה מלאה",
                          "/Subject":"חפיפת צורות, הזזה, סיבוב ושיקוף — מקורות, תרגול מקורי ומפתח תשובות",
                          "/Author":"מאגר הוראה במתמטיקה — Trans"})
     dest=BOOK/"transformations-complete.pdf"
     with dest.open("wb") as f:writer.write(f)
     verify=PdfReader(str(dest))
-    target_pages=2+14+8+11+10+workshop+answers
+    target_pages=2+14+8+11+10+workshop+sadna+answers
     if len(verify.pages)!=target_pages:
         raise RuntimeError(f"Book missing pages: {len(verify.pages)} expected {target_pages}")
     if len(verify.outline)<8:
