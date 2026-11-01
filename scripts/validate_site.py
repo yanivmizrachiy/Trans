@@ -59,6 +59,10 @@ def main():
     for path_pdf in (R/"book"/"teacher.pdf",R/"book"/"official.pdf"):
         blob=path_pdf.read_bytes()
         assert len(blob)>30000 and blob.startswith(b"%PDF-") and b"%%EOF" in blob[-4096:],("Missing or invalid booklet PDF",path_pdf)
+    teacher_summary=(R/"book"/"teacher.html").read_text()
+    teacher_intro=(R/"book"/"INTRO.md").read_text()
+    assert "שאלה 13, עמ׳ 48" in teacher_summary and "<td>48</td>" in teacher_summary, "Teacher summary must explain the authentic grade-7 page 48 translation and area-preservation item"
+    assert "| 48, שאלה 13 |" in teacher_intro, "Book teacher introduction must map the newly verified Ministry example"
     official=(R/"curriculum.html").read_text()
     authored=(R/"original.html").read_text()
     assert official.count('class="entry"')==7, "Official examples must stay in dedicated six-entry source catalog"
