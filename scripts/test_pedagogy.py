@@ -64,6 +64,9 @@ def main():
             yy=shingles(y)
             score=len(xx&yy)/max(1,len(xx|yy))
             if score>0.82:raise AssertionError(f"Near-duplicate prompt: {a}/{ai} and {b}/{bi} ({score:.2%})")
+    rotation=(ROOT/"worksheets"/"orig-rotation.html").read_text(encoding="utf-8")
+    if "מהמשולש המקורי ABC (לא מתמונת רמה ב׳)" not in rotation or "A″, B″, C″" not in rotation:
+        raise AssertionError("Rotation comparison must explicitly use the original triangle and distinguish the second image")
     other=("349","350","351","352","385","549","rectangles","true-false","triangle")
     for ident in other:
         raw=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
