@@ -13,6 +13,14 @@ on:
       - 'pdf/**'
       - 'scripts/validate_site.py'
       - 'scripts/test_math.py'
+      - 'scripts/test_pedagogy.py'
+      - 'scripts/check_contract.py'
+      - 'SOURCE_OF_TRUTH.md'
+      - 'README.md'
+      - 'book/INTRO.md'
+      - 'book/transformations-complete.pdf'
+      - 'book/teacher.pdf'
+      - 'book/official.pdf'
       - '.github/workflows/validate-site.yml'
   workflow_dispatch:
 permissions:
@@ -41,3 +49,9 @@ jobs:
         run: python3 scripts/test_math.py
       - name: Check exact source inventory, PDFs and author credits
         run: python3 scripts/validate_site.py
+      - name: Install PDF reader for independent documentation consistency check
+        run: python3 -m pip install --disable-pip-version-check pypdf
+      - name: Enforce the single up-to-date source of truth and real artifact inventory
+        run: python3 scripts/check_contract.py
+      - name: Check all three difficulty levels and the teacher's answer keys
+        run: python3 scripts/test_pedagogy.py
