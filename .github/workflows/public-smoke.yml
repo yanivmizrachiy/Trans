@@ -1,0 +1,30 @@
+name: Public website HTTP and binary integrity
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/test_public_http.py'
+      - '.github/workflows/public-smoke.yml'
+  workflow_run:
+    workflows: ['Build printable transformation PDFs']
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  group: trans-public-smoke
+  cancel-in-progress: true
+jobs:
+  public:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify all 61 live external URLs against exact committed bytes
+        run: python scripts/test_public_http.py
