@@ -28,9 +28,9 @@ ROUTES = (
     "assets/raz-logo.svg", "assets/original-grid.js", "assets/original.css",
     *tuple("worksheets/"+s+".html" for s in ORIGINAL+OTHER),
     *tuple("pdf/"+s+".pdf" for s in ORIGINAL+OTHER),
-    *tuple("sources/ministry/grade7-p"+str(n).zfill(3)+".webp" for n in (34,35,36,37,38,50,51)),
+    *tuple("sources/ministry/"+p.name for p in sorted((ROOT/"sources"/"ministry").glob("*.webp"))),
 )
-assert len(ROUTES)==61, len(ROUTES)
+assert len(ROUTES)==len(set(ROUTES)), "Duplicate public asset route"
 
 def audit_route(path):
     source = ROOT / path
