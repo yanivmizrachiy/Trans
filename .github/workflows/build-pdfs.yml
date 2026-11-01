@@ -87,7 +87,7 @@ jobs:
               echo "A newer commit changed PDF source files. This build is superseded; publishing nothing."
               exit 0
             fi
-            if ! git diff --quiet "$BASE" origin/main -- pdf/ book/teacher.pdf book/official.pdf book/front.pdf book/workshop.pdf book/answers.pdf book/transformations-complete.pdf book/workshop.html book/answers.html qa/previews/; then
+            if ! git diff --quiet "$BASE" origin/main -- pdf/ book/teacher.pdf book/official.pdf book/front.pdf book/workshop.pdf book/sadna.pdf book/answers.pdf book/transformations-complete.pdf book/workshop.html book/answers.html qa/previews/; then
               echo "Another run has already published PDFs for this source revision. Avoiding binary conflicts."
               exit 0
             fi
@@ -99,7 +99,7 @@ jobs:
             cp "$TEMP/workshop.html" "$TEMP/answers.html" book/
             mkdir -p qa/previews
             cp "$TEMP/previews/"*.jpg qa/previews/
-            git add pdf/ book/teacher.pdf book/official.pdf book/front.pdf book/workshop.pdf book/answers.pdf book/transformations-complete.pdf book/workshop.html book/answers.html qa/previews/
+            git add pdf/ book/teacher.pdf book/official.pdf book/front.pdf book/workshop.pdf book/sadna.pdf book/answers.pdf book/transformations-complete.pdf book/workshop.html book/answers.html qa/previews/
             if git diff --cached --quiet; then
               echo "All deployed PDFs already match the generated files."
               exit 0
