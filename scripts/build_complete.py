@@ -105,7 +105,7 @@ def render_front(browser):
 
 def build():
     validate_pdf(BOOK/"teacher.pdf",14)
-    validate_pdf(BOOK/"official.pdf",7)
+    validate_pdf(BOOK/"official.pdf",8)
     for ident,_ in WORKSHEETS_ORIGINAL:
         validate_pdf(PDF/(ident+".pdf"),1)
     for ident,_ in WORKSHEETS_ADDITIONAL:
@@ -131,7 +131,7 @@ def build():
         sections.append((label,first,first+actual-1))
     append(BOOK/"front.pdf","שער ותוכן עניינים",2)
     append(BOOK/"teacher.pdf","חלק א׳ — סיכומים למורה",14)
-    append(BOOK/"official.pdf","חלק ב׳ — שאלות מתוך תוכנית הלימודים (מקור ללא שינוי)",7)
+    append(BOOK/"official.pdf","חלק ב׳ — שאלות מתוך תוכנית הלימודים (מקור ללא שינוי)",8)
     for ident,title in WORKSHEETS_ORIGINAL:
         append(PDF/(ident+".pdf"),"חלק ג׳ — "+title,1)
     for ident,title in WORKSHEETS_ADDITIONAL:
@@ -144,13 +144,13 @@ def build():
     dest=BOOK/"transformations-complete.pdf"
     with dest.open("wb") as f:writer.write(f)
     verify=PdfReader(str(dest))
-    target_pages=2+14+7+11+10+workshop+answers
+    target_pages=2+14+8+11+10+workshop+answers
     if len(verify.pages)!=target_pages:
         raise RuntimeError(f"Book missing pages: {len(verify.pages)} expected {target_pages}")
     if len(verify.outline)<8:
         raise RuntimeError("Book PDF does not contain navigation bookmarks")
     if dest.stat().st_size<1_000_000:
-        raise RuntimeError("Merged booklet too small for 7 authentic scans and 20 worksheets")
+        raise RuntimeError("Merged booklet too small for 8 authentic scans and 20 worksheets")
     for name,start,end in sections:print(f"Pages {start:02d}–{end:02d}: {name}")
     print(f"PASS: complete single PDF {len(verify.pages)} pages, {len(sections)} bookmarked sections, {dest.stat().st_size} bytes")
 

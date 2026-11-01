@@ -52,7 +52,7 @@ def main():
     assert (R/"book"/"front.html").is_file(), "Book cover and contents missing"
     official_source=(R/"book"/"official.html").read_text()
     assert "יצירה מקורית: יניב רז" not in official_source and "raz-logo.svg" not in official_source, "Ministry page must have no author credit"
-    for page_number in [34,35,36,37,38,50,51]:
+    for page_number in [34,35,36,37,38,48,50,51]:
         source_name=f"grade7-p{page_number:03}.webp"
         assert (R/"sources"/"ministry"/source_name).is_file(),("Missing exact ministry source scan",source_name)
         assert f"../sources/ministry/{source_name}" in official_source,("Official source viewer missing scan",source_name)
@@ -61,7 +61,7 @@ def main():
         assert len(blob)>30000 and blob.startswith(b"%PDF-") and b"%%EOF" in blob[-4096:],("Missing or invalid booklet PDF",path_pdf)
     official=(R/"curriculum.html").read_text()
     authored=(R/"original.html").read_text()
-    assert official.count('class="entry"')==6, "Official examples must stay in dedicated six-entry source catalog"
+    assert official.count('class="entry"')==7, "Official examples must stay in dedicated six-entry source catalog"
     assert "יצירה מקורית: יניב רז" not in official, "Official questions must never carry creator attribution"
     assert "raz-logo.svg" not in official, "Official questions must never display RAZ logo"
     for ident in OWN:

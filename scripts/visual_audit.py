@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independently render and audit all 50 pages of the completed PDF.
+"""Independently render and audit all 51 pages of the completed PDF.
 
 Chromium generates the individual documents. PyMuPDF is a second,
 independent PDF renderer used to find blank pages, bad page geometry,
@@ -12,21 +12,21 @@ import fitz
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/"book"/"transformations-complete.pdf"
 DEST=ROOT/"qa"/"previews"
-EXPECTED=50
+EXPECTED=51
 SAMPLES=[
     ("teacher-and-source",[1,2,3,10,16,17]),
-    ("official-and-original",[18,23,24,29,34,35]),
-    ("additional-and-solutions",[41,43,44,45,47,50])
+    ("official-and-original",[18,24,25,30,35,36]),
+    ("additional-and-solutions",[42,44,45,46,48,51])
 ]
 
 def main():
     DEST.mkdir(parents=True,exist_ok=True)
     doc=fitz.open(SOURCE)
-    if len(doc)!=EXPECTED:raise RuntimeError(f"Expected 50 pages; got {len(doc)}")
+    if len(doc)!=EXPECTED:raise RuntimeError(f"Expected 51 pages; got {len(doc)}")
     stats=[]
     for i,page in enumerate(doc):
         n=i+1
-        is_official=17<=n<=23
+        is_official=17<=n<=24
         width,height=page.rect.width,page.rect.height
         if is_official and not (width>height and abs(width-841.89)<5):
             raise RuntimeError(f"Original ministry page {n}: A4 landscape orientation missing")

@@ -18,7 +18,7 @@ ORIGINAL={
     "orig-center-p","orig-symbol-turn","orig-robot-grid"
 }
 IMPORTED={"349","350","351","352","385","549","rectangles","true-false","triangle"}
-SCANS={34,35,36,37,38,50,51}
+SCANS={34,35,36,37,38,48,50,51}
 
 def demand(test,reason):
     if not test:
@@ -49,17 +49,17 @@ def main():
     demand(SOT.count("## ו. שלבי העבודה")==1,"More than one current stage tracker")
     demand("11 דפי" in SOT and "20 דפי" in SOT and "14 עמוד" in SOT,
            "Authoritative inventory lacks verified totals")
-    demand("50 עמודים" in SOT and "25 סימניות" in SOT,
+    demand("51 עמודים" in SOT and "25 סימניות" in SOT,
            "Authoritative merged booklet metadata missing")
-    demand("20 דפי" in README and "11 דפים" in README and "50 עמודים" in README,
+    demand("20 דפי" in README and "11 דפים" in README and "51 עמודים" in README,
            "README is out of sync with actual inventory")
     demand("ששת חלקי החוברת" in INTRO and "ארבעת חלקי החוברת" not in INTRO,
            "Old four-part table of contents survives in the introduction")
     for head in ("| א׳ —","| ב׳ —","| ג׳ —","| ד׳ —","| ה׳ —","| ו׳ —"):
         demand(head in INTRO,f"Missing real workbook part in introduction: {head}")
-    book=pdf_pages("book/transformations-complete.pdf",50)
+    book=pdf_pages("book/transformations-complete.pdf",51)
     pdf_pages("book/teacher.pdf",14)
-    pdf_pages("book/official.pdf",7)
+    pdf_pages("book/official.pdf",8)
     demand(len(book.outline)==25,
            f"Book must have 25 navigation bookmarks, found {len(book.outline)}")
     for ident in ORIGINAL:
@@ -76,7 +76,7 @@ def main():
                  "book/front.html","book/answers.html","book/workshop.html","index.html"):
         demand((ROOT/path).is_file(),f"Missing public part of the book: {path}")
     print("PASS: single authoritative requirements contract, README and introduction agree")
-    print("PASS: 50-page book with 25 bookmarks, 14 teacher pages, 7 original Ministry scans")
+    print("PASS: 51-page book with 25 bookmarks, 14 teacher pages, 8 original Ministry scans")
     print("PASS: 11 original 1-page A4 worksheets, 9 correctly attributed imported worksheets")
 
 if __name__=="__main__":
