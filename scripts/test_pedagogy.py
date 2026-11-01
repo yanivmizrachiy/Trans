@@ -5,11 +5,10 @@ from html.parser import HTMLParser
 from collections import Counter
 import re
 import sys
+import manifest as M
 
-ROOT=Path(__file__).resolve().parents[1]
-ORIGINAL=("orig-rectangles","orig-translation","orig-reflection","orig-rotation",
-          "orig-composition","orig-symmetry","orig-conveyor","orig-mirror-route",
-          "orig-center-p","orig-symbol-turn","orig-robot-grid")
+ROOT=M.ROOT
+ORIGINAL=M.ORIGINAL
 
 class Levels(HTMLParser):
     def __init__(self):
@@ -67,7 +66,7 @@ def main():
     rotation=(ROOT/"worksheets"/"orig-rotation.html").read_text(encoding="utf-8")
     if "מהמשולש המקורי ABC (לא מתמונת רמה ב׳)" not in rotation or "A″, B″, C″" not in rotation:
         raise AssertionError("Rotation comparison must explicitly use the original triangle and distinguish the second image")
-    other=("349","350","351","352","385","549","rectangles","true-false","triangle")
+    other=M.IMPORTED
     for ident in other:
         raw=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
         if "raz-logo.svg" in raw or "יצירה מקורית: יניב רז" in raw:

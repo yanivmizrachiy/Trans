@@ -4,8 +4,9 @@ from pathlib import Path
 from html import unescape
 import re
 import unittest
+import manifest as M
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=M.ROOT
 SOURCE={
     "orig-rectangles":[(-4,0),(0,0),(0,3),(-4,3)],
     "orig-translation":[(-4,-1),(-1,-1),(-4,2)],
@@ -29,6 +30,9 @@ def area2(pts):
     return abs(sum(p[0]*q[1]-q[0]*p[1] for p,q in zip(pts,pts[1:]+pts[:1])))
 
 class MathQuality(unittest.TestCase):
+    def test_source_table_covers_exactly_the_manifest_originals(self):
+        self.assertEqual(set(SOURCE),set(M.ORIGINAL))
+
     def test_diagrams_match_written_coordinates(self):
         for name,points in SOURCE.items():
             with self.subTest(name=name):

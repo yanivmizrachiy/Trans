@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - 'worksheets/**'
+      - 'data/manifest.json'
+      - 'scripts/manifest.py'
+      - 'scripts/check_manifest.py'
       - 'assets/**'
       - 'scripts/build_pdfs.py'
       - 'book/teacher.html'
@@ -80,6 +83,8 @@ jobs:
         run: python scripts/visual_audit.py
       - name: Check paths, authorship, file counts and valid PDFs
         run: python scripts/validate_site.py
+      - name: Check every inventory consumer against data/manifest.json
+        run: python scripts/check_manifest.py
       - name: Prove the publication step publishes new PDFs and survives concurrent pushes
         run: python scripts/test_publish_pdfs.py
       - name: Publish PDFs only when sources are still current

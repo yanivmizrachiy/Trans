@@ -6,34 +6,19 @@ from pypdf import PdfReader, PdfWriter
 from markdown import markdown
 from urllib.parse import unquote, urlsplit
 import re
+import manifest as M
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=M.ROOT
 BOOK=ROOT/"book"
 PDF=ROOT/"pdf"
-WORKSHEETS_ORIGINAL=(
-    ("orig-rectangles","פארק המרצפות"),
-    ("orig-conveyor","מכונת המיון"),
-    ("orig-mirror-route","מסדרון השערים"),
-    ("orig-center-p","מערכת המעקב"),
-    ("orig-symbol-turn","שלט הכיוון"),
-    ("orig-robot-grid","הרובוט בגינה"),
-    ("orig-translation","שליח הקואורדינטות"),
-    ("orig-reflection","מוזאון המראות"),
-    ("orig-rotation","תחנת הרוח"),
-    ("orig-composition","מעבדת סדר הפעולות"),
-    ("orig-symmetry","סמל העיר"),
-)
-WORKSHEETS_ADDITIONAL=(
-    ("349","עמוד 349 — חפיפה והזזה"),
-    ("350","עמוד 350 — סיבוב"),
-    ("351","עמוד 351 — רצף פעולות"),
-    ("352","עמוד 352 — סיבוב וסימטרייה"),
-    ("385","עמוד 385 — שיקוף ושטח"),
-    ("549","עמוד 549 — הזזה במערכת צירים"),
-    ("rectangles","חקר מלבנים — עיבוד מן המצגת"),
-    ("true-false","נכון / לא נכון — עיבוד מן המצגת"),
-    ("triangle","טרנספורמציות משולשים — עיבוד מן המצגת"),
-)
+# Worksheet order, titles and page counts come from data/manifest.json.
+WORKSHEETS_ORIGINAL=tuple((i,M.TITLES[i]) for i in M.ORIGINAL)
+WORKSHEETS_ADDITIONAL=tuple((i,M.TITLES[i]) for i in M.IMPORTED)
+PAGES=M.WORKSHEET_PAGES
+PART=M.PARTS
+def part_title(key):
+    part=PART[key][0]
+    return f"חלק {part['part']} — {part['label']}"
 CSS = """
 @page{size:A4;margin:14mm 14mm 16mm}
 *{box-sizing:border-box}
@@ -132,7 +117,7 @@ def render_front(browser):
     tab.close()
     return validate_pdf(dest,2)
 
-SADNA_CREDIT="שרית מאירוביץ וסיגלית אטשי"
+SADNA_CREDIT=M.SADNA_CREDIT
 def render_sadna(browser):
     """Workshop deck pages; every page must credit the deck's editors in its footer."""
     path=BOOK/"sadna.html"
@@ -154,19 +139,17 @@ def render_sadna(browser):
         return e;
       })};
     }""",SADNA_CREDIT)
-    if check["count"]!=3 or check["fail"] or errors:
+    if check["count"]!=M.part_pages(PART["sadna"][0]) or check["fail"] or errors:
         raise RuntimeError(f"Workshop deck pages invalid: {check}, errors: {errors}")
     tab.pdf(path=str(dest),format="A4",print_background=True,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
     tab.close()
-    return validate_pdf(dest,3)
+    return validate_pdf(dest,M.part_pages(PART["sadna"][0]))
 
 def build():
-    validate_pdf(BOOK/"teacher.pdf",14)
-    validate_pdf(BOOK/"official.pdf",8)
-    for ident,_ in WORKSHEETS_ORIGINAL:
-        validate_pdf(PDF/(ident+".pdf"),1)
-    for ident,_ in WORKSHEETS_ADDITIONAL:
-        validate_pdf(PDF/(ident+".pdf"),2 if ident=="triangle" else 1)
+    validate_pdf(BOOK/"teacher.pdf",M.part_pages(PART["teacher"][0]))
+    validate_pdf(BOOK/"official.pdf",M.part_pages(PART["official"][0]))
+    for ident,_ in WORKSHEETS_ORIGINAL+WORKSHEETS_ADDITIONAL:
+        validate_pdf(PDF/(ident+".pdf"),PAGES[ident])
     with sync_playwright() as p:
         browser=p.chromium.launch(headless=True,args=["--no-sandbox"])
         try:
@@ -187,27 +170,34 @@ def build():
         actual=validate_pdf(path,expected)
         writer.append(str(path),outline_item=label,import_outline=False)
         sections.append((label,first,first+actual-1))
-    append(BOOK/"front.pdf","שער ותוכן עניינים",2)
-    append(BOOK/"teacher.pdf","חלק א׳ — סיכומים למורה",14)
-    append(BOOK/"official.pdf","חלק ב׳ — שאלות מתוך תוכנית הלימודים (מקור ללא שינוי)",8)
+    append(BOOK/"front.pdf",PART["front"][0]["label"],M.part_pages(PART["front"][0]))
+    append(BOOK/"teacher.pdf",part_title("teacher"),M.part_pages(PART["teacher"][0]))
+    append(BOOK/"official.pdf",part_title("official"),M.part_pages(PART["official"][0]))
     for ident,title in WORKSHEETS_ORIGINAL:
-        append(PDF/(ident+".pdf"),"חלק ג׳ — "+title,1)
+        append(PDF/(ident+".pdf"),f"חלק {PART['original'][0]['part']} — "+title,PAGES[ident])
     for ident,title in WORKSHEETS_ADDITIONAL:
-        append(PDF/(ident+".pdf"),"חלק ד׳ — "+title,2 if ident=="triangle" else 1)
-    append(BOOK/"workshop.pdf","חלק ה׳ — סיכום מצגת ההשתלמות",workshop)
-    append(BOOK/"sadna.pdf","חלק ו׳ — סדנה: צורות חופפות וטרנספורמציות (שרית מאירוביץ וסיגלית אטשי)",sadna)
-    append(BOOK/"answers.pdf","חלק ז׳ — מפתח תשובות למורה",answers)
+        append(PDF/(ident+".pdf"),f"חלק {PART['imported'][0]['part']} — "+title,PAGES[ident])
+    append(BOOK/"workshop.pdf",part_title("workshop"),workshop)
+    append(BOOK/"sadna.pdf",part_title("sadna"),sadna)
+    append(BOOK/"answers.pdf",part_title("answers"),answers)
     writer.add_metadata({"/Title":"טרנספורמציות — חוברת הוראה מלאה",
                          "/Subject":"חפיפת צורות, הזזה, סיבוב ושיקוף — מקורות, תרגול מקורי ומפתח תשובות",
                          "/Author":"מאגר הוראה במתמטיקה — Trans"})
     dest=BOOK/"transformations-complete.pdf"
     with dest.open("wb") as f:writer.write(f)
     verify=PdfReader(str(dest))
-    target_pages=2+14+8+11+10+workshop+sadna+answers
+    target_pages=M.TOTAL_PAGES
     if len(verify.pages)!=target_pages:
-        raise RuntimeError(f"Book missing pages: {len(verify.pages)} expected {target_pages}")
-    if len(verify.outline)<8:
-        raise RuntimeError("Book PDF does not contain navigation bookmarks")
+        raise RuntimeError(f"Book missing pages: {len(verify.pages)} expected {target_pages} (data/manifest.json)")
+    if len(verify.outline)!=M.TOTAL_BOOKMARKS:
+        raise RuntimeError(f"Book PDF has {len(verify.outline)} bookmarks, manifest derives {M.TOTAL_BOOKMARKS}")
+    # Every file-backed part must start and end exactly where the manifest layout says.
+    spans={label:(start,end) for label,start,end in sections}
+    for part,first,last in M.layout():
+        if "file" not in part: continue
+        label=part["label"] if part["key"]=="front" else part_title(part["key"])
+        if spans.get(label)!=(first,last):
+            raise RuntimeError(f"Part {part['key']} occupies {spans.get(label)} but data/manifest.json derives {(first,last)}")
     if dest.stat().st_size<1_000_000:
         raise RuntimeError("Merged booklet too small for 8 authentic scans and 20 worksheets")
     for name,start,end in sections:print(f"Pages {start:02d}–{end:02d}: {name}")

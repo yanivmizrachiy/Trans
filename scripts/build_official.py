@@ -8,8 +8,9 @@ from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.pagesizes import landscape, A4
 from reportlab.lib.utils import ImageReader
 from pypdf import PdfReader
+import manifest as M
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=M.ROOT
 OUTPUT=ROOT/"book"/"official.pdf"
 SOURCE=ROOT/"sources"/"ministry"
 EXPECTED={
@@ -24,6 +25,8 @@ EXPECTED={
 }
 
 def main():
+    if set(EXPECTED)!=set(M.MINISTRY_PAGES):
+        raise RuntimeError(f"Verified scan hashes cover {sorted(EXPECTED)} but data/manifest.json lists {list(M.MINISTRY_PAGES)}")
     w,h=landscape(A4)
     canvas=Canvas(str(OUTPUT),pagesize=(w,h),pageCompression=1)
     for n, expected_sha in EXPECTED.items():
