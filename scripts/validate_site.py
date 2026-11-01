@@ -26,8 +26,11 @@ def main():
     build=(R/"scripts/build_pdfs.py").read_text()
     ids=set(re.findall(r'"([a-z0-9-]+)"',build.split("IDS =",1)[1].split("\n",1)[0]))
     assert ids==names,"PDF generator inventory mismatch"
+    banned=re.compile(r"(?i)\\b(?:demo|mock|dummy|lorem ipsum|coming soon|javascript:void)\\b|(?<![\\u0590-\\u05ff])דמו(?![\\u0590-\\u05ff])|בקרוב|בהקמה|בהכנה")
     for p in [R/"index.html",R/"teacher.html",R/"explore.html",R/"curriculum.html",R/"original.html",*pages]:
         html=p.read_text()
+        assert banned.search(html) is None, (p.name,"Demo or unfinished placeholder content is prohibited")
+        assert not re.search(r'href\\s*=\\s*["\\\'](?:#|javascript:|\\s*)["\\\']',html,re.I),(p.name,"Fake or empty link")
         h=Links();h.feed(html)
         for link in h.urls:
             url=urlsplit(link)
