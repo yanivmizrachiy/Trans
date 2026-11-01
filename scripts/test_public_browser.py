@@ -95,6 +95,64 @@ def check_sources(page):
     page.screenshot(path=str(OUT/"original-worksheet-mobile.png"),full_page=True)
     print("PASS: all source sections, image loading, answer disclosure, and real diagram rendering")
 
+
+def check_compact_viewports(page):
+    """Catch 320–430 CSS-pixel regressions that a single 390px smoke test misses."""
+    for width in (320,360,430):
+        page.set_viewport_size({"width":width,"height":740})
+        check_page(page,"/","#cards")
+        nav=page.locator(".top nav a").evaluate_all("""els => els.map(el => {
+            const r=el.getBoundingClientRect();
+            return {width:r.width,height:r.height,left:r.left,right:r.right};
+        })""")
+        require(len(nav)==4 and all(
+            item["height"]>=44 and item["left"]>=-1 and item["right"]<=width+1 for item in nav),
+            f"{width}px: home navigation links must be visible with 44px touch targets: {nav}")
+        require(page.locator("#cards .card").count()==11,
+                f"{width}px: all original worksheet cards must remain available")
+        page.locator("#cards .card").first.locator("button").first.click()
+        require(page.locator("#viewer").evaluate("(d)=>d.open"),
+                f"{width}px: worksheet preview failed to open")
+        title=page.locator("#vtitle").bounding_box()
+        header=page.locator("#viewer .vtop").bounding_box()
+        frame=page.locator("#frame").bounding_box()
+        require(title and header and frame and frame["height"]>250
+                and frame["y"]>=header["y"]+header["height"]-2,
+                f"{width}px: preview iframe must start below its two-row mobile toolbar")
+        for selector in ("#vopen","#close"):
+            rect=page.locator(selector).bounding_box()
+            require(rect and rect["height"]>=44 and rect["x"]>=-1
+                    and rect["x"]+rect["width"]<=width+1,
+                    f"{width}px: preview action clipped or too small: {selector} {rect}")
+        page.locator("#close").click()
+        for route,selector in (
+            ("/original.html",".card"),
+            ("/curriculum.html",".entry"),
+            ("/teacher.html","#original-answers"),
+            ("/explore.html","#plot"),
+            ("/worksheets/orig-rotation.html",".sheet"),
+        ):
+            check_page(page,route,selector)
+        # The plot scales to the viewport by default and can be enlarged
+        # without expanding the page's document width.
+        zoom=page.locator("#zoom-plot")
+        require(zoom.is_visible(),f"{width}px: missing usable graph zoom button")
+        zoom.click()
+        require(zoom.get_attribute("aria-pressed")=="true",
+                f"{width}px: graph zoom does not toggle")
+        chart_width=page.locator("#plot").evaluate("(el)=>el.getBoundingClientRect().width")
+        require(chart_width>=600,f"{width}px: graph enlargement is not readable")
+        screen_width=page.evaluate("document.documentElement.scrollWidth")
+        require(screen_width<=width+2,
+                f"{width}px: zoomed chart must scroll internally, not expand the page")
+        zoom.click()
+        require(zoom.get_attribute("aria-pressed")=="false",
+                f"{width}px: graph does not restore fit-to-width layout")
+        if width==320:
+            page.screenshot(path=str(OUT/"explore-320-mobile.png"),full_page=False)
+    page.set_viewport_size({"width":390,"height":844})
+    print("PASS: 320/360/430px touch targets, preview toolbar, graph zoom and six content routes")
+
 def main():
     with sync_playwright() as p:
         browser=p.chromium.launch(headless=True,args=["--no-sandbox"])
@@ -106,6 +164,7 @@ def main():
             check_main(page)
             check_explorer(page)
             check_sources(page)
+            check_compact_viewports(page)
             require(not JS_ERRORS,f"Browser JavaScript exceptions: {JS_ERRORS}")
             context.close()
         finally:
