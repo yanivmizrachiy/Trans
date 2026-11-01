@@ -24,7 +24,10 @@ on:
       - 'book/transformations-complete.pdf'
       - 'book/teacher.pdf'
       - 'book/official.pdf'
+      - 'scripts/publish_pdfs.sh'
+      - 'scripts/test_publish_pdfs.py'
       - '.github/workflows/validate-site.yml'
+  pull_request:
   workflow_dispatch:
   workflow_run:
     workflows: ['Build printable transformation PDFs']
@@ -68,3 +71,5 @@ jobs:
         run: python scripts/sync_teacher_answers.py --check
       - name: Check all three difficulty levels and the teacher's answer keys
         run: python3 scripts/test_pedagogy.py
+      - name: Prove the PDF publication step against a throwaway Git remote
+        run: python3 scripts/test_publish_pdfs.py
