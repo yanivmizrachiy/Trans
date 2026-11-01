@@ -4,12 +4,15 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'original.html'
+      - 'curriculum.html'
       - 'teacher.html'
       - 'explore.html'
       - 'worksheets/**'
       - 'assets/**'
       - 'pdf/**'
       - 'scripts/validate_site.py'
+      - 'scripts/test_math.py'
       - '.github/workflows/validate-site.yml'
   workflow_dispatch:
 permissions:
@@ -20,5 +23,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - name: Independently test math and teacher-answer assumptions
+        run: python3 scripts/test_math.py
       - name: Check exact source inventory, PDFs and author credits
         run: python3 scripts/validate_site.py
