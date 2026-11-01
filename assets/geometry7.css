@@ -1,0 +1,110 @@
+/* styles/topics/geometry7.css — שכבת נושא "גאומטריה ז"
+   מקור: תוכנית הלימודים "גאומטריה קדם־היסקית לכיתה ז" (גאומטריה 1.pdf של יניב).
+   כל ה-selectors בתחום .geo7-page בלבד, באותה שפה חזותית של שכבת angle7. */
+
+.geo7-page { color: var(--text-main); }
+.geo7-page .question-block { justify-content: space-between; gap: 6px; }
+.geo7-page .header-container { margin-bottom: 4px; }
+
+/* כותרת ראשית + כותרת משנה */
+.geo7-page .title-wrap { display: flex; flex-direction: column; gap: 2px; }
+.geo7-page .page-subtitle { font-size: 14px; color: #475569; font-weight: 400 !important; margin: 0; }
+
+/* פס כותרת תת־הנושא */
+.geo7-page .chapter-bar { display: flex; align-items: baseline; gap: 10px; background: var(--bg-subtle); border: 1px solid var(--border-light); border-right: 4px solid var(--title-blue); border-radius: 10px; padding: 7px 12px; margin: 0; }
+.geo7-page .chapter-name { font-size: 17px; font-weight: 500 !important; }
+.geo7-page .chapter-sub { margin-inline-start: auto; font-size: 12px; color: #475569; font-weight: 400 !important; }
+
+/* כרטיס ידע/הגדרה (תוכן מקור דידקטי) */
+.geo7-page .defcard { border: 1px solid var(--border-light); border-right: 4px solid var(--title-blue); background: var(--bg-subtle); border-radius: 10px; padding: 6px 12px; font-size: 14px; line-height: 1.45; }
+.geo7-page .defcard b { color: var(--title-blue); font-weight: 500 !important; }
+
+/* כרטיס שאלה */
+.geo7-page .q { border: 1px solid var(--border-light); border-radius: 10px; background: #fff; padding: 6px 12px 7px; break-inside: avoid; page-break-inside: avoid; }
+.geo7-page .qrow { display: flex; align-items: flex-start; }
+.geo7-page .qbody { flex: 1; font-size: 15px; line-height: 1.5; }
+
+/* LTR למספרים, נקודות ואותיות לועזיות */
+.geo7-page .ltr { direction: ltr; unicode-bidi: isolate; }
+
+/* סימן זווית וקטורי כמו בספרי הלימוד — משמאל לאותיות */
+.geo7-page .angname { display: inline-flex; align-items: baseline; white-space: nowrap; }
+.geo7-page .ang { width: 15px; height: 12px; flex: 0 0 auto; align-self: center; margin-right: 3px; transform: translateY(1px); }
+
+/* סעיפים א/ב/ג */
+.geo7-page .subs { margin-top: 4px; }
+.geo7-page .sub { display: flex; gap: 8px; align-items: baseline; margin: 5px 0 0; }
+.geo7-page .subl { color: var(--title-blue); font-weight: 500 !important; flex: 0 0 auto; min-width: 16px; }
+.geo7-page .subt { flex: 1; }
+
+/* רב-ברירה */
+.geo7-page .mc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px 14px; margin: 5px 0 0; }
+.geo7-page .opt { display: flex; gap: 8px; align-items: baseline; }
+.geo7-page .ol { width: 21px; height: 21px; border: 1.5px solid var(--grid-line); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500 !important; color: #475569; flex: 0 0 auto; }
+.geo7-page .ot { flex: 1; }
+.geo7-page .mc.mc3 { grid-template-columns: repeat(3, 1fr); }
+.geo7-page .mc.mc2 { grid-template-columns: repeat(2, 1fr); }
+.geo7-page .mc.mc5 { grid-template-columns: repeat(5, 1fr); }
+
+/* משפטי נכון / לא נכון */
+.geo7-page .stmts { margin-top: 4px; }
+.geo7-page .stmt { display: flex; gap: 8px; align-items: baseline; margin: 6px 0 0; }
+.geo7-page .slab { color: var(--title-blue); font-weight: 500 !important; flex: 0 0 auto; min-width: 18px; }
+.geo7-page .stext { flex: 1; }
+.geo7-page .tfrow { display: inline-flex; gap: 16px; flex: 0 0 auto; }
+
+/* שורות כתיבה */
+.geo7-page .lines { margin: 6px 0 0; }
+.geo7-page .ln { height: 24px; border-bottom: 1.5px dotted #94a3b8; }
+.geo7-page .ln.ln-tall { height: 30px; }
+
+/* קו מילוי בתוך שורה */
+.geo7-page .wline { display: inline-block; min-width: 64px; height: 15px; border-bottom: 1.5px solid #111827; vertical-align: baseline; }
+.geo7-page .wline.w40 { min-width: 40px; }
+.geo7-page .wline.w90 { min-width: 90px; }
+.geo7-page .wline.w120 { min-width: 120px; }
+
+/* ביטוי מענה מרובה-תיבות: תיבה נפרדת לכל ערך שהתלמיד נדרש לכתוב,
+   עם האופרטור מודפס ביניהן. מכל LTR — זהו ביטוי מתמטי (§4.3). */
+.geo7-page .wexpr { display: inline-flex; align-items: baseline; gap: 5px; direction: ltr; vertical-align: baseline; }
+.geo7-page .wexpr .wop { font-weight: 700; color: #1f2a44; line-height: 1; }
+
+/* אזור סרטוט לתלמיד — רקע נקודות עדין */
+.geo7-page .drawrow { display: flex; gap: 10px; margin-top: 5px; }
+.geo7-page .drawbox { flex: 1; border: 1.5px dashed var(--grid-line); border-radius: 8px; background-image: radial-gradient(#d8dee9 1px, transparent 1.2px); background-size: 14px 14px; background-position: 7px 7px; position: relative; }
+.geo7-page .drawbox .boxcap { position: absolute; top: 3px; inset-inline-start: 8px; font-size: 11px; color: #64748b; background: #fff; padding: 0 5px; border-radius: 6px; }
+.geo7-page .h56 { height: 56px; }
+.geo7-page .h72 { height: 72px; }
+.geo7-page .h88 { height: 88px; }
+.geo7-page .h110 { height: 110px; }
+.geo7-page .h140 { height: 140px; }
+
+/* אזור עבודה: איור לצד שדות תשובה */
+.geo7-page .workrow { display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 3px; }
+.geo7-page .pairs-col { display: flex; flex-direction: column; gap: 14px; }
+.geo7-page .ansrow { display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap; margin: 5px 0 0; }
+.geo7-page .pair { direction: ltr; unicode-bidi: isolate; display: inline-flex; align-items: baseline; gap: 5px; font-size: 15px; }
+.geo7-page .pl { color: var(--text-main); font-weight: 500 !important; }
+.geo7-page .pblank { display: inline-block; width: 36px; height: 16px; border-bottom: 1.5px solid #111827; }
+
+/* טבלת אומדן/מדידה ותוצאות */
+.geo7-page table.gz-table { border-collapse: collapse; margin: 6px auto 0; }
+.geo7-page table.gz-table th, .geo7-page table.gz-table td { border: 1px solid var(--grid-line); padding: 4px 12px; font-size: 13.5px; text-align: center; min-width: 74px; height: 30px; }
+.geo7-page table.gz-table th { background: var(--bg-subtle); font-weight: 500 !important; }
+
+/* איורים וקטוריים */
+.geo7-page .figure { margin: 4px auto 0; text-align: center; break-inside: avoid; page-break-inside: avoid; }
+.geo7-page .figrow { display: flex; justify-content: center; align-items: flex-end; gap: 18px; flex-wrap: wrap; margin-top: 4px; }
+.geo7-page .figcap { font-size: 12px; color: #475569; margin-top: 2px; text-align: center; }
+.geo7-page svg.chart { display: block; margin: 2px auto; max-width: 100%; height: auto; shape-rendering: geometricPrecision; text-rendering: geometricPrecision; }
+.geo7-page svg.chart line,
+.geo7-page svg.chart path,
+.geo7-page svg.chart circle,
+.geo7-page svg.chart rect,
+.geo7-page svg.chart polygon { vector-effect: non-scaling-stroke; }
+.geo7-page svg.chart text { font-family: 'Rubik', sans-serif; }
+
+/* כותרת תחתית קבועה — שתי שורות */
+.geo7-page .gz-footer { margin-top: 0; padding-top: 5px; border-top: 3px double var(--title-blue); text-align: center; }
+.geo7-page .gz-footer .f1 { font-size: 12.5px; font-weight: 500 !important; color: #1f2a44; }
+.geo7-page .gz-footer .f2 { font-size: 11.5px; color: #475569; margin-top: 1px; }
