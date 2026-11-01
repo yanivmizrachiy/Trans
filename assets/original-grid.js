@@ -23,7 +23,7 @@ if(svg.dataset.center){
   }
 }
 
-}}
+}
 const pattern=/(?:[A-Z][′']?)?\((?:[−-]?\d+|[xy]),\s*(?:[−-]?\d+|[xy])\)|\b[xy]\s*=\s*[−-]?\d+/g;
 const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
 const nodes=[];
