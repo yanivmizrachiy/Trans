@@ -24,12 +24,23 @@ on:
       - 'scripts/test_answer_keys.py'
       - 'scripts/sync_teacher_answers.py'
       - 'scripts/validate_site.py'
+      - 'scripts/publish_pdfs.sh'
+      - '.github/workflows/build-pdfs.yml'
+  pull_request:
+    paths:
+      - 'worksheets/**'
+      - 'assets/**'
+      - 'book/*.html'
+      - 'sources/ministry/**'
+      - 'docs/ANSWER_KEY.md'
+      - 'docs/PRESENTATION_2026-10-21.md'
+      - 'scripts/**'
       - '.github/workflows/build-pdfs.yml'
   workflow_dispatch:
 permissions:
   contents: write
 concurrency:
-  group: transformations-pdfs-main
+  group: transformations-pdfs-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
   cancel-in-progress: false
 jobs:
   build:
@@ -69,48 +80,12 @@ jobs:
         run: python scripts/visual_audit.py
       - name: Check paths, authorship, file counts and valid PDFs
         run: python scripts/validate_site.py
+      - name: Prove the publication step publishes new PDFs and survives concurrent pushes
+        run: python scripts/test_publish_pdfs.py
       - name: Publish PDFs only when sources are still current
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          BASE="$(git rev-parse HEAD)"
-          TEMP="$(mktemp -d)"
-          cp pdf/*.pdf "$TEMP/"
-          cp book/teacher.pdf "$TEMP/teacher.pdf"
-          cp book/official.pdf "$TEMP/official.pdf"
-          for name in front workshop sadna answers transformations-complete; do cp "book/$name.pdf" "$TEMP/$name.pdf"; done
-          cp book/workshop.html book/answers.html "$TEMP/"
-          mkdir -p "$TEMP/previews"
-          cp qa/previews/*.jpg "$TEMP/previews/"
-          for attempt in 1 2 3; do
-            git fetch origin main
-            if ! git diff --quiet "$BASE" origin/main -- worksheets/ assets/ scripts/build_pdfs.py book/teacher.html scripts/build_teacher.py book/official.html sources/ministry/ scripts/build_official.py book/front.html book/sadna.html scripts/build_complete.py scripts/visual_audit.py docs/ANSWER_KEY.md docs/PRESENTATION_2026-10-21.md; then
-              echo "A newer commit changed PDF source files. This build is superseded; publishing nothing."
-              exit 0
-            fi
-            if ! git diff --quiet "$BASE" origin/main -- pdf/ book/teacher.pdf book/official.pdf book/front.pdf book/workshop.pdf book/sadna.pdf book/answers.pdf book/transformations-complete.pdf book/workshop.html book/answers.html qa/previews/; then
-              echo "Another run has already published PDFs for this source revision. Avoiding binary conflicts."
-              exit 0
-            fi
-            git reset --hard origin/main
-            for file in pdf/*.pdf; do cp "$TEMP/$(basename "$file")" "$file"; done
-            cp "$TEMP/teacher.pdf" book/teacher.pdf
-            cp "$TEMP/official.pdf" book/official.pdf
-            for name in front workshop sadna answers transformations-complete; do cp "$TEMP/$name.pdf" "book/$name.pdf"; done
-            cp "$TEMP/workshop.html" "$TEMP/answers.html" book/
-            mkdir -p qa/previews
-            cp "$TEMP/previews/"*.jpg qa/previews/
-            git add pdf/ book/teacher.pdf book/official.pdf book/front.pdf book/workshop.pdf book/sadna.pdf book/answers.pdf book/transformations-complete.pdf book/workshop.html book/answers.html qa/previews/
-            if git diff --cached --quiet; then
-              echo "All deployed PDFs already match the generated files."
-              exit 0
-            fi
-            git commit -m "Generate verified transformation PDFs [skip ci]"
-            if git push origin HEAD:main; then
-              echo "Verified PDF publication succeeded."
-              exit 0
-            fi
-            echo "Branch advanced concurrently; retrying on fresh main."
-          done
-          echo "PDF publication could not safely advance main after three retries."
-          exit 1
+        if: github.event_name != 'pull_request'
+        env:
+          PUBLISH_CONFIRM: "1"
+          PUBLISH_REMOTE: origin
+          PUBLISH_BRANCH: main
+        run: bash scripts/publish_pdfs.sh
