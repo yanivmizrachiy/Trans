@@ -27,8 +27,8 @@ class Levels(HTMLParser):
         if tag=="section" and self.active:self.active=False
 
 def words(text):
-    s=re.sub(r"[-−]?\\d+","N",text)
-    return re.findall(r"[\\u0590-\\u05ff]{2,}|[A-Za-z]+",s)
+    s=re.sub(r"[-−]?\d+","N",text)
+    return re.findall(r"[\u0590-\u05ff]{2,}|[A-Za-z]+",s)
 
 def shingles(s):
     x=words(s)
@@ -43,17 +43,17 @@ def main():
         if len(p.levels)!=3:raise AssertionError(f"{ident}: expected three distinct difficulty levels")
         texts=[" ".join(z).strip() for z in p.levels]
         if any(len(t)<65 for t in texts):raise AssertionError(f"{ident}: truncated or empty problem")
-        if len({re.sub(r"\\d+","0",t) for t in texts})!=3:
+        if len({re.sub(r"\d+","0",t) for t in texts})!=3:
             raise AssertionError(f"{ident}: duplicated level with changed numbers")
         for i,t in enumerate(texts):
             seen.append((ident,i+1,t))
-        pattern=r"^### [^\\n]*`"+re.escape(ident)+r"`"
+        pattern=r"^### [^\n]*`"+re.escape(ident)+r"`"
         ms=list(re.finditer(pattern,key,re.M))
         if len(ms)!=1:raise AssertionError(f"{ident}: expected exactly one teacher answer-key section")
         content=key[ms[0].end():]
         cut=re.search(r"^### |^## ",content,re.M)
         if cut:content=content[:cut.start()]
-        answers=re.findall(r"^- \\*\\*[^\\n]+",content,re.M)
+        answers=re.findall(r"^- \*\*[^\n]+",content,re.M)
         if len(answers)<3:raise AssertionError(f"{ident}: all three levels must have answers")
         if sheet.count("יצירה מקורית: יניב רז")!=1 or sheet.count("raz-logo.svg")!=1:
             raise AssertionError(f"{ident}: exactly one creator credit and logo required")
