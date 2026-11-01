@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble eight source-identical photographed ministry curriculum pages into an unmodified-page PDF."""
+"""Assemble ten source-identical photographed ministry curriculum pages into an unmodified-page PDF."""
 from pathlib import Path
 from io import BytesIO
 from hashlib import sha1
@@ -22,6 +22,8 @@ EXPECTED={
     48:"c5b86e870f6e89c7ea4602757e6423e76a172eee",
     50:"af7f4b3e92b4935678b4047ffb3e0bed10b5de3b",
     51:"ad5bebbe078981e49236c94f81412ef4491fe311",
+    88:"0cf1fa8b687d28c6645df386355d25f08d05e4b4",
+    89:"9dcda99f7f171e2e8f381fe4cb925af2eebf0e0f",
 }
 
 def main():

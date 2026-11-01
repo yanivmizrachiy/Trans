@@ -72,7 +72,9 @@ def main():
     assert "| 48, שאלה 13 |" in teacher_intro, "Book teacher introduction must map the newly verified Ministry example"
     official=(R/"curriculum.html").read_text(encoding="utf-8")
     authored=(R/"original.html").read_text(encoding="utf-8")
-    assert official.count('class="entry"')==7, "Official examples must stay in dedicated six-entry source catalog"
+    assert official.count('class="entry"')==8, "Official examples must stay in the dedicated eight-entry source catalog (pages 34–38, 48, 50–51, 88–89)"
+    for page in M.MINISTRY_PAGES:
+        assert f"עמוד {page}" in official or f"{page}" in official, f"curriculum.html does not reference Ministry page {page} from the manifest"
     assert "יצירה מקורית: יניב רז" not in official, "Official questions must never carry creator attribution"
     assert "raz-logo.svg" not in official, "Official questions must never display RAZ logo"
     for ident in OWN:
