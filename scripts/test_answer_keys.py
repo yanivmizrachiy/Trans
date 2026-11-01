@@ -110,5 +110,55 @@ class AnswerToWorksheetAlignment(unittest.TestCase):
         self.assertEqual(area2(pts),9)
         self.assertEqual(area2(result),9)
 
+
+class ImportedFollowUpAnswers(unittest.TestCase):
+    """Cross-check real imported worksheet prompts and independently computed answers."""
+
+    def test_congruent_rectangle_does_not_require_translation(self):
+        worksheet=(ROOT/"worksheets"/"rectangles.html").read_text(encoding="utf-8")
+        section=ANSWER.split("## מלבנים חופפים",1)[1].split("## נכון / לא נכון",1)[0]
+        self.assertIn("ה. חשיבה ביקורתית",worksheet)
+        self.assertIn("| ה. האם חפיפה מחייבת הזזה? |",section)
+        self.assertIn("סיבוב",section)
+        self.assertIn("הזזה בלבד",section)
+        rectangle=[(-3,-1),(-3,3),(2,3),(2,-1)]
+        rotated=[quarter(p) for p in rectangle]
+        before=(rectangle[3][0]-rectangle[0][0],rectangle[3][1]-rectangle[0][1])
+        after=(rotated[3][0]-rotated[0][0],rotated[3][1]-rotated[0][1])
+        self.assertEqual(before,(5,0))
+        self.assertEqual(after,(0,5))
+        self.assertEqual(area2(rectangle),area2(rotated))
+        self.assertNotEqual(before,after)
+
+    def test_five_triangle_images_and_four_followup_solutions(self):
+        worksheet=(ROOT/"worksheets"/"triangle.html").read_text(encoding="utf-8")
+        section=ANSWER.split("## זיהוי טרנספורמציה של משולש",1)[1].split("## קריטריונים",1)[0]
+        for prompt in ("משימות המשך","בחרו אחת מהשורות","איזו פעולה הופכת","כתבו הסבר מדויק לסיבוב","האם יש דרך נוספת"):
+            self.assertIn(prompt,worksheet)
+        abc=[(4,1),(7,1),(4,3)]
+        ops={"DEF":quarter,"GHI":half,"JKL":flip_h,"MNP":lambda p:flip_v(p,1),
+             "QRS":lambda p:move(p,-9,-9)}
+        for code,op in ops.items():
+            with self.subTest(image=code):
+                images=[op(p) for p in abc]
+                shown=", ".join(code[i]+show(p) for i,p in enumerate(images))
+                self.assertIn(shown,section)
+                self.assertEqual(area2(abc),area2(images))
+        self.assertIn("**משימות המשך — תשובות למורה:**",section)
+        for token in ("AB=DE=3","AC=DF=2","BC=EF=√13","JKL","MNP",
+                      "כיווניות","O(0,0)","נגד כיוון השעון","(x,y)→(-x,-y)"):
+            self.assertIn(token,section)
+        self.assertEqual(squared(abc[0],abc[1]),9)
+        self.assertEqual(squared(abc[0],abc[2]),4)
+        self.assertEqual(squared(abc[1],abc[2]),13)
+        def orientation(points):
+            a,b,c=points
+            return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+        self.assertGreater(orientation(abc),0)
+        self.assertLess(orientation([flip_h(p) for p in abc]),0)
+        self.assertLess(orientation([flip_v(p,1) for p in abc]),0)
+        self.assertGreater(orientation([quarter(p) for p in abc]),0)
+        self.assertEqual([flip_v(flip_h(p)) for p in abc],[half(p) for p in abc])
+
 if __name__=="__main__":
     unittest.main(verbosity=2)
