@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local browser-test output (CI uploads it as an artifact; qa/previews/ stays tracked)
+qa/public-browser/
+playwright-report/
+test-results/
+
+# Editors and operating systems
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets and local environment files
+.env
+.env.*
+*.pem
+*.key
+
+# Deployment tooling
+.vercel/
+node_modules/
+
+# Local scratch
+*.log
+*.tmp
+*.bak
