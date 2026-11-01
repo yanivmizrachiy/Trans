@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
-      - name: Verify all 61 live external URLs against exact committed bytes
+      - name: Verify all public URLs against exact committed bytes
         run: python scripts/test_public_http.py
       - name: Install Chromium for independent mobile-browser testing
         run: |
