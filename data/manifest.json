@@ -1,0 +1,202 @@
+{
+ "_comment": "Technical inventory of the published artifacts. Decisions and requirements live only in SOURCE_OF_TRUTH.md; this file is what the build and the checks read so that counts, ids, order and page ranges exist in one place. Booklet page ranges and totals are derived from the part order below by scripts/manifest.py.",
+ "site": {
+  "base_url": "https://transformations-math.vercel.app",
+  "root_pages": [
+   "index.html",
+   "original.html",
+   "curriculum.html",
+   "teacher.html",
+   "explore.html"
+  ]
+ },
+ "worksheets": {
+  "original": [
+   {
+    "id": "orig-rectangles",
+    "title": "פארק המרצפות",
+    "pages": 1
+   },
+   {
+    "id": "orig-conveyor",
+    "title": "מכונת המיון",
+    "pages": 1
+   },
+   {
+    "id": "orig-mirror-route",
+    "title": "מסדרון השערים",
+    "pages": 1
+   },
+   {
+    "id": "orig-center-p",
+    "title": "מערכת המעקב",
+    "pages": 1
+   },
+   {
+    "id": "orig-symbol-turn",
+    "title": "שלט הכיוון",
+    "pages": 1
+   },
+   {
+    "id": "orig-robot-grid",
+    "title": "הרובוט בגינה",
+    "pages": 1
+   },
+   {
+    "id": "orig-translation",
+    "title": "שליח הקואורדינטות",
+    "pages": 1
+   },
+   {
+    "id": "orig-reflection",
+    "title": "מוזאון המראות",
+    "pages": 1
+   },
+   {
+    "id": "orig-rotation",
+    "title": "תחנת הרוח",
+    "pages": 1
+   },
+   {
+    "id": "orig-composition",
+    "title": "מעבדת סדר הפעולות",
+    "pages": 1
+   },
+   {
+    "id": "orig-symmetry",
+    "title": "סמל העיר",
+    "pages": 1
+   }
+  ],
+  "imported": [
+   {
+    "id": "349",
+    "title": "עמוד 349 — חפיפה והזזה",
+    "pages": 1,
+    "source": "razpages"
+   },
+   {
+    "id": "350",
+    "title": "עמוד 350 — סיבוב",
+    "pages": 1,
+    "source": "razpages"
+   },
+   {
+    "id": "351",
+    "title": "עמוד 351 — רצף פעולות",
+    "pages": 1,
+    "source": "razpages"
+   },
+   {
+    "id": "352",
+    "title": "עמוד 352 — סיבוב וסימטרייה",
+    "pages": 1,
+    "source": "razpages"
+   },
+   {
+    "id": "385",
+    "title": "עמוד 385 — שיקוף ושטח",
+    "pages": 1,
+    "source": "razpages"
+   },
+   {
+    "id": "549",
+    "title": "עמוד 549 — הזזה במערכת צירים",
+    "pages": 1,
+    "source": "razpages"
+   },
+   {
+    "id": "rectangles",
+    "title": "חקר מלבנים — עיבוד מן המצגת",
+    "pages": 1,
+    "source": "workshop-deck"
+   },
+   {
+    "id": "true-false",
+    "title": "נכון / לא נכון — עיבוד מן המצגת",
+    "pages": 1,
+    "source": "workshop-deck"
+   },
+   {
+    "id": "triangle",
+    "title": "טרנספורמציות משולשים — עיבוד מן המצגת",
+    "pages": 2,
+    "source": "workshop-deck"
+   }
+  ]
+ },
+ "ministry": {
+  "pages": [
+   34,
+   35,
+   36,
+   37,
+   38,
+   48,
+   50,
+   51
+  ],
+  "source_dir": "sources/ministry",
+  "file_pattern": "grade7-p{page:03}.webp"
+ },
+ "book": {
+  "file": "book/transformations-complete.pdf",
+  "bookmarks_per_worksheet": true,
+  "parts": [
+   {
+    "key": "front",
+    "label": "שער ותוכן עניינים",
+    "file": "book/front.pdf",
+    "pages": 2
+   },
+   {
+    "key": "teacher",
+    "part": "א׳",
+    "label": "סיכומים למורה",
+    "file": "book/teacher.pdf",
+    "pages": 14
+   },
+   {
+    "key": "official",
+    "part": "ב׳",
+    "label": "שאלות מתוך תוכנית הלימודים (מקור ללא שינוי)",
+    "file": "book/official.pdf",
+    "pages": "ministry"
+   },
+   {
+    "key": "original",
+    "part": "ג׳",
+    "label": "דפי המקור של יניב רז",
+    "pages": "worksheets.original"
+   },
+   {
+    "key": "imported",
+    "part": "ד׳",
+    "label": "דפים ממקורות קודמים",
+    "pages": "worksheets.imported"
+   },
+   {
+    "key": "workshop",
+    "part": "ה׳",
+    "label": "סיכום מצגת ההשתלמות",
+    "file": "book/workshop.pdf",
+    "pages": 2
+   },
+   {
+    "key": "sadna",
+    "part": "ו׳",
+    "label": "סדנה: צורות חופפות וטרנספורמציות (שרית מאירוביץ וסיגלית אטשי)",
+    "file": "book/sadna.pdf",
+    "pages": 3,
+    "credit": "שרית מאירוביץ וסיגלית אטשי"
+   },
+   {
+    "key": "answers",
+    "part": "ז׳",
+    "label": "מפתח תשובות למורה",
+    "file": "book/answers.pdf",
+    "pages": 6
+   }
+  ]
+ }
+}

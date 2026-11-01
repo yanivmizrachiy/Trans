@@ -8,11 +8,13 @@ missing text/scans, and to preserve contact sheets for human inspection.
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import fitz
+import manifest as M
 
-ROOT=Path(__file__).resolve().parents[1]
-SOURCE=ROOT/"book"/"transformations-complete.pdf"
+ROOT=M.ROOT
+SOURCE=ROOT/M.BOOK_FILE
 DEST=ROOT/"qa"/"previews"
-EXPECTED=56
+EXPECTED=M.TOTAL_PAGES
+OFFICIAL_FIRST,OFFICIAL_LAST=M.PARTS["official"][1],M.PARTS["official"][2]
 SAMPLES=[
     ("teacher-and-source",[1,2,3,10,16,17]),
     ("official-and-original",[18,24,25,30,35,36]),
@@ -23,11 +25,11 @@ SAMPLES=[
 def main():
     DEST.mkdir(parents=True,exist_ok=True)
     doc=fitz.open(SOURCE)
-    if len(doc)!=EXPECTED:raise RuntimeError(f"Expected 56 pages; got {len(doc)}")
+    if len(doc)!=EXPECTED:raise RuntimeError(f"Expected {EXPECTED} pages (data/manifest.json); got {len(doc)}")
     stats=[]
     for i,page in enumerate(doc):
         n=i+1
-        is_official=17<=n<=24
+        is_official=OFFICIAL_FIRST<=n<=OFFICIAL_LAST
         width,height=page.rect.width,page.rect.height
         if is_official and not (width>height and abs(width-841.89)<5):
             raise RuntimeError(f"Original ministry page {n}: A4 landscape orientation missing")
