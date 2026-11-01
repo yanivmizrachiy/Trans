@@ -37,23 +37,36 @@ jobs:
         run: python scripts/build_pdfs.py
       - name: Check paths, authorship, file counts and valid PDFs
         run: python scripts/validate_site.py
-      - name: Commit verified PDFs
+      - name: Publish PDFs only when sources are still current
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pdf/
-          if git diff --cached --quiet; then
-            echo "All PDF files already match the worksheet sources."
-          else
-            git commit -m "Generate printable A4 PDFs from transformation worksheets [skip ci]"
-            for attempt in 1 2 3; do
-              git fetch origin main
-              if git diff --name-only HEAD origin/main -- worksheets/ assets/ scripts/build_pdfs.py | grep -q .; then
-                echo "Source worksheets changed during PDF build; refusing to publish stale PDFs."
-                exit 1
-              fi
-              git rebase origin/main
-              if git push origin HEAD:main; then break; fi
-              if [ "$attempt" = 3 ]; then echo "Push failed after retries"; exit 1; fi
-            done
-          fi
+          BASE="$(git rev-parse HEAD)"
+          TEMP="$(mktemp -d)"
+          cp pdf/*.pdf "$TEMP/"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if ! git diff --quiet "$BASE" origin/main -- worksheets/ assets/ scripts/build_pdfs.py; then
+              echo "A newer commit changed PDF source files. This build is superseded; publishing nothing."
+              exit 0
+            fi
+            if ! git diff --quiet "$BASE" origin/main -- pdf/; then
+              echo "Another run has already published PDFs for this source revision. Avoiding binary conflicts."
+              exit 0
+            fi
+            git reset --hard origin/main
+            cp "$TEMP/"*.pdf pdf/
+            git add pdf/
+            if git diff --cached --quiet; then
+              echo "All deployed PDFs already match the generated files."
+              exit 0
+            fi
+            git commit -m "Generate verified transformation PDFs [skip ci]"
+            if git push origin HEAD:main; then
+              echo "Verified PDF publication succeeded."
+              exit 0
+            fi
+            echo "Branch advanced concurrently; retrying on fresh main."
+          done
+          echo "PDF publication could not safely advance main after three retries."
+          exit 1
