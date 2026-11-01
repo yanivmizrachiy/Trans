@@ -16,6 +16,7 @@ on:
       - 'scripts/test_properties.py'
       - 'scripts/test_pedagogy.py'
       - 'scripts/test_answer_keys.py'
+      - 'scripts/sync_teacher_answers.py'
       - 'scripts/check_contract.py'
       - 'SOURCE_OF_TRUTH.md'
       - 'README.md'
@@ -59,5 +60,7 @@ jobs:
         run: python3 scripts/check_contract.py
       - name: Check numerical answers printed for all 33 original question levels
         run: python3 scripts/test_answer_keys.py
+      - name: Prevent teacher website solutions from drifting from the canonical answer key
+        run: python scripts/sync_teacher_answers.py --check
       - name: Check all three difficulty levels and the teacher's answer keys
         run: python3 scripts/test_pedagogy.py
