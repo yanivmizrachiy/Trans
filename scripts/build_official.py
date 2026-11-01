@@ -28,7 +28,7 @@ def main():
     for n, expected_sha in EXPECTED.items():
         src=SOURCE/f"grade7-p{n:03}.webp"
         data=src.read_bytes()
-        gitsha=sha1(b"blob "+str(len(data)).encode()+b"\\x00"+data).hexdigest()
+        gitsha=sha1(b"blob "+str(len(data)).encode()+bytes([0])+data).hexdigest()
         if gitsha!=expected_sha:
             raise RuntimeError(f"Ministry page {n} changed from its original verified source")
         with Image.open(BytesIO(data)) as img:
