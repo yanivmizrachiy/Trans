@@ -16,7 +16,8 @@ EXPECTED=51
 SAMPLES=[
     ("teacher-and-source",[1,2,3,10,16,17]),
     ("official-and-original",[18,24,25,30,35,36]),
-    ("additional-and-solutions",[42,44,45,46,48,51])
+    ("additional-and-solutions",[42,44,45,46,48,51]),
+    ("six-imported-source-pages",[36,37,38,39,40,41])
 ]
 
 def main():
@@ -49,7 +50,7 @@ def main():
         stats.append((n,round(occupied,4)))
 
     for label,numbers in SAMPLES:
-        cellw,cellh=450,650
+        cellw,cellh=(900,1300) if label=="six-imported-source-pages" else (450,650)
         cols=2
         rows=(len(numbers)+cols-1)//cols
         panel=Image.new("RGB",(cols*cellw,rows*cellh),(231,238,240))
