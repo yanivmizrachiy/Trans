@@ -40,5 +40,14 @@ jobs:
             echo "All PDF files already match the worksheet sources."
           else
             git commit -m "Generate printable A4 PDFs from transformation worksheets [skip ci]"
-            git push origin HEAD:main
+            for attempt in 1 2 3; do
+              git fetch origin main
+              if git diff --name-only HEAD origin/main -- worksheets/ assets/ scripts/build_pdfs.py | grep -q .; then
+                echo "Source worksheets changed during PDF build; refusing to publish stale PDFs."
+                exit 1
+              fi
+              git rebase origin/main
+              if git push origin HEAD:main; then break; fi
+              if [ "$attempt" = 3 ]; then echo "Push failed after retries"; exit 1; fi
+            done
           fi
