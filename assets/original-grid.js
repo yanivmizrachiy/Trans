@@ -24,4 +24,23 @@ if(svg.dataset.center){
 }
 
 }}
-)();
+const pattern=/(?:[A-Z][′']?)?\((?:[−-]?\d+|[xy]),\s*(?:[−-]?\d+|[xy])\)|\b[xy]\s*=\s*[−-]?\d+/g;
+const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+const nodes=[];
+while(walker.nextNode()){
+  const n=walker.currentNode,p=n.parentElement;
+  if(!p||p.closest("svg,script,style,bdi,.ltr")||!pattern.test(n.textContent))continue;
+  pattern.lastIndex=0;nodes.push(n);
+}
+for(const node of nodes){
+  const raw=node.textContent,fragment=document.createDocumentFragment();let start=0;
+  pattern.lastIndex=0;
+  for(const m of raw.matchAll(pattern)){
+    if(m.index>start)fragment.appendChild(document.createTextNode(raw.slice(start,m.index)));
+    const token=document.createElement("bdi");token.dir="ltr";token.className="ltr";token.textContent=m[0];fragment.appendChild(token);
+    start=m.index+m[0].length;
+  }
+  if(start<raw.length)fragment.appendChild(document.createTextNode(raw.slice(start)));
+  node.replaceWith(fragment);
+}
+})();
