@@ -1,0 +1,24 @@
+name: Validate transformation site integrity
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'teacher.html'
+      - 'explore.html'
+      - 'worksheets/**'
+      - 'assets/**'
+      - 'pdf/**'
+      - 'scripts/validate_site.py'
+      - '.github/workflows/validate-site.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check exact source inventory, PDFs and author credits
+        run: python3 scripts/validate_site.py
