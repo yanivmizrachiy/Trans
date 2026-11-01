@@ -4,6 +4,8 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader, PdfWriter
 from markdown import markdown
+from urllib.parse import unquote, urlsplit
+import re
 
 ROOT=Path(__file__).resolve().parents[1]
 BOOK=ROOT/"book"
@@ -62,13 +64,40 @@ def validate_pdf(path, expected=None):
         raise RuntimeError(f"Zero pages in {path}")
     return len(doc.pages)
 
+# Markdown guides in docs/ link to each other by their source file names.
+# Inside book/ the same documents exist only as rendered HTML, so every
+# cross-reference must be rewritten to the rendered neighbour or the link
+# breaks on the public site (book/ANSWER_KEY.md never existed).
+RENDERED_DOCS={"ANSWER_KEY.md":"answers.html","PRESENTATION_2026-10-21.md":"workshop.html"}
+HREF=re.compile(r'href="([^"]*)"')
+
+def rewrite_book_links(html, target_html):
+    def swap(match):
+        link=match.group(1)
+        url=urlsplit(link)
+        if url.scheme or url.netloc or not url.path:
+            return match.group(0)
+        name=Path(unquote(url.path)).name
+        if name in RENDERED_DOCS:
+            return 'href="./'+RENDERED_DOCS[name]+('#'+url.fragment if url.fragment else '')+'"'
+        return match.group(0)
+    html=HREF.sub(swap,html)
+    for match in HREF.finditer(html):
+        url=urlsplit(match.group(1))
+        if url.scheme or url.netloc or not url.path:
+            continue
+        target=(target_html.parent/unquote(url.path)).resolve()
+        if not target.is_file():
+            raise RuntimeError(f"{target_html.name}: relative link to missing file {match.group(1)}")
+    return html
+
 def render_markdown(browser, source, target_html, target_pdf, label):
     content=source.read_text(encoding="utf-8")
     if not content.strip().startswith("#"):
         raise RuntimeError(f"Cannot render unstructured {source}")
-    html=markdown(content,extensions=["tables","fenced_code","sane_lists"])
+    html=rewrite_book_links(markdown(content,extensions=["tables","fenced_code","sane_lists"]),target_html)
     page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title><style>"+CSS+"</style></head><body>"+html+"</body></html>"
-    target_html.write_text(page_html,encoding="utf-8")
+    target_html.write_text(page_html,encoding="utf-8",newline="\n")
     tab=browser.new_page(viewport={"width":1100,"height":1500})
     errors=[]
     tab.on("pageerror",lambda e:errors.append(str(e)))
