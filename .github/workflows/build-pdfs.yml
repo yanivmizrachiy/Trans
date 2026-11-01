@@ -12,6 +12,7 @@ on:
       - 'sources/ministry/**'
       - 'scripts/build_official.py'
       - 'scripts/test_math.py'
+      - 'scripts/test_pedagogy.py'
       - 'scripts/validate_site.py'
       - '.github/workflows/build-pdfs.yml'
   workflow_dispatch:
@@ -38,6 +39,8 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Check all original geometry questions and solutions
         run: python scripts/test_math.py
+      - name: Independently audit all 33 graded original prompts and teacher keys
+        run: python scripts/test_pedagogy.py
       - name: Render real worksheets to PDF
         run: python scripts/build_pdfs.py
       - name: Render and strictly validate fourteen teacher summary pages
