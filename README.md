@@ -33,7 +33,7 @@
 - `scripts/test_math.py`, `scripts/test_pedagogy.py`, `scripts/validate_site.py`, `scripts/visual_audit.py` — בדיקות חישוב, רמות שאלה, ייחוס, קישורים ועימוד.
 - `.github/workflows/build-pdfs.yml` ו־`.github/workflows/validate-site.yml` — בדיקות ובנייה אוטומטיות; האתר נפרס ב־Vercel מענף `main`.
 
-**מצב מאומת:** תהליכי הבנייה והבדיקות עברו, ו־Vercel דיווח `READY`. [בדיקת HTTP חיצונית](https://github.com/yanivmizrachiy/Trans/actions/runs/41296318981) אימתה **61/61 כתובות ציבוריות** ותוכן SHA-256 זהה ל־GitHub; [בדיקת Chromium בנייד](https://github.com/yanivmizrachiy/Trans/actions/runs/41296561980) אימתה RTL, חיפוש, סינון, תצוגה מקדימה ופעולות במעבדה. נותרות הגהה אנושית מקיפה ובדיקת הדפסה מוסדית, ולכן אין לטעון להשלמה מוחלטת.
+**מצב מאומת:** תהליכי הבנייה והבדיקות עברו, ו־Vercel דיווח `READY`. [בדיקת HTTP ציבורית ובדיקת Chromium בנייד](https://github.com/yanivmizrachiy/Trans/actions/runs/41302358491) אימתה **62/62 משאבים ציבוריים** עם התאמת SHA-256 ל־GitHub, לצד RTL, חיפוש, סינון, תצוגה מקדימה ופעולות במעבדה. [בדיקת העקביות לאחר פרסום ה־PDF](https://github.com/yanivmizrachiy/Trans/actions/runs/41315958209) הסתיימה בהצלחה. נותרות הגהה אנושית מקיפה ובדיקת הדפסה מוסדית, ולכן אין לטעון להשלמה מוחלטת.
 
 ## כללים מחייבים
 
