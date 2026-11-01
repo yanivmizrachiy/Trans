@@ -42,6 +42,18 @@ def main():
     for p in pdfs:
         data=p.read_bytes()
         assert len(data)>3500 and data.startswith(b"%PDF-") and b"%%EOF" in data[-4096:],p.name
+    official=(R/"curriculum.html").read_text()
+    authored=(R/"original.html").read_text()
+    assert official.count('class="entry"')==6, "Official examples must stay in dedicated six-entry source catalog"
+    assert "יצירה מקורית: יניב רז" not in official, "Official questions must never carry creator attribution"
+    assert "raz-logo.svg" not in official, "Official questions must never display RAZ logo"
+    for ident in OWN:
+        assert f"worksheets/{ident}.html" in authored, ("Original worksheet absent from own catalog",ident)
+        assert f"pdf/{ident}.pdf" in authored, ("Original PDF absent from own catalog",ident)
+        assert f"worksheets/{ident}.html" not in official, ("Original worksheet mixed into official source page",ident)
+    for ident in names-OWN:
+        assert f"worksheets/{ident}.html" not in authored, ("Imported worksheet falsely attributed as newly original",ident)
+    assert 'data-group="original"' in index and 'data-group="additional"' in index, "Homepage source filters missing"
     assert "שאלות מתוך תוכנית הלימודים" in index
     print(f"PASS: {len(pages)} worksheets, {len(pdfs)} PDFs, {len(OWN)} author-only originals")
 if __name__=="__main__":main()
