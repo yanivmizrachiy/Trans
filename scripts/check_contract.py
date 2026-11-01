@@ -60,6 +60,12 @@ def main():
     book=pdf_pages("book/transformations-complete.pdf",56)
     pdf_pages("book/teacher.pdf",14)
     pdf_pages("book/official.pdf",8)
+    pdf_pages("book/front.pdf",2)
+    pdf_pages("book/workshop.pdf",2)
+    pdf_pages("book/sadna.pdf",3)
+    pdf_pages("book/answers.pdf",6)
+    demand("| מפתח תשובות למורה | 6 עמודים בחוברת |" in SOT,
+           "Answer-key page count in the single source of truth contradicts the printed PDF")
     demand(len(book.outline)==26,
            f"Book must have 26 navigation bookmarks, found {len(book.outline)}")
     for ident in ORIGINAL:
