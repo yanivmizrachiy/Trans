@@ -27,7 +27,7 @@ def main():
     ids=set(re.findall(r'"([a-z0-9-]+)"',build.split("IDS =",1)[1].split("\n",1)[0]))
     assert ids==names,"PDF generator inventory mismatch"
     banned=re.compile(r"(?i)\b(?:demo|mock|dummy|lorem ipsum|coming soon|javascript:void)\b|(?<![\u0590-\u05ff])דמו(?![\u0590-\u05ff])|בקרוב|בהקמה|בהכנה")
-    for p in [R/"index.html",R/"teacher.html",R/"explore.html",R/"curriculum.html",R/"original.html",*pages]:
+    for p in [R/"index.html",R/"teacher.html",R/"explore.html",R/"curriculum.html",R/"original.html",R/"book"/"teacher.html",R/"book"/"official.html",*pages]:
         html=p.read_text()
         assert banned.search(html) is None, (p.name,"Demo or unfinished placeholder content is prohibited")
         assert not re.search(r"href\s*=\s*['\"](?:#|javascript:|\s*)['\"]", html, re.I), (p.name, "Fake or empty link")
@@ -45,6 +45,15 @@ def main():
     for p in pdfs:
         data=p.read_bytes()
         assert len(data)>3500 and data.startswith(b"%PDF-") and b"%%EOF" in data[-4096:],p.name
+    official_source=(R/"book"/"official.html").read_text()
+    assert "יצירה מקורית: יניב רז" not in official_source and "raz-logo.svg" not in official_source, "Ministry page must have no author credit"
+    for page_number in [34,35,36,37,38,50,51]:
+        source_name=f"grade7-p{page_number:03}.webp"
+        assert (R/"sources"/"ministry"/source_name).is_file(),("Missing exact ministry source scan",source_name)
+        assert f"../sources/ministry/{source_name}" in official_source,("Official source viewer missing scan",source_name)
+    for path_pdf in (R/"book"/"teacher.pdf",R/"book"/"official.pdf"):
+        blob=path_pdf.read_bytes()
+        assert len(blob)>30000 and blob.startswith(b"%PDF-") and b"%%EOF" in blob[-4096:],("Missing or invalid booklet PDF",path_pdf)
     official=(R/"curriculum.html").read_text()
     authored=(R/"original.html").read_text()
     assert official.count('class="entry"')==6, "Official examples must stay in dedicated six-entry source catalog"
