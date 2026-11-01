@@ -6,6 +6,8 @@ on:
       - 'worksheets/**'
       - 'assets/**'
       - 'scripts/build_pdfs.py'
+      - 'scripts/test_math.py'
+      - 'scripts/validate_site.py'
       - '.github/workflows/build-pdfs.yml'
   workflow_dispatch:
 permissions:
@@ -29,8 +31,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install playwright pypdf
           python -m playwright install --with-deps chromium
+      - name: Check all original geometry questions and solutions
+        run: python scripts/test_math.py
       - name: Render real worksheets to PDF
         run: python scripts/build_pdfs.py
+      - name: Check paths, authorship, file counts and valid PDFs
+        run: python scripts/validate_site.py
       - name: Commit verified PDFs
         run: |
           git config user.name "github-actions[bot]"
