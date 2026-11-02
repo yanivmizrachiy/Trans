@@ -99,9 +99,11 @@ def main():
     demand("איילת קריספין" in teacher_portal and "https://mamhishim.my.canva.site/" in teacher_portal,
            "Teacher portal must reference and credit the creator's verified resource")
     sadna=(ROOT/"book"/"sadna.html").read_text(encoding="utf-8")
-    demand(sadna.count('class="sheet"')==3 and sadna.count("שרית מאירוביץ וסיגלית אטשי")>=3,
-           "Every workshop-deck page must credit its editors in the footer")
-    demand("שרית מאירוביץ וסיגלית אטשי" in SOT,"Editors credit rule missing from the source of truth")
+    demand(sadna.count('class="sheet"')==3 and sadna.count("מערך הוראה מקורי — יניב רז")==3,
+           "Every newly authored teacher-lab page must have its original author credit")
+    demand("שרית מאירוביץ" not in sadna and "סיגלית אטשי" not in sadna,
+           "Former third-party workshop material or credits remain in original replacement")
+    demand("## כ. החלטת המשתמש" in SOT, "Missing new original-content and continuous-booklet requirement")
     print("PASS: single authoritative requirements contract, README and introduction agree")
     if CHECK_BUILT_PDFS:
         print(f"PASS: {M.TOTAL_PAGES}-page book with {M.TOTAL_BOOKMARKS} bookmarks, 14 teacher pages, {len(SCANS)} original Ministry scans")
