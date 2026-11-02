@@ -107,9 +107,9 @@ def check_continuous_book():
     """The public reading page must contain the complete inventory in one vertical flow."""
     import json
     html = read("book/complete.html")
-    match = re.search(r"const ORDER=(\\[[^\\n]*\\]);", html)
-    demand(match is not None, "Continuous booklet lacks a machine-readable reading sequence")
-    sequence = json.loads(match.group(1))
+    line = next((row for row in html.splitlines() if row.startswith("const ORDER=")), None)
+    demand(line is not None and line.endswith(";"), "Continuous booklet lacks a machine-readable reading sequence")
+    sequence = json.loads(line[len("const ORDER="):-1])
     demand(all(isinstance(x, list) and len(x) == 2 for x in sequence),
            "Reading sequence contains malformed items")
     for kind, expected in (("s", set(range(1, 15))), ("m", set(M.MINISTRY_PAGES)), ("w", set(M.WORKSHEETS))):
