@@ -16,6 +16,7 @@ A new worksheet that is added to only one of these places, a duplicate id,
 a wrong order or a stale page number stops the build here.
 """
 from pathlib import Path
+import os
 import re
 import sys
 
@@ -129,8 +130,14 @@ def main():
     check_catalogs()
     check_table_of_contents()
     check_documents()
-    check_pdfs()
-    print(f"PASS: manifest agrees with files, catalogs, contents, README, SOURCE_OF_TRUTH and built PDFs "
+    if os.environ.get("CHECK_BUILT_PDFS", "1") == "0":
+        # Set by the check workflow on push/pull_request, where committed PDFs
+        # may lag behind the sources until the build workflow republishes them.
+        print("SKIPPED built-PDF checks (CHECK_BUILT_PDFS=0); the build workflow checks fresh PDFs")
+    else:
+        check_pdfs()
+    built = "built PDFs" if os.environ.get("CHECK_BUILT_PDFS", "1") != "0" else "PDF file names"
+    print(f"PASS: manifest agrees with files, catalogs, contents, README, SOURCE_OF_TRUTH and {built} "
           f"({len(M.WORKSHEETS)} worksheets, {len(M.MINISTRY_PAGES)} scans, {M.TOTAL_PAGES} pages, {M.TOTAL_BOOKMARKS} bookmarks)")
 
 

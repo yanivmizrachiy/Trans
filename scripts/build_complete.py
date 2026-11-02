@@ -199,7 +199,7 @@ def build():
         if spans.get(label)!=(first,last):
             raise RuntimeError(f"Part {part['key']} occupies {spans.get(label)} but data/manifest.json derives {(first,last)}")
     if dest.stat().st_size<1_000_000:
-        raise RuntimeError("Merged booklet too small for 8 authentic scans and 20 worksheets")
+        raise RuntimeError("Merged booklet too small for the manifest scans and worksheets")
     for name,start,end in sections:print(f"Pages {start:02d}–{end:02d}: {name}")
     print(f"PASS: complete single PDF {len(verify.pages)} pages, {len(sections)} bookmarked sections, {dest.stat().st_size} bytes")
 

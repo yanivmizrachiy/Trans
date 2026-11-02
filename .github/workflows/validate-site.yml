@@ -42,6 +42,11 @@ jobs:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      # On push and pull_request the committed PDFs may lag behind changed
+      # sources until the build workflow rebuilds and publishes them; the
+      # build workflow and the post-build run compare against fresh PDFs.
+      CHECK_BUILT_PDFS: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && '0' || '1' }}
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Check geometry script and homepage JavaScript syntax
