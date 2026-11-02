@@ -103,6 +103,28 @@ def check_documents():
            "SOURCE_OF_TRUTH page numbering sentence differs from the manifest layout")
 
 
+def check_continuous_book():
+    """The public reading page must contain the complete inventory in one vertical flow."""
+    import json
+    html = read("book/complete.html")
+    match = re.search(r"const ORDER=(\\[[^\\n]*\\]);", html)
+    demand(match is not None, "Continuous booklet lacks a machine-readable reading sequence")
+    sequence = json.loads(match.group(1))
+    demand(all(isinstance(x, list) and len(x) == 2 for x in sequence),
+           "Reading sequence contains malformed items")
+    for kind, expected in (("s", set(range(1, 15))), ("m", set(M.MINISTRY_PAGES)), ("w", set(M.WORKSHEETS))):
+        listed = [item for entry_kind, item in sequence if entry_kind == kind]
+        demand(len(listed) == len(expected) and set(listed) == expected,
+               f"Continuous booklet {kind} inventory misses or duplicates items")
+    labs = [item for kind, item in sequence if kind == "l"]
+    demand(labs == ["book/sadna.html", "book/workshop.html", "book/answers.html"],
+           "Continuous booklet teacher lab, workshop and answer-key order drift")
+    demand("שאלות מתוך תוכנית הלימודים" in html and "overflow-x:hidden" in html,
+           "Reading flow must label original Ministry scans and avoid horizontal scrolling")
+    demand("id=\"loading\"" in html and "new DOMParser" in html,
+           "Teacher summaries must be loaded into the same continuous document")
+
+
 def check_pdfs():
     for part, first, last in M.layout():
         if "file" in part:
@@ -138,6 +160,7 @@ def main():
     check_catalogs()
     check_table_of_contents()
     check_documents()
+    check_continuous_book()
     if os.environ.get("CHECK_BUILT_PDFS", "1") == "0":
         # Set by the check workflow on push/pull_request, where committed PDFs
         # may lag behind the sources until the build workflow republishes them.
