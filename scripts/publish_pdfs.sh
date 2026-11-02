@@ -32,7 +32,7 @@ SOURCES=(
   book/teacher.html scripts/build_teacher.py
   book/official.html sources/ministry/ scripts/build_official.py
   book/front.html book/sadna.html scripts/build_complete.py scripts/visual_audit.py
-  docs/ANSWER_KEY.md docs/PRESENTATION_2026-10-21.md
+  docs/ANSWER_KEY.md docs/TEACHER_WORKSHOP.md
 )
 # Everything the build produces. Directories are copied whole, so a worksheet
 # or preview sheet that did not exist before the build is published too.

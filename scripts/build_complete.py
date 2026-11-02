@@ -59,7 +59,7 @@ def validate_pdf(path, expected=None):
 # Inside book/ the same documents exist only as rendered HTML, so every
 # cross-reference must be rewritten to the rendered neighbour or the link
 # breaks on the public site (book/ANSWER_KEY.md never existed).
-RENDERED_DOCS={"ANSWER_KEY.md":"answers.html","PRESENTATION_2026-10-21.md":"workshop.html"}
+RENDERED_DOCS={"ANSWER_KEY.md":"answers.html","TEACHER_WORKSHOP.md":"workshop.html"}
 HREF=re.compile(r'href="([^"]*)"')
 
 def rewrite_book_links(html, target_html):
@@ -239,9 +239,9 @@ def build():
         try:
             render_front(browser)
             render_sadna(browser)
-            workshop=render_markdown(browser,ROOT/"docs"/"PRESENTATION_2026-10-21.md",
-                                     BOOK/"workshop.html",BOOK/"workshop.pdf","סיכום מצגת קהילת המורים")
-            answers=render_markdown(browser,ROOT/"docs"/"ANSWER_KEY.md",
+            workshop=render_markdown(browser,ROOT/M.COMPONENTS["workshop"]["source"],
+                                     BOOK/"workshop.html",BOOK/"workshop.pdf",M.COMPONENTS["workshop"]["label"])
+            answers=render_markdown(browser,ROOT/M.COMPONENTS["answers"]["source"],
                                     BOOK/"answers.html",BOOK/"answers.pdf","מפתח תשובות למורה")
         finally:
             browser.close()

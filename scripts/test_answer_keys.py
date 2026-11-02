@@ -9,7 +9,7 @@ regressions even when the transformation utilities remain mathematically valid.
 from pathlib import Path
 import re
 import unittest
-from test_math import ROOT, SOURCE, move, flip_v, flip_h, half, quarter, area2, squared
+from test_math import ROOT, SOURCE, move, flip_v, flip_h, half, quarter, area2, squared, plain
 
 ANSWER=(ROOT/"docs"/"ANSWER_KEY.md").read_text(encoding="utf-8")
 
@@ -119,54 +119,52 @@ class AnswerToWorksheetAlignment(unittest.TestCase):
         self.assertEqual(area2(result),9)
 
 
-class ImportedFollowUpAnswers(unittest.TestCase):
-    """Cross-check real imported worksheet prompts and independently computed answers."""
+class AdditionalOriginalKeys(unittest.TestCase):
+    """The printed key for the three sheets written in 11.2026 must match independently computed images."""
 
-    def test_congruent_rectangle_does_not_require_translation(self):
-        worksheet=(ROOT/"worksheets"/"rectangles.html").read_text(encoding="utf-8")
-        section=ANSWER.split("## מלבנים חופפים",1)[1].split("## נכון / לא נכון",1)[0]
-        self.assertIn("ה. חשיבה ביקורתית",worksheet)
-        self.assertIn("| ה. האם חפיפה מחייבת הזזה? |",section)
-        self.assertIn("סיבוב",section)
-        self.assertIn("הזזה בלבד",section)
-        rectangle=[(-3,-1),(-3,3),(2,3),(2,-1)]
-        rotated=[quarter(p) for p in rectangle]
-        before=(rectangle[3][0]-rectangle[0][0],rectangle[3][1]-rectangle[0][1])
-        after=(rotated[3][0]-rotated[0][0],rotated[3][1]-rotated[0][1])
-        self.assertEqual(before,(5,0))
-        self.assertEqual(after,(0,5))
-        self.assertEqual(area2(rectangle),area2(rotated))
-        self.assertNotEqual(before,after)
+    def section(self,start,stop):
+        return ANSWER.split(start,1)[1].split(stop,1)[0]
 
-    def test_five_triangle_images_and_four_followup_solutions(self):
-        worksheet=(ROOT/"worksheets"/"triangle.html").read_text(encoding="utf-8")
-        section=ANSWER.split("## זיהוי טרנספורמציה של משולש",1)[1].split("## קריטריונים",1)[0]
-        for prompt in ("משימות המשך","בחרו אחת מהשורות","איזו פעולה הופכת","כתבו הסבר מדויק לסיבוב","האם יש דרך נוספת"):
+    def test_community_hall_key(self):
+        key=self.section("## שטיח המרכז הקהילתי","## מי צודק?")
+        worksheet=plain((ROOT/"worksheets"/"rectangles.html").read_text(encoding="utf-8"))
+        e,f,g,h=[(-2,-1),(4,-1),(4,1),(-2,1)]
+        for token in ("E(-2,-1), F(4,-1), G(4,1), H(-2,1)","(-3,5)",
+                      "E'"+show(move(e,-3,5))+", G'"+show(move(g,-3,5))+", H'"+show(move(h,-3,5)),
+                      "E'"+show(flip_h(e,2))+", F'"+show(flip_h(f,2))+", G'"+show(flip_h(g,2))+", H'"+show(flip_h(h,2)),
+                      "F'"+show(quarter(f,e))+", G'"+show(quarter(g,e))+", H'"+show(quarter(h,e)),
+                      "אפשרות אחת","שתי אפשרויות","**לא.**","**חופף**"):
+            self.assertIn(token,key)
+        for prompt in ("F'(1,4)","y=2","0≤x≤5","0≤x≤7","E(-2,-1)"):
             self.assertIn(prompt,worksheet)
-        abc=[(4,1),(7,1),(4,3)]
-        ops={"DEF":quarter,"GHI":half,"JKL":flip_h,"MNP":lambda p:flip_v(p,1),
-             "QRS":lambda p:move(p,-9,-9)}
-        for code,op in ops.items():
-            with self.subTest(image=code):
-                images=[op(p) for p in abc]
-                shown=", ".join(code[i]+show(p) for i,p in enumerate(images))
-                self.assertIn(shown,section)
-                self.assertEqual(area2(abc),area2(images))
-        self.assertIn("**משימות המשך — תשובות למורה:**",section)
-        for token in ("AB=DE=3","AC=DF=2","BC=EF=√13","JKL","MNP",
-                      "כיווניות","O(0,0)","נגד כיוון השעון","(x,y)→(-x,-y)"):
-            self.assertIn(token,section)
-        self.assertEqual(squared(abc[0],abc[1]),9)
-        self.assertEqual(squared(abc[0],abc[2]),4)
-        self.assertEqual(squared(abc[1],abc[2]),13)
-        def orientation(points):
-            a,b,c=points
-            return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
-        self.assertGreater(orientation(abc),0)
-        self.assertLess(orientation([flip_h(p) for p in abc]),0)
-        self.assertLess(orientation([flip_v(p,1) for p in abc]),0)
-        self.assertGreater(orientation([quarter(p) for p in abc]),0)
-        self.assertEqual([flip_v(flip_h(p)) for p in abc],[half(p) for p in abc])
+
+    def test_who_is_right_key(self):
+        key=self.section("## מי צודק?","## תחנות ההעתקה")
+        verdicts=re.findall(r"^(\d+)\. \*\*(נכון|לא נכון)\*\*",key,re.M)
+        self.assertEqual([n for n,_ in verdicts],[str(i) for i in range(1,11)])
+        self.assertEqual([v=="נכון" for _,v in verdicts],[True,True,False,True,True,False,False,True,True,False])
+        self.assertIn(show(quarter((2,5))),key)
+        self.assertIn(show(flip_v((5,3),2))[:3],key)
+        worksheet=plain((ROOT/"worksheets"/"true-false.html").read_text(encoding="utf-8"))
+        for token in ("(-4,0)","(2,5)","(5,2)","(3,-1)","x=2","(2,0)","(0,-3)"):
+            self.assertIn(token,worksheet)
+
+    def test_copying_stations_key(self):
+        key=self.section("## תחנות ההעתקה","## קריטריונים")
+        worksheet=plain((ROOT/"worksheets"/"triangle.html").read_text(encoding="utf-8"))
+        pqr=[(2,1),(6,1),(2,4)]
+        ops={"₁":lambda p:move(p,-3,2),"₂":flip_v,"₃":lambda p:half(p,(2,1)),"₄":quarter,"₅":lambda p:flip_h(p,-1)}
+        for sub,op in ops.items():
+            img=[op(p) for p in pqr]
+            with self.subTest(station=sub):
+                self.assertIn(", ".join(n+sub+show(p) for n,p in zip("PQR",img)),key)
+                self.assertEqual(area2(img),area2(pqr))
+        for token in ("PQ=4","PR=3","QR=5","2 ו־5","(2,0)","(4,-2)","(-4,2)","(2,-4)","y=x","O(0,0)"):
+            self.assertIn(token,key)
+        for prompt in ("תחנה 5","(-3,2)","משימות המשך"):
+            self.assertIn(prompt,worksheet)
+        self.assertEqual([half((p[1],-p[0])) for p in pqr],[quarter(p) for p in pqr])
+        self.assertEqual([(p[1],p[0]) for p in (flip_h(q) for q in pqr)],[quarter(p) for p in pqr])
 
 if __name__=="__main__":
     unittest.main(verbosity=2)
