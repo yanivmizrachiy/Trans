@@ -136,7 +136,8 @@
    50,
    51,
    88,
-   89
+   89,
+   91
   ],
   "source_dir": "sources/ministry",
   "file_pattern": "grade7-p{page:03}.webp",
@@ -226,6 +227,10 @@
      [
       "m",
       34
+     ],
+     [
+      "m",
+      91
      ],
      [
       "w",
