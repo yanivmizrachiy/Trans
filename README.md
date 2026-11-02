@@ -34,7 +34,7 @@
 - `scripts/test_math.py`, `scripts/test_pedagogy.py`, `scripts/validate_site.py`, `scripts/visual_audit.py` — בדיקות חישוב, רמות שאלה, ייחוס, קישורים ועימוד.
 - `.github/workflows/build-pdfs.yml` ו־`.github/workflows/validate-site.yml` — בדיקות ובנייה אוטומטיות; האתר נפרס ב־Vercel מענף `main`.
 
-**מצב מאומת:** תהליכי הבנייה והבדיקות עברו, ו־Vercel דיווח `READY`. [בדיקת HTTP ציבורית ובדיקת Chromium בנייד](https://github.com/yanivmizrachiy/Trans/actions/runs/41340468708) אימתה **78/78 משאבים ציבוריים** (כל דפי האתר, החוברת וחלקיה, 20 דפי העבודה, 20 קובצי ה־PDF, הנכסים וצילומי המקור) עם התאמת SHA-256 ל־GitHub, לצד RTL, חיפוש, סינון, תצוגה מקדימה ופעולות במעבדה. [בדיקת העקביות לאחר פרסום ה־PDF](https://github.com/yanivmizrachiy/Trans/actions/runs/41340468462) הסתיימה בהצלחה. נותרות הגהה אנושית מקיפה ובדיקת הדפסה מוסדית, ולכן אין לטעון להשלמה מוחלטת.
+**מצב מאומת:** תהליכי הבנייה והבדיקות עברו, ו־Vercel דיווח `READY`. [בדיקת HTTP ציבורית ובדיקת Chromium בנייד](https://github.com/yanivmizrachiy/Trans/actions/runs/41484572091) אימתה **82/82 משאבים ציבוריים** (כל דפי האתר, החוברת וחלקיה, דף הקריאה הרציף, 20 דפי העבודה, 20 קובצי ה־PDF, הנכסים ועשרת צילומי המקור) עם התאמת SHA-256 ל־GitHub, לצד RTL, חיפוש, סינון, תצוגה מקדימה ופעולות במעבדה. [בדיקת העקביות לאחר פרסום ה־PDF](https://github.com/yanivmizrachiy/Trans/actions/runs/41484572250) הסתיימה בהצלחה. נותרות הגהה אנושית מקיפה ובדיקת הדפסה מוסדית, ולכן אין לטעון להשלמה מוחלטת.
 
 ## כללים מחייבים
 
