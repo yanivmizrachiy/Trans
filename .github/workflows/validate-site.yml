@@ -12,6 +12,7 @@ on:
       - 'data/manifest.json'
       - 'scripts/manifest.py'
       - 'scripts/check_manifest.py'
+      - 'scripts/sync_book_docs.py'
       - 'assets/**'
       - 'pdf/**'
       - 'scripts/validate_site.py'
