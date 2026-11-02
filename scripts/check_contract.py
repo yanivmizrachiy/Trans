@@ -96,12 +96,12 @@ def main():
     for ident in ORIGINAL:
         pdf_pages(f"pdf/{ident}.pdf",M.WORKSHEET_PAGES[ident])
         html=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
-        demand("יצירה מקורית: יניב רז" in html and "raz-logo.svg" in html,
+        demand("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" in html and "../assets/logo.png" in html,
                f"Original missing exclusive credit: {ident}")
     for ident in IMPORTED:
         pdf_pages(f"pdf/{ident}.pdf",M.WORKSHEET_PAGES[ident])
         html=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
-        demand("raz-logo.svg" not in html,
+        demand("assets/logo.png" not in html and "הדף נערך ע״י יניב רז" not in html,
                f"Imported content must not carry creator logo: {ident}")
     for path in ("book/teacher.html","book/official.html","original.html","curriculum.html",
                  "book/front.html","book/answers.html","book/workshop.html","book/sadna.html","book/krispin-video.html","index.html"):

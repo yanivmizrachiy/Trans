@@ -46,8 +46,9 @@ def main():
             assert not local.suffix==".md" or p.parent.name!="book",(p.name,"book pages must link to rendered HTML, not Markdown",link)
         if p.parent.name=="worksheets":
             own=p.stem in OWN
-            assert ("raz-logo.svg" in html)==own,(p.name,"incorrect logo")
-            assert ("יצירה מקורית: יניב רז" in html)==own,(p.name,"incorrect credit")
+            assert ("../assets/logo.png" in html)==own,(p.name,"district logo belongs only on own worksheets")
+            assert ("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" in html)==own,(p.name,"incorrect credit")
+            assert "raz-logo.svg" not in html and "יצירה מקורית: יניב רז" not in html,(p.name,"retired creator logo/credit")
             if own: assert (html.count('class="level"') + html.count("class='level'"))==3,p.name
     for p in pdfs:
         data=p.read_bytes()
@@ -58,7 +59,7 @@ def main():
     assert "book/transformations-complete.pdf" in index, "Homepage must link to the whole real booklet"
     assert (R/"book"/"front.html").is_file(), "Book cover and contents missing"
     official_source=(R/"book"/"official.html").read_text(encoding="utf-8")
-    assert "יצירה מקורית: יניב רז" not in official_source and "raz-logo.svg" not in official_source, "Ministry page must have no author credit"
+    assert "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" not in official_source and "assets/logo.png" not in official_source, "Ministry page must have no author credit"
     for page_number in M.MINISTRY_PAGES:
         source_name=M.ministry_file(page_number).name
         assert (R/"sources"/"ministry"/source_name).is_file(),("Missing exact ministry source scan",source_name)
@@ -75,8 +76,8 @@ def main():
     assert official.count('class="entry"')==9, "Official examples must stay in the dedicated nine-entry source catalog (pages 34–38, 48, 50–51, 88–89, 91)"
     for page in M.MINISTRY_PAGES:
         assert f"עמוד {page}" in official or f"{page}" in official, f"curriculum.html does not reference Ministry page {page} from the manifest"
-    assert "יצירה מקורית: יניב רז" not in official, "Official questions must never carry creator attribution"
-    assert "raz-logo.svg" not in official, "Official questions must never display RAZ logo"
+    assert "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" not in official, "Official questions must never carry creator attribution"
+    assert "assets/logo.png" not in official, "Official questions must never display the worksheet logo"
     for ident in OWN:
         assert f"worksheets/{ident}.html" in authored, ("Original worksheet absent from own catalog",ident)
         assert f"pdf/{ident}.pdf" in authored, ("Original PDF absent from own catalog",ident)

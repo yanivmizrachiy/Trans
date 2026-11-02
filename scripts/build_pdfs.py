@@ -31,10 +31,12 @@ def main():
                         )
                     if stem.startswith("orig-"):
                         ok = page.evaluate("""() => {
-                          const img = document.querySelector('img[alt="לוגו יניב רז"]');
+                          const img = document.querySelector('img.ws-logo[alt="יחידת מתמטיקה — מחוז ירושלים והעיר ירושלים"]');
+                          const credit = document.querySelector('.ws-foot .ws-credit strong');
+                          const line = document.querySelector('.ws-foot .ws-footline');
                           const graph = document.querySelector('svg[data-shape] polygon');
                           const sheet = document.querySelector('article.sheet');
-                          return !!(img && img.complete && img.naturalWidth > 0 &&
+                          return !!(img && img.complete && img.naturalWidth > 0 && credit && line && line.getBoundingClientRect().width > 0.9 * sheet.querySelector('.ws-foot').getBoundingClientRect().width &&
                                     graph && sheet && getComputedStyle(document.documentElement).direction === 'rtl');
                         }""")
                         if not ok:
