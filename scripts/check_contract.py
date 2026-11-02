@@ -90,7 +90,7 @@ def main():
     # Keep the 14 published teacher summaries and demonstrations in sync.
     teacher_summaries=(ROOT/"book"/"teacher.html").read_text(encoding="utf-8")
     teacher_portal=(ROOT/"teacher.html").read_text(encoding="utf-8")
-    summaries=re.findall(r'<article class="sheet" id="summary-(\\d+)">([\\s\\S]*?)</article>',teacher_summaries)
+    summaries=re.findall(r'<article class="sheet" id="summary-(\d+)">([\s\S]*?)</article>',teacher_summaries)
     demand(len(summaries)==14 and [int(n) for n,_ in summaries]==list(range(1,15)),
            "Teacher booklet must contain exactly 14 uniquely numbered summaries in order")
     for n,body in summaries:
