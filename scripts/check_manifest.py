@@ -123,6 +123,14 @@ def check_pdfs():
     titles = list(flatten(book.outline))
     for ident in M.WORKSHEETS:
         demand(any(M.TITLES[ident] in t for t in titles), f"Booklet bookmark missing for {ident} ({M.TITLES[ident]})")
+    # Links inside the published PDFs must work for a reader, not only on the build machine.
+    for pdf in [part["file"] for part, _, _ in M.layout() if "file" in part] + [M.BOOK_FILE]:
+        for page in PdfReader(str(ROOT / pdf)).pages:
+            for annot in page.get("/Annots") or []:
+                action = annot.get_object().get("/A")
+                uri = str(action["/URI"]) if action is not None and action.get("/URI") else ""
+                demand(not uri or uri.startswith(("https://", "http://", "mailto:")),
+                       f"{pdf} contains a link that only resolves on the build machine: {uri}")
 
 
 def main():
