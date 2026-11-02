@@ -156,7 +156,7 @@ def render_front(browser):
 
 SADNA_CREDIT=M.SADNA_CREDIT
 def render_sadna(browser):
-    """Workshop deck pages; every page must credit the deck's editors in its footer."""
+    """Three independent, originally authored teacher investigations."""
     path=BOOK/"sadna.html"
     dest=BOOK/"sadna.pdf"
     tab=browser.new_page(viewport={"width":1250,"height":1700})
@@ -168,7 +168,7 @@ def render_sadna(browser):
       const pages=Array.from(document.querySelectorAll('article.sheet'));
       return {count:pages.length,fail:pages.flatMap((p,i)=>{
         const f=p.querySelector('.credit'), m=p.querySelector('.content'); let e=[];
-        if(!f||!f.textContent.includes(credit))return [[i+1,'missing editors credit']];
+        if(!f||!f.textContent.includes(credit))return [[i+1,'missing original lesson credit']];
         const b=p.getBoundingClientRect(), z=f.getBoundingClientRect();
         if(p.scrollHeight>p.clientHeight+2)e.push([i+1,'overflow']);
         if(m.getBoundingClientRect().bottom>z.top-2)e.push([i+1,'footer overlap']);
@@ -177,7 +177,7 @@ def render_sadna(browser):
       })};
     }""",SADNA_CREDIT)
     if check["count"]!=M.part_pages(PART["sadna"][0]) or check["fail"] or errors:
-        raise RuntimeError(f"Workshop deck pages invalid: {check}, errors: {errors}")
+        raise RuntimeError(f"Original teacher-lab pages invalid: {check}, errors: {errors}")
     tab.pdf(path=str(dest),format="A4",print_background=True,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
     tab.close()
     return validate_pdf(dest,M.part_pages(PART["sadna"][0]))

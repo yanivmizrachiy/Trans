@@ -24,6 +24,7 @@ on:
       - 'SOURCE_OF_TRUTH.md'
       - 'README.md'
       - 'book/INTRO.md'
+      - 'book/complete.html'
       - 'book/transformations-complete.pdf'
       - 'book/teacher.pdf'
       - 'book/official.pdf'
@@ -55,7 +56,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re, subprocess
-          for filename in ("index.html", "explore.html"):
+          for filename in ("index.html", "explore.html", "book/complete.html"):
               html = Path(filename).read_text(encoding="utf-8")
               blocks = re.findall(r"<script[^>]*>([\s\S]*?)</script>", html)
               assert blocks, f"Missing JavaScript in {filename}"
