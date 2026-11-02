@@ -139,4 +139,82 @@ class MathQuality(unittest.TestCase):
         self.assertEqual(area2(output),9)
         self.assertNotEqual(area2(output[:2]+[(2,2)]),area2(output))
 
+
+def plain(text):return text.replace("−","-").replace("′","'")
+ADDITIONAL={"rectangles":[(-2,-1),(4,-1),(4,1),(-2,1)],"triangle":[(2,1),(6,1),(2,4)]}
+def orientation(points):
+    a,b,c=points[:3]
+    return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+
+class AdditionalOriginalSheets(unittest.TestCase):
+    """Independent arithmetic for the three sheets written from scratch in 11.2026
+    (rectangles, true-false, triangle): the drawing, the prompts and every answer."""
+
+    def test_rewritten_sheets_are_marked_original_without_graded_levels(self):
+        for name in ("rectangles","true-false","triangle"):
+            doc=(ROOT/"worksheets"/(name+".html")).read_text(encoding="utf-8")
+            with self.subTest(name=name):
+                self.assertIn(name,M.IMPORTED)
+                self.assertEqual(M.WORKSHEET_SOURCE[name],"original-2026-11")
+                self.assertIn("דף מקורי שנכתב לחוברת",doc)
+                self.assertNotIn("raz-logo.svg",doc)
+                self.assertNotIn("יצירה מקורית: יניב רז",doc)
+
+    def test_community_hall_rectangle(self):
+        doc=(ROOT/"worksheets"/"rectangles.html").read_text(encoding="utf-8")
+        pts=ADDITIONAL["rectangles"]
+        self.assertIn('data-shape="-2,-1;4,-1;4,1;-2,1"',doc)
+        self.assertEqual(area2(pts),2*12)
+        self.assertEqual(squared(pts[0],pts[1]),36);self.assertEqual(squared(pts[1],pts[2]),4)
+        e,f,g,h=pts
+        self.assertEqual(move(f,-3,5),(1,4))
+        self.assertEqual([move(p,-3,5) for p in (e,g,h)],[(-5,4),(1,6),(-5,6)])
+        self.assertEqual([flip_h(p,2) for p in pts],[(-2,5),(4,5),(4,3),(-2,3)])
+        self.assertEqual(set(flip_h(p,2) for p in pts),set(move(p,0,4) for p in pts))
+        def fits(w,h):return [(a,b) for a,b in ((6,2),(2,6)) if a<=w and b<=h]
+        self.assertEqual(fits(5,7),[(2,6)]);self.assertEqual(fits(7,7),[(6,2),(2,6)])
+        self.assertEqual([quarter(p,e) for p in (f,g,h)],[(-2,5),(-4,5),(-4,-1)])
+        self.assertEqual(area2([quarter(p,e) for p in pts]),area2(pts))
+        self.assertEqual(3*4,6*2);self.assertNotEqual({3,4},{6,2})
+
+    def test_who_is_right_ten_claims(self):
+        doc=(ROOT/"worksheets"/"true-false.html").read_text(encoding="utf-8")
+        verdicts=[
+            flip_h((-4,0))==(-4,0),
+            move((-1,5),3,-2)==(2,3),
+            quarter((2,5))==(5,2),
+            flip_h(flip_v((3,-1)))==half((3,-1)),
+            True,
+            all(quarter(p) in [(1,1),(3,1),(3,3),(1,3)] for p in [(1,1),(3,1),(3,3),(1,3)]),
+            4*6==3*8 and {4,6}=={3,8},
+            move(move((1,1),2,0),0,-3)==move(move((1,1),0,-3),2,0),
+            flip_v((5,3),2)==(-1,3),
+            squared((0,0),quarter((3,4)))!=25,
+        ]
+        self.assertEqual(verdicts,[True,True,False,True,True,False,False,True,True,False])
+        self.assertEqual(quarter((2,5)),(-5,2))
+        self.assertEqual([quarter(p,(2,2)) for p in [(1,1),(3,1),(3,3),(1,3)]],[(3,1),(3,3),(1,3),(1,1)])
+        self.assertEqual(doc.count('<section class="q"'),10)
+
+    def test_copying_stations_triangle(self):
+        doc=(ROOT/"worksheets"/"triangle.html").read_text(encoding="utf-8")
+        pqr=ADDITIONAL["triangle"]
+        self.assertIn('const pts=[[2,1],[6,1],[2,4]]',doc)
+        self.assertEqual([squared(pqr[0],pqr[1]),squared(pqr[0],pqr[2]),squared(pqr[1],pqr[2])],[16,9,25])
+        stations={1:lambda p:move(p,-3,2),2:flip_v,3:lambda p:half(p,(2,1)),4:quarter,5:lambda p:flip_h(p,-1)}
+        images={k:[op(p) for p in pqr] for k,op in stations.items()}
+        self.assertEqual(images[1],[(-1,3),(3,3),(-1,6)])
+        self.assertEqual(images[2],[(-2,1),(-6,1),(-2,4)])
+        self.assertEqual(images[3],[(2,1),(-2,1),(2,-2)])
+        self.assertEqual(images[4],[(-1,2),(-1,6),(-4,2)])
+        self.assertEqual(images[5],[(2,-3),(6,-3),(2,-6)])
+        self.assertNotEqual(images[5],[move(p,0,-4) for p in pqr])
+        for k,img in images.items():
+            with self.subTest(station=k):
+                self.assertEqual(area2(img),area2(pqr))
+                self.assertEqual((orientation(img)<0),k in (2,5))
+        cw=lambda p:(p[1],-p[0])
+        self.assertEqual([half(cw(p)) for p in pqr],images[4])
+        self.assertEqual([(p[1],p[0]) for p in (flip_h(q) for q in pqr)],images[4])
+
 if __name__=="__main__":unittest.main(verbosity=2)

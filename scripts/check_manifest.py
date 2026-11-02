@@ -102,7 +102,7 @@ def check_documents():
             demand(token in text, f"{name} does not state '{token}' (manifest-derived)")
     for text, name in ((readme, "README.md"), (sot, "SOURCE_OF_TRUTH.md"), (teacher, "teacher.html")):
         demand(f"{len(M.WORKSHEETS)} דפי" in text, f"{name} does not state the {len(M.WORKSHEETS)}-worksheet total")
-    demand(f"{len(M.ORIGINAL)} דפי עבודה מקוריים" in index and f"{len(M.IMPORTED)} דפים ממקורות קודמים" in index,
+    demand(f"{len(M.ORIGINAL)} דפי עבודה מקוריים" in index and f"{len(M.IMPORTED)} דפים נוספים" in index,
            "index.html source filters must show the manifest's original/imported counts")
     demand(f"{len(M.ORIGINAL)} דפי" in readme and f"{len(M.ORIGINAL)} דפים" in readme, "README originals count")
     demand(f"| **סה״כ דפי עבודה** | **{len(M.WORKSHEETS)} דפי HTML ו־{len(M.WORKSHEETS)} PDF** |" in sot,

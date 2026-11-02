@@ -107,21 +107,21 @@
    },
    {
     "id": "rectangles",
-    "title": "חקר מלבנים — עיבוד מן המצגת",
+    "title": "שטיח המרכז הקהילתי — מלבנים חופפים",
     "pages": 1,
-    "source": "workshop-deck"
+    "source": "original-2026-11"
    },
    {
     "id": "true-false",
-    "title": "נכון / לא נכון — עיבוד מן המצגת",
+    "title": "מי צודק? עשר טענות",
     "pages": 1,
-    "source": "workshop-deck"
+    "source": "original-2026-11"
    },
    {
     "id": "triangle",
-    "title": "טרנספורמציות משולשים — עיבוד מן המצגת",
+    "title": "תחנות ההעתקה — המשולש PQR",
     "pages": 2,
-    "source": "workshop-deck"
+    "source": "original-2026-11"
    }
   ]
  },
@@ -177,77 +177,281 @@
     "credit": "מערך הוראה מקורי — יניב רז"
    },
    "workshop": {
-    "label": "סיכום מצגת ההשתלמות",
+    "label": "סדנת מורים — ניבוי, בדיקה והנמקה (מערך מקורי)",
     "file": "book/workshop.pdf",
     "html": "book/workshop.html",
-    "pages": 2
+    "pages": 2,
+    "source": "docs/TEACHER_WORKSHOP.md"
    },
    "answers": {
     "label": "מפתח תשובות למורה",
     "file": "book/answers.pdf",
     "html": "book/answers.html",
-    "pages": 6
+    "pages": 6,
+    "source": "docs/ANSWER_KEY.md"
    }
   },
   "chapters": [
    {
     "key": "front",
     "label": "שער ותוכן עניינים",
-    "items": [["c", "front"]]
+    "items": [
+     [
+      "c",
+      "front"
+     ]
+    ]
    },
    {
     "key": "congruence",
     "part": "א׳",
     "label": "מבנה החוברת ומושג החפיפה",
-    "items": [["s", 1], ["s", 2], ["s", 3], ["s", 4], ["m", 34], ["w", "orig-rectangles"], ["w", "349"]]
+    "items": [
+     [
+      "s",
+      1
+     ],
+     [
+      "s",
+      2
+     ],
+     [
+      "s",
+      3
+     ],
+     [
+      "s",
+      4
+     ],
+     [
+      "m",
+      34
+     ],
+     [
+      "w",
+      "orig-rectangles"
+     ],
+     [
+      "w",
+      "349"
+     ]
+    ]
    },
    {
     "key": "translation",
     "part": "ב׳",
     "label": "הזזה",
-    "items": [["s", 5], ["m", 48], ["w", "orig-translation"], ["w", "orig-robot-grid"], ["w", "549"], ["w", "rectangles"]]
+    "items": [
+     [
+      "s",
+      5
+     ],
+     [
+      "m",
+      48
+     ],
+     [
+      "w",
+      "orig-translation"
+     ],
+     [
+      "w",
+      "orig-robot-grid"
+     ],
+     [
+      "w",
+      "549"
+     ],
+     [
+      "w",
+      "rectangles"
+     ]
+    ]
    },
    {
     "key": "rotation",
     "part": "ג׳",
     "label": "סיבוב",
-    "items": [["s", 6], ["m", 35], ["m", 38], ["w", "orig-rotation"], ["w", "orig-conveyor"], ["w", "orig-center-p"], ["w", "orig-symbol-turn"], ["w", "350"], ["w", "352"]]
+    "items": [
+     [
+      "s",
+      6
+     ],
+     [
+      "m",
+      35
+     ],
+     [
+      "m",
+      38
+     ],
+     [
+      "w",
+      "orig-rotation"
+     ],
+     [
+      "w",
+      "orig-conveyor"
+     ],
+     [
+      "w",
+      "orig-center-p"
+     ],
+     [
+      "w",
+      "orig-symbol-turn"
+     ],
+     [
+      "w",
+      "350"
+     ],
+     [
+      "w",
+      "352"
+     ]
+    ]
    },
    {
     "key": "reflection",
     "part": "ד׳",
     "label": "שיקוף (היפוך)",
-    "items": [["s", 7], ["m", 36], ["m", 37], ["w", "orig-reflection"], ["w", "orig-mirror-route"], ["w", "385"]]
+    "items": [
+     [
+      "s",
+      7
+     ],
+     [
+      "m",
+      36
+     ],
+     [
+      "m",
+      37
+     ],
+     [
+      "w",
+      "orig-reflection"
+     ],
+     [
+      "w",
+      "orig-mirror-route"
+     ],
+     [
+      "w",
+      "385"
+     ]
+    ]
    },
    {
     "key": "symmetry",
     "part": "ה׳",
     "label": "סימטרייה",
-    "items": [["s", 8], ["m", 88], ["m", 89], ["w", "orig-symmetry"]]
+    "items": [
+     [
+      "s",
+      8
+     ],
+     [
+      "m",
+      88
+     ],
+     [
+      "m",
+      89
+     ],
+     [
+      "w",
+      "orig-symmetry"
+     ]
+    ]
    },
    {
     "key": "composition",
     "part": "ו׳",
     "label": "שפת השאלות, אוריינות ורצפי פעולות",
-    "items": [["s", 9], ["m", 50], ["m", 51], ["s", 10], ["w", "orig-composition"], ["w", "351"]]
+    "items": [
+     [
+      "s",
+      9
+     ],
+     [
+      "m",
+      50
+     ],
+     [
+      "m",
+      51
+     ],
+     [
+      "s",
+      10
+     ],
+     [
+      "w",
+      "orig-composition"
+     ],
+     [
+      "w",
+      "351"
+     ]
+    ]
    },
    {
     "key": "summative",
     "part": "ז׳",
     "label": "ניסוחי השאלות ומשימות מסכמות",
-    "items": [["s", 11], ["w", "true-false"], ["w", "triangle"]]
+    "items": [
+     [
+      "s",
+      11
+     ],
+     [
+      "w",
+      "true-false"
+     ],
+     [
+      "w",
+      "triangle"
+     ]
+    ]
    },
    {
     "key": "teaching",
     "part": "ח׳",
     "label": "מערכי הוראה ומעבדת המורה",
-    "items": [["s", 12], ["s", 13], ["s", 14], ["c", "sadna"], ["c", "workshop"]]
+    "items": [
+     [
+      "s",
+      12
+     ],
+     [
+      "s",
+      13
+     ],
+     [
+      "s",
+      14
+     ],
+     [
+      "c",
+      "sadna"
+     ],
+     [
+      "c",
+      "workshop"
+     ]
+    ]
    },
    {
     "key": "answers",
     "part": "ט׳",
     "label": "מפתח תשובות למורה",
-    "items": [["c", "answers"]]
+    "items": [
+     [
+      "c",
+      "answers"
+     ]
+    ]
    }
   ]
  }

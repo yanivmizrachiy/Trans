@@ -23,7 +23,7 @@ on:
       - 'scripts/build_complete.py'
       - 'scripts/visual_audit.py'
       - 'docs/ANSWER_KEY.md'
-      - 'docs/PRESENTATION_2026-10-21.md'
+      - 'docs/TEACHER_WORKSHOP.md'
       - 'scripts/test_math.py'
       - 'scripts/test_properties.py'
       - 'scripts/test_pedagogy.py'
@@ -39,7 +39,7 @@ on:
       - 'book/*.html'
       - 'sources/ministry/**'
       - 'docs/ANSWER_KEY.md'
-      - 'docs/PRESENTATION_2026-10-21.md'
+      - 'docs/TEACHER_WORKSHOP.md'
       - 'scripts/**'
       - '.github/workflows/build-pdfs.yml'
   workflow_dispatch:

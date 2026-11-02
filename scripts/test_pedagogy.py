@@ -71,6 +71,21 @@ def main():
         raw=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
         if "raz-logo.svg" in raw or "יצירה מקורית: יניב רז" in raw:
             raise AssertionError(f"{ident}: other creators' content was falsely credited")
+    # Material once derived from an external slide deck was rewritten (SOURCE_OF_TRUTH §כ.8);
+    # the deck's file name, date and editors must not creep back into public files.
+    public=["worksheets/rectangles.html","worksheets/true-false.html","worksheets/triangle.html",
+            "docs/TEACHER_WORKSHOP.md","teacher.html","index.html","book/front.html","book/INTRO.md",
+            "book/complete.html","README.md","data/manifest.json"]
+    remnants=("PRESENTATION_2026","21.10.2026","מצגת ההשתלמות","מצגת קהילת","סיכום מצגת","סיכום השתלמות")
+    for rel in public:
+        text=(ROOT/rel).read_text(encoding="utf-8")
+        for token in remnants:
+            if token in text:raise AssertionError(f"{rel}: remnant of the replaced slide deck: {token!r}")
+    if "עידן אחוון" in (ROOT/"docs"/"TEACHER_WORKSHOP.md").read_text(encoding="utf-8"):
+        raise AssertionError("docs/TEACHER_WORKSHOP.md must be original, not a deck summary")
+    for ident in ("rectangles","true-false","triangle"):
+        if "דף מקורי שנכתב לחוברת" not in (ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8"):
+            raise AssertionError(f"{ident}: rewritten sheet must declare that it was written for this booklet")
     print(f"PASS: {len(ORIGINAL)} original worksheets, {len(seen)} graded problems, 11 complete answer-key sections, no near-duplicates, exclusive branding")
 
 if __name__=="__main__":main()
