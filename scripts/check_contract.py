@@ -87,6 +87,17 @@ def main():
     for path in ("book/teacher.html","book/official.html","original.html","curriculum.html",
                  "book/front.html","book/answers.html","book/workshop.html","book/sadna.html","index.html"):
         demand((ROOT/path).is_file(),f"Missing public part of the book: {path}")
+    # Keep the 14 published teacher summaries and demonstrations in sync.
+    teacher_summaries=(ROOT/"book"/"teacher.html").read_text(encoding="utf-8")
+    teacher_portal=(ROOT/"teacher.html").read_text(encoding="utf-8")
+    summaries=re.findall(r'<article class="sheet" id="summary-(\\d+)">([\\s\\S]*?)</article>',teacher_summaries)
+    demand(len(summaries)==14 and [int(n) for n,_ in summaries]==list(range(1,15)),
+           "Teacher booklet must contain exactly 14 uniquely numbered summaries in order")
+    for n,body in summaries:
+        demand(body.count(f'class="micro-teach" data-summary="{n}"')==1,
+               f"Teacher summary {n} lacks precisely one concrete teaching note")
+    demand("איילת קריספין" in teacher_portal and "https://mamhishim.my.canva.site/" in teacher_portal,
+           "Teacher portal must reference and credit the creator's verified resource")
     sadna=(ROOT/"book"/"sadna.html").read_text(encoding="utf-8")
     demand(sadna.count('class="sheet"')==3 and sadna.count("שרית מאירוביץ וסיגלית אטשי")>=3,
            "Every workshop-deck page must credit its editors in the footer")
