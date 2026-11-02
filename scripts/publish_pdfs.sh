@@ -31,7 +31,7 @@ SOURCES=(
   worksheets/ assets/ scripts/build_pdfs.py
   book/teacher.html scripts/build_teacher.py
   book/official.html sources/ministry/ scripts/build_official.py
-  book/front.html book/sadna.html scripts/build_complete.py scripts/visual_audit.py
+  book/front.html book/sadna.html book/krispin-video.html scripts/build_complete.py scripts/visual_audit.py
   docs/ANSWER_KEY.md docs/TEACHER_WORKSHOP.md
 )
 # Everything the build produces. Directories are copied whole, so a worksheet
@@ -39,7 +39,7 @@ SOURCES=(
 OUTPUT_DIRS=(pdf qa/previews)
 OUTPUT_FILES=(
   book/teacher.pdf book/official.pdf book/front.pdf book/workshop.pdf
-  book/sadna.pdf book/answers.pdf book/transformations-complete.pdf
+  book/sadna.pdf book/krispin-video.pdf book/answers.pdf book/transformations-complete.pdf
   book/workshop.html book/answers.html
 )
 

@@ -26,7 +26,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / "scripts" / "publish_pdfs.sh"
-BOOK_PDFS = ("teacher", "official", "front", "workshop", "sadna", "answers", "transformations-complete")
+BOOK_PDFS = ("teacher", "official", "front", "workshop", "sadna", "krispin-video", "answers", "transformations-complete")
 ENV = {
     **os.environ,
     "GIT_AUTHOR_NAME": "publish-test", "GIT_AUTHOR_EMAIL": "publish-test@example.invalid",
