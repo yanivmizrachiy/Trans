@@ -81,8 +81,16 @@ def check_sources(page):
     expected_entries=Path("curriculum.html").read_text(encoding="utf-8").count('class="entry"')
     require(page.locator(".entry").count()==expected_entries,f"Ministry source map must show the {expected_entries} question groups committed in curriculum.html")
     check_page(page,"/book/official.html",".scan")
-    require(page.locator(".scan").count()==len(list((Path("sources")/"ministry").glob("*.webp"))),"Unaltered Ministry viewer missing source scans")
-    visible=page.locator(".scan img").evaluate_all(
+    scans=page.locator(".scan img")
+    require(scans.count()==len(list((Path("sources")/"ministry").glob("*.webp"))),"Unaltered Ministry viewer missing source scans")
+    # The scans use loading="lazy"; the ones below the fold only start loading once
+    # scrolled near the viewport, so bring each into view before asserting it loaded.
+    for idx in range(scans.count()):
+        scans.nth(idx).scroll_into_view_if_needed(timeout=15000)
+    page.wait_for_function(
+        "()=>Array.from(document.querySelectorAll('.scan img')).every(i=>i.complete&&i.naturalWidth>=1200)",
+        timeout=20000)
+    visible=scans.evaluate_all(
         "(imgs)=>imgs.map(i=>({ok:i.complete&&i.naturalWidth>=1200,width:i.naturalWidth}))")
     require(all(item["ok"] for item in visible),f"Original official scans failed to load: {visible}")
     page.screenshot(path=str(OUT/"official-mobile.png"),full_page=False)
