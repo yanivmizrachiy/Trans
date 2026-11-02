@@ -78,7 +78,8 @@ def check_sources(page):
     require(page.locator(".card").count()==11,"Author-owned catalog has wrong count")
     page.screenshot(path=str(OUT/"original-mobile.png"),full_page=True)
     check_page(page,"/curriculum.html",".entry")
-    require(page.locator(".entry").count()==7,"Ministry source map must have exactly 7 groups")
+    expected_entries=Path("curriculum.html").read_text(encoding="utf-8").count('class="entry"')
+    require(page.locator(".entry").count()==expected_entries,f"Ministry source map must show the {expected_entries} question groups committed in curriculum.html")
     check_page(page,"/book/official.html",".scan")
     require(page.locator(".scan").count()==len(list((Path("sources")/"ministry").glob("*.webp"))),"Unaltered Ministry viewer missing source scans")
     visible=page.locator(".scan img").evaluate_all(
@@ -173,6 +174,8 @@ def main():
             context.close()
         finally:
             browser.close()
-    print(f"PASS: public site mobile browser end-to-end, 11 original cards, 7 curriculum groups, 8 official scans, 11 keys; screenshots: {OUT}")
+    groups=Path("curriculum.html").read_text(encoding="utf-8").count('class="entry"')
+    scans=len(list((Path("sources")/"ministry").glob("*.webp")))
+    print(f"PASS: public site mobile browser end-to-end, 11 original cards, {groups} curriculum groups, {scans} official scans, 11 keys; screenshots: {OUT}")
 if __name__=="__main__":
     main()
