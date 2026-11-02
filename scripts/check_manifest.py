@@ -141,12 +141,31 @@ def flatten(items):
 
 
 def page_fingerprint(page):
-    """Something cheap that identifies a page's content independently of the stamp:
-    the set of image object names plus the first 400 characters of text."""
+    """Something cheap that identifies a page's content: the set of image object
+    names plus the page text without whitespace (text extraction order is stable
+    for one and the same page, whitespace is not)."""
     resources = page.get("/Resources") or {}
     images = tuple(sorted(str(k) for k in (resources.get("/XObject") or {}).keys()))
-    text = (page.extract_text() or "")[:400]
+    text = re.sub(r"\s+", "", page.extract_text() or "")
     return images, text
+
+
+def same_page(got, want, number):
+    """A booklet page equals its source page, except that the running page number
+    stamped on it may add that number (and only that number) to the text.
+    On a short page the stamp used to change the first 400 characters."""
+    got_images, got_text = page_fingerprint(got)
+    want_images, want_text = page_fingerprint(want)
+    if got_images != want_images:
+        return False
+    if got_text == want_text:
+        return True
+    stamp, start = str(number), 0
+    while (at := got_text.find(stamp, start)) >= 0:
+        if got_text[:at] + got_text[at + len(stamp):] == want_text:
+            return True
+        start = at + 1
+    return False
 
 
 def check_pdfs():
@@ -188,7 +207,7 @@ def check_pdfs():
         readers.setdefault(source, PdfReader(str(ROOT / source)))
         got = book.pages[number - 1]
         want = readers[source].pages[index]
-        demand(page_fingerprint(got) == page_fingerprint(want),
+        demand(same_page(got, want, number),
                f"Booklet page {number} is not {source} page {index + 1} ({item})")
         landscape = float(got.mediabox.width) > float(got.mediabox.height)
         demand(landscape == (kind == "m"), f"Booklet page {number}: unexpected orientation for {item}")
