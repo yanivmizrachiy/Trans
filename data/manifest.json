@@ -170,6 +170,12 @@
     "html": "book/official.html",
     "pages": "ministry"
    },
+   "krispin-video": {
+    "label": "סיכום מורה לסרטון ההמחשה — איילת קריספין",
+    "file": "book/krispin-video.pdf",
+    "html": "book/krispin-video.html",
+    "pages": 6
+   },
    "sadna": {
     "label": "מעבדת המורה — שלושה חקרי טרנספורמציות מקוריים",
     "file": "book/sadna.pdf",
@@ -436,6 +442,10 @@
      [
       "s",
       14
+     ],
+     [
+      "c",
+      "krispin-video"
      ],
      [
       "c",

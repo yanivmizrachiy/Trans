@@ -195,6 +195,34 @@ def render_sadna(browser):
     tab.close()
     return validate_pdf(dest,expected)
 
+def render_video(browser):
+    """Six A4 teacher pages summarising the watched transformations video."""
+    path=BOOK/"krispin-video.html"
+    dest=BOOK/"krispin-video.pdf"
+    expected=M.component_pages("krispin-video")
+    tab=browser.new_page(viewport={"width":1250,"height":1700})
+    errors=[]
+    tab.on("pageerror",lambda e:errors.append(str(e)))
+    tab.goto(path.as_uri(),wait_until="load")
+    tab.emulate_media(media="print")
+    check=tab.evaluate("""() => {
+      const pages=Array.from(document.querySelectorAll('article.sheet'));
+      return {count:pages.length,fail:pages.flatMap((p,i)=>{
+        const f=p.querySelector('.source'), m=p.querySelector('.content'); let e=[];
+        if(!f||!f.textContent.includes('איילת קריספין'))return [[i+1,'missing video source credit']];
+        const b=p.getBoundingClientRect(), z=f.getBoundingClientRect();
+        if(p.scrollHeight>p.clientHeight+2)e.push([i+1,'overflow']);
+        if(m.getBoundingClientRect().bottom>z.top-2)e.push([i+1,'footer overlap']);
+        if(z.bottom>b.bottom-6)e.push([i+1,'footer outside page']);
+        return e;
+      })};
+    }""")
+    if check["count"]!=expected or check["fail"] or errors:
+        raise RuntimeError(f"Video summary pages invalid: {check}, errors: {errors}")
+    tab.pdf(path=str(dest),format="A4",print_background=True,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
+    tab.close()
+    return validate_pdf(dest,expected)
+
 def source_pages(item):
     """(pdf path, zero-based page indices) that one sequence item takes from a part PDF."""
     kind,ident=item
@@ -239,6 +267,7 @@ def build():
         try:
             render_front(browser)
             render_sadna(browser)
+            render_video(browser)
             workshop=render_markdown(browser,ROOT/M.COMPONENTS["workshop"]["source"],
                                      BOOK/"workshop.html",BOOK/"workshop.pdf",M.COMPONENTS["workshop"]["label"])
             answers=render_markdown(browser,ROOT/M.COMPONENTS["answers"]["source"],

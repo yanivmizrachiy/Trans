@@ -20,6 +20,7 @@ on:
       - 'book/complete.html'
       - 'book/INTRO.md'
       - 'book/sadna.html'
+      - 'book/krispin-video.html'
       - 'scripts/build_complete.py'
       - 'scripts/visual_audit.py'
       - 'docs/ANSWER_KEY.md'

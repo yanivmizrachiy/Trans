@@ -26,7 +26,7 @@ def main():
     assert {a or b for a,b in catalog}==names,"Homepage catalog mismatch"
     assert "from manifest import" in (R/"scripts/build_pdfs.py").read_text(encoding="utf-8"),"PDF generator must take its inventory from the manifest"
     banned=re.compile(r"(?i)\b(?:demo|mock|dummy|lorem ipsum|coming soon|javascript:void)\b|(?<![\u0590-\u05ff])דמו(?![\u0590-\u05ff])|בקרוב|בהקמה|בהכנה")
-    content_pages=[R/"index.html",R/"teacher.html",R/"explore.html",R/"curriculum.html",R/"original.html",R/"book"/"teacher.html",R/"book"/"official.html",R/"book"/"sadna.html",*pages]
+    content_pages=[R/"index.html",R/"teacher.html",R/"explore.html",R/"curriculum.html",R/"original.html",R/"book"/"teacher.html",R/"book"/"official.html",R/"book"/"sadna.html",R/"book"/"krispin-video.html",*pages]
     # Every HTML file in book/ is a public URL (and most are bound into the
     # booklet PDF), so rendered guides such as workshop.html and answers.html
     # must pass the same relative-link check as the hand-written pages.

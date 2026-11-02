@@ -1,6 +1,6 @@
 # טרנספורמציות וחפיפת צורות — חוברת ומאגר הוראה
 
-[**פתיחת האתר**](https://transformations-math.vercel.app/) · [**החוברת המאוחדת — PDF, 59 עמודים**](https://transformations-math.vercel.app/book/transformations-complete.pdf) · [**מקור האמת היחיד**](./SOURCE_OF_TRUTH.md)
+[**פתיחת האתר**](https://transformations-math.vercel.app/) · [**החוברת המאוחדת — PDF, 65 עמודים**](https://transformations-math.vercel.app/book/transformations-complete.pdf) · [**מקור האמת היחיד**](./SOURCE_OF_TRUTH.md)
 
 מאגר לחטיבת הביניים, בדגש על כיתה ז׳: **הזזה, סיבוב ושיקוף (היפוך)**, חפיפת צורות, סימטרייה ופעולות עוקבות כהעמקה. מותאם לעברית RTL, למכשיר נייד ולהדפסת A4.
 
@@ -9,7 +9,7 @@
 | תוצר | קישור | מה כולל |
 |---|---|---|
 | **חוברת HTML רציפה (מהדורת מעבר)** | [כל העמודים בגלילה אנכית](https://transformations-math.vercel.app/book/complete.html) | שילוב נושאי של 14 סיכומי מורה, 11 צילומי מקור, 20 דפים קיימים ומערכי חקר חדשים, באותו סדר כמו ה־PDF; חלק מדפי העיבוד הישנים עדיין ממתינים להחלפה מקורית |
-| **חוברת אחת מלאה** | [פתיחת PDF](https://transformations-math.vercel.app/book/transformations-complete.pdf) | **59 עמודים ו־57 סימניות** ב־9 פרקים לפי נושא מתמטי: בכל פרק סיכום למורה, צילומי המקור תחת ״שאלות מתוך תוכנית הלימודים״ ודפי העבודה באותו נושא; מערכי חקר ומפתח תשובות בסוף |
+| **חוברת אחת מלאה** | [פתיחת PDF](https://transformations-math.vercel.app/book/transformations-complete.pdf) | **65 עמודים ו־58 סימניות** ב־9 פרקים לפי נושא מתמטי: בכל פרק סיכום למורה, צילומי המקור תחת ״שאלות מתוך תוכנית הלימודים״ ודפי העבודה באותו נושא; מערכי חקר ומפתח תשובות בסוף |
 | **סיכומים למורה** | [14 עמודים להדפסה](https://transformations-math.vercel.app/book/teacher.pdf) | מונחים וניסוחי התוכנית, הסברים פשוטים, רצף הוראה, טעויות שכיחות והערכה |
 | **שאלות מתוך תוכנית הלימודים** | [11 צילומי מקור ללא שינוי](https://transformations-math.vercel.app/book/official.pdf) | עמודים 34–38, 48, 50–51, 88–89 ו־91 ממסמך גאומטריה ז׳; ללא שינוי ניסוח או שרטוט |
 | **דפי עבודה מקוריים — יניב רז** | [11 דפים בשלוש רמות](https://transformations-math.vercel.app/original.html) | הכנה, רמה מקבילה ואתגר, עם לוגו RAZ בתחתית **דפים אלה בלבד** |
