@@ -1,5 +1,5 @@
 {
- "_comment": "Technical inventory of the published artifacts. Decisions and requirements live only in SOURCE_OF_TRUTH.md; this file is what the build and the checks read so that counts, ids, order and page ranges exist in one place. Booklet page ranges and totals are derived from the part order below by scripts/manifest.py.",
+ "_comment": "Technical inventory of the published artifacts. Decisions and requirements live only in SOURCE_OF_TRUTH.md; this file is what the build and the checks read so that counts, ids, order and page ranges exist in one place. The booklet is one continuous reading sequence ordered by mathematical topic: book.chapters lists every item (s = numbered teacher summary, m = Ministry source page, w = worksheet id, c = file-backed component) exactly in the order of book/complete.html and of book/transformations-complete.pdf. Page ranges, totals and bookmark counts are derived from it by scripts/manifest.py.",
  "site": {
   "base_url": "https://transformations-math.vercel.app",
   "root_pages": [
@@ -139,65 +139,115 @@
    89
   ],
   "source_dir": "sources/ministry",
-  "file_pattern": "grade7-p{page:03}.webp"
+  "file_pattern": "grade7-p{page:03}.webp",
+  "heading": "שאלות מתוך תוכנית הלימודים"
+ },
+ "teacher": {
+  "html": "book/teacher.html",
+  "summaries": 14
  },
  "book": {
   "file": "book/transformations-complete.pdf",
-  "bookmarks_per_worksheet": true,
-  "parts": [
-   {
-    "key": "front",
+  "html": "book/complete.html",
+  "components": {
+   "front": {
     "label": "שער ותוכן עניינים",
     "file": "book/front.pdf",
-    "pages": 2
+    "html": "book/front.html",
+    "pages": 2,
+    "print_only": true
    },
-   {
-    "key": "teacher",
-    "part": "א׳",
+   "teacher": {
     "label": "סיכומים למורה",
     "file": "book/teacher.pdf",
+    "html": "book/teacher.html",
     "pages": 14
    },
-   {
-    "key": "official",
-    "part": "ב׳",
+   "official": {
     "label": "שאלות מתוך תוכנית הלימודים (מקור ללא שינוי)",
     "file": "book/official.pdf",
+    "html": "book/official.html",
     "pages": "ministry"
    },
-   {
-    "key": "original",
-    "part": "ג׳",
-    "label": "דפי המקור של יניב רז",
-    "pages": "worksheets.original"
-   },
-   {
-    "key": "imported",
-    "part": "ד׳",
-    "label": "דפים ממקורות קודמים",
-    "pages": "worksheets.imported"
-   },
-   {
-    "key": "workshop",
-    "part": "ה׳",
-    "label": "סיכום מצגת ההשתלמות",
-    "file": "book/workshop.pdf",
-    "pages": 2
-   },
-   {
-    "key": "sadna",
-    "part": "ו׳",
+   "sadna": {
     "label": "מעבדת המורה — שלושה חקרי טרנספורמציות מקוריים",
     "file": "book/sadna.pdf",
+    "html": "book/sadna.html",
     "pages": 3,
     "credit": "מערך הוראה מקורי — יניב רז"
    },
-   {
-    "key": "answers",
-    "part": "ז׳",
+   "workshop": {
+    "label": "סיכום מצגת ההשתלמות",
+    "file": "book/workshop.pdf",
+    "html": "book/workshop.html",
+    "pages": 2
+   },
+   "answers": {
     "label": "מפתח תשובות למורה",
     "file": "book/answers.pdf",
+    "html": "book/answers.html",
     "pages": 6
+   }
+  },
+  "chapters": [
+   {
+    "key": "front",
+    "label": "שער ותוכן עניינים",
+    "items": [["c", "front"]]
+   },
+   {
+    "key": "congruence",
+    "part": "א׳",
+    "label": "מבנה החוברת ומושג החפיפה",
+    "items": [["s", 1], ["s", 2], ["s", 3], ["s", 4], ["m", 34], ["w", "orig-rectangles"], ["w", "349"]]
+   },
+   {
+    "key": "translation",
+    "part": "ב׳",
+    "label": "הזזה",
+    "items": [["s", 5], ["m", 48], ["w", "orig-translation"], ["w", "orig-robot-grid"], ["w", "549"], ["w", "rectangles"]]
+   },
+   {
+    "key": "rotation",
+    "part": "ג׳",
+    "label": "סיבוב",
+    "items": [["s", 6], ["m", 35], ["m", 38], ["w", "orig-rotation"], ["w", "orig-conveyor"], ["w", "orig-center-p"], ["w", "orig-symbol-turn"], ["w", "350"], ["w", "352"]]
+   },
+   {
+    "key": "reflection",
+    "part": "ד׳",
+    "label": "שיקוף (היפוך)",
+    "items": [["s", 7], ["m", 36], ["m", 37], ["w", "orig-reflection"], ["w", "orig-mirror-route"], ["w", "385"]]
+   },
+   {
+    "key": "symmetry",
+    "part": "ה׳",
+    "label": "סימטרייה",
+    "items": [["s", 8], ["m", 88], ["m", 89], ["w", "orig-symmetry"]]
+   },
+   {
+    "key": "composition",
+    "part": "ו׳",
+    "label": "שפת השאלות, אוריינות ורצפי פעולות",
+    "items": [["s", 9], ["m", 50], ["m", 51], ["s", 10], ["w", "orig-composition"], ["w", "351"]]
+   },
+   {
+    "key": "summative",
+    "part": "ז׳",
+    "label": "ניסוחי השאלות ומשימות מסכמות",
+    "items": [["s", 11], ["w", "true-false"], ["w", "triangle"]]
+   },
+   {
+    "key": "teaching",
+    "part": "ח׳",
+    "label": "מערכי הוראה ומעבדת המורה",
+    "items": [["s", 12], ["s", 13], ["s", 14], ["c", "sadna"], ["c", "workshop"]]
+   },
+   {
+    "key": "answers",
+    "part": "ט׳",
+    "label": "מפתח תשובות למורה",
+    "items": [["c", "answers"]]
    }
   ]
  }

@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Independently render and audit all 56 pages of the completed PDF.
+"""Independently render and audit every page of the completed PDF.
 
 Chromium generates the individual documents. PyMuPDF is a second,
 independent PDF renderer used to find blank pages, bad page geometry,
 missing text/scans, and to preserve contact sheets for human inspection.
+Which pages are landscape Ministry scans and which carry a running page
+number is derived from the manifest's reading sequence.
 """
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageOps
 import fitz
 import manifest as M
 
@@ -14,13 +16,22 @@ ROOT=M.ROOT
 SOURCE=ROOT/M.BOOK_FILE
 DEST=ROOT/"qa"/"previews"
 EXPECTED=M.TOTAL_PAGES
-OFFICIAL_FIRST,OFFICIAL_LAST=M.PARTS["official"][1],M.PARTS["official"][2]
-SAMPLES=[
-    ("teacher-and-source",[1,2,3,10,16,17]),
-    ("official-and-original",[18,24,25,30,35,36]),
-    ("additional-and-solutions",[42,44,45,46,48,51]),
-    ("six-imported-source-pages",[36,37,38,39,40,41])
-]
+PAGE_MAP={n:(chapter,item) for n,chapter,item,_ in M.page_map()}
+
+def samples():
+    """Contact sheets whose page numbers come from the manifest layout."""
+    openers=[first for chapter,first,_ in M.layout() if "part" in chapter]
+    scans=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="m"]
+    worksheets=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="w"]
+    summaries=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="s"]
+    closing=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="c" and item[1]!="front"]
+    return [
+        ("chapter-openers",openers[:10]),
+        ("ministry-source-pages",scans),
+        ("worksheets-in-topic-order",worksheets[:10]),
+        ("teacher-summaries",summaries[:10]),
+        ("teacher-lab-and-solutions",closing[:10]),
+    ]
 
 def main():
     DEST.mkdir(parents=True,exist_ok=True)
@@ -29,7 +40,8 @@ def main():
     stats=[]
     for i,page in enumerate(doc):
         n=i+1
-        is_official=OFFICIAL_FIRST<=n<=OFFICIAL_LAST
+        chapter,item=PAGE_MAP[n]
+        is_official=item[0]=="m"
         width,height=page.rect.width,page.rect.height
         if is_official and not (width>height and abs(width-841.89)<5):
             raise RuntimeError(f"Original ministry page {n}: A4 landscape orientation missing")
@@ -49,10 +61,15 @@ def main():
             extracted=page.get_text().strip()
             if len(extracted)<65:
                 raise RuntimeError(f"Text page {n}: extracted text suspiciously short ({len(extracted)} chars)")
+            if item!=["c","front"]:
+                # The running page number is stamped in the bottom 12 mm of every portrait page.
+                foot=fitz.Rect(0,page.rect.height-12*72/25.4,page.rect.width,page.rect.height)
+                if str(n) not in page.get_text("text",clip=foot).split():
+                    raise RuntimeError(f"Page {n}: running page number missing from the bottom margin")
         stats.append((n,round(occupied,4)))
 
-    for label,numbers in SAMPLES:
-        cellw,cellh=(900,1300) if label=="six-imported-source-pages" else (450,650)
+    for label,numbers in samples():
+        cellw,cellh=(900,1300) if label=="ministry-source-pages" else (450,650)
         cols=2
         rows=(len(numbers)+cols-1)//cols
         panel=Image.new("RGB",(cols*cellw,rows*cellh),(231,238,240))
@@ -69,7 +86,7 @@ def main():
         target=DEST/(label+".jpg")
         panel.save(target,quality=88,optimize=True,progressive=True)
         print(f"Preview {target.relative_to(ROOT)}: {target.stat().st_size} bytes")
-    print(f"PASS: {len(doc)} independently rendered pages; no blank pages, missing image scans, bad A4 orientation or missing text")
+    print(f"PASS: {len(doc)} independently rendered pages; no blank pages, missing image scans, bad A4 orientation, missing text or missing page numbers")
     print("Ink-coverage range:",min(x[1] for x in stats),max(x[1] for x in stats))
 
 if __name__=="__main__":main()

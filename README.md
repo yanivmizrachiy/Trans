@@ -8,8 +8,8 @@
 
 | תוצר | קישור | מה כולל |
 |---|---|---|
-| **חוברת HTML רציפה (מהדורת מעבר)** | [כל העמודים בגלילה אנכית](https://transformations-math.vercel.app/book/complete.html) | שילוב נושאי של 14 סיכומי מורה, 10 צילומי מקור, 20 דפים קיימים ומערכי חקר חדשים; חלק מדפי העיבוד הישנים עדיין ממתינים להחלפה מקורית, וסדר ה־PDF עדיין ישן |
-| **חוברת אחת מלאה** | [פתיחת PDF](https://transformations-math.vercel.app/book/transformations-complete.pdf) | **58 עמודים ו־26 סימניות**: שער, סיכומי מורה, מקור רשמי, דפי עבודה, מערכי חקר מקוריים, דפי עיבוד קיימים ותשובות |
+| **חוברת HTML רציפה (מהדורת מעבר)** | [כל העמודים בגלילה אנכית](https://transformations-math.vercel.app/book/complete.html) | שילוב נושאי של 14 סיכומי מורה, 10 צילומי מקור, 20 דפים קיימים ומערכי חקר חדשים, באותו סדר כמו ה־PDF; חלק מדפי העיבוד הישנים עדיין ממתינים להחלפה מקורית |
+| **חוברת אחת מלאה** | [פתיחת PDF](https://transformations-math.vercel.app/book/transformations-complete.pdf) | **58 עמודים ו־56 סימניות** ב־9 פרקים לפי נושא מתמטי: בכל פרק סיכום למורה, צילומי המקור תחת ״שאלות מתוך תוכנית הלימודים״ ודפי העבודה באותו נושא; מערכי חקר ומפתח תשובות בסוף |
 | **סיכומים למורה** | [14 עמודים להדפסה](https://transformations-math.vercel.app/book/teacher.pdf) | מונחים וניסוחי התוכנית, הסברים פשוטים, רצף הוראה, טעויות שכיחות והערכה |
 | **שאלות מתוך תוכנית הלימודים** | [10 צילומי מקור ללא שינוי](https://transformations-math.vercel.app/book/official.pdf) | עמודים 34–38, 48, 50–51 ו־88–89 ממסמך גאומטריה ז׳; ללא שינוי ניסוח או שרטוט |
 | **דפי עבודה מקוריים — יניב רז** | [11 דפים בשלוש רמות](https://transformations-math.vercel.app/original.html) | הכנה, רמה מקבילה ואתגר, עם לוגו RAZ בתחתית **דפים אלה בלבד** |
@@ -30,7 +30,7 @@
 - `scripts/build_pdfs.py` — מפיק 20 קובצי דפי עבודה.
 - `scripts/build_teacher.py` — מפיק 14 סיכומים ממוספרים ובודק עימוד.
 - `scripts/build_official.py` — מאמת את חתימות עמודי המקור הרשמיים ומפיק PDF נפרד.
-- `scripts/build_complete.py` — מאחד את החומרים לחוברת אחת עם תוכן עניינים וסימניות.
+- `scripts/build_complete.py` — מרכיב את החוברת עמוד־עמוד בסדר הנושאי של `data/manifest.json`, עם תוכן עניינים, סימניות ומספרי עמודים; `scripts/sync_book_docs.py` מייצר את תוכן העניינים ואת סדר הקריאה מהמניפסט.
 - `scripts/test_math.py`, `scripts/test_pedagogy.py`, `scripts/validate_site.py`, `scripts/visual_audit.py` — בדיקות חישוב, רמות שאלה, ייחוס, קישורים ועימוד.
 - `.github/workflows/build-pdfs.yml` ו־`.github/workflows/validate-site.yml` — בדיקות ובנייה אוטומטיות; האתר נפרס ב־Vercel מענף `main`.
 

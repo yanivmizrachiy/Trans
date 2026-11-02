@@ -1,9 +1,21 @@
 #!/usr/bin/env python3
-"""Build the genuine complete transformation booklet from verified printed source files."""
+"""Build the complete transformation booklet from verified printed source files.
+
+The booklet follows the reading sequence of data/manifest.json (book.chapters):
+one continuous order by mathematical topic, identical to book/complete.html.
+Pages are taken one by one from the already verified part PDFs (teacher
+summaries, Ministry scans, worksheets, teacher lab, workshop and answer key),
+so the public part files stay exactly what they are and only their order in
+the merged booklet is decided here.
+"""
+from io import BytesIO
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader, PdfWriter
 from markdown import markdown
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.pdfgen.canvas import Canvas
 from urllib.parse import unquote, urlsplit, urljoin
 import re
 import tempfile
@@ -12,14 +24,7 @@ import manifest as M
 ROOT=M.ROOT
 BOOK=ROOT/"book"
 PDF=ROOT/"pdf"
-# Worksheet order, titles and page counts come from data/manifest.json.
-WORKSHEETS_ORIGINAL=tuple((i,M.TITLES[i]) for i in M.ORIGINAL)
-WORKSHEETS_ADDITIONAL=tuple((i,M.TITLES[i]) for i in M.IMPORTED)
 PAGES=M.WORKSHEET_PAGES
-PART=M.PARTS
-def part_title(key):
-    part=PART[key][0]
-    return f"חלק {part['part']} — {part['label']}"
 CSS = """
 @page{size:A4;margin:14mm 14mm 16mm}
 *{box-sizing:border-box}
@@ -132,8 +137,15 @@ def render_markdown(browser, source, target_html, target_pdf, label):
     return validate_pdf(target_pdf)
 
 def render_front(browser):
+    """Cover and table of contents. The contents rows are generated from the manifest
+    (scripts/sync_book_docs.py); the build refuses a stale table."""
+    import sync_book_docs
+    stale=sync_book_docs.check()
+    if stale:
+        raise RuntimeError("Derived booklet blocks are stale: "+", ".join(stale)+" (run python scripts/sync_book_docs.py --write)")
     path=BOOK/"front.html"
     dest=BOOK/"front.pdf"
+    expected=M.component_pages("front")
     tab=browser.new_page(viewport={"width":1250,"height":1700})
     errors=[]
     tab.on("pageerror",lambda e:errors.append(str(e)))
@@ -148,17 +160,18 @@ def render_front(browser):
         return e;
       })};
     }""")
-    if check["count"]!=2 or check["fail"] or errors:
+    if check["count"]!=expected or check["fail"] or errors:
         raise RuntimeError(f"Cover layout invalid: {check}, errors: {errors}")
     tab.pdf(path=str(dest),format="A4",print_background=True,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
     tab.close()
-    return validate_pdf(dest,2)
+    return validate_pdf(dest,expected)
 
 SADNA_CREDIT=M.SADNA_CREDIT
 def render_sadna(browser):
     """Three independent, originally authored teacher investigations."""
     path=BOOK/"sadna.html"
     dest=BOOK/"sadna.pdf"
+    expected=M.component_pages("sadna")
     tab=browser.new_page(viewport={"width":1250,"height":1700})
     errors=[]
     tab.on("pageerror",lambda e:errors.append(str(e)))
@@ -176,68 +189,138 @@ def render_sadna(browser):
         return e;
       })};
     }""",SADNA_CREDIT)
-    if check["count"]!=M.part_pages(PART["sadna"][0]) or check["fail"] or errors:
+    if check["count"]!=expected or check["fail"] or errors:
         raise RuntimeError(f"Original teacher-lab pages invalid: {check}, errors: {errors}")
     tab.pdf(path=str(dest),format="A4",print_background=True,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
     tab.close()
-    return validate_pdf(dest,M.part_pages(PART["sadna"][0]))
+    return validate_pdf(dest,expected)
+
+def source_pages(item):
+    """(pdf path, zero-based page indices) that one sequence item takes from a part PDF."""
+    kind,ident=item
+    if kind=="s":
+        return BOOK/"teacher.pdf",[ident-1]
+    if kind=="m":
+        return BOOK/"official.pdf",[M.MINISTRY_PAGES.index(ident)]
+    if kind=="w":
+        return PDF/f"{ident}.pdf",list(range(PAGES[ident]))
+    return ROOT/M.COMPONENTS[ident]["file"],list(range(M.component_pages(ident)))
+
+def number_stamps(numbers):
+    """A PDF with one portrait A4 page per requested number: the running page number
+    printed in the bottom margin. Ministry scans and the cover are never stamped."""
+    buffer=BytesIO()
+    canvas=Canvas(buffer,pagesize=A4)
+    width,_=A4
+    for n in numbers:
+        canvas.setFont("Helvetica",9)
+        canvas.setFillGray(0.35)
+        canvas.drawCentredString(width/2,5.5*mm,str(n))
+        canvas.showPage()
+    canvas.save()
+    buffer.seek(0)
+    return PdfReader(buffer)
+
+def flatten(outline):
+    for item in outline:
+        if isinstance(item,list):
+            yield from flatten(item)
+        else:
+            yield item
 
 def build():
-    validate_pdf(BOOK/"teacher.pdf",M.part_pages(PART["teacher"][0]))
-    validate_pdf(BOOK/"official.pdf",M.part_pages(PART["official"][0]))
-    for ident,_ in WORKSHEETS_ORIGINAL+WORKSHEETS_ADDITIONAL:
+    M.validate()
+    validate_pdf(BOOK/"teacher.pdf",M.component_pages("teacher"))
+    validate_pdf(BOOK/"official.pdf",M.component_pages("official"))
+    for ident in M.WORKSHEETS:
         validate_pdf(PDF/(ident+".pdf"),PAGES[ident])
     with sync_playwright() as p:
         browser=p.chromium.launch(headless=True,args=["--no-sandbox"])
         try:
-            front=render_front(browser)
-            sadna=render_sadna(browser)
+            render_front(browser)
+            render_sadna(browser)
             workshop=render_markdown(browser,ROOT/"docs"/"PRESENTATION_2026-10-21.md",
                                      BOOK/"workshop.html",BOOK/"workshop.pdf","סיכום מצגת קהילת המורים")
             answers=render_markdown(browser,ROOT/"docs"/"ANSWER_KEY.md",
                                     BOOK/"answers.html",BOOK/"answers.pdf","מפתח תשובות למורה")
         finally:
             browser.close()
-    if workshop<1 or answers<2:
-        raise RuntimeError(f"Workshop or answers document appears too short: {workshop}, {answers}")
+    for key,count in (("workshop",workshop),("answers",answers)):
+        if count!=M.component_pages(key):
+            raise RuntimeError(f"book/{key}.pdf rendered {count} pages but data/manifest.json says {M.component_pages(key)}")
+    summaries=M.summary_titles()
+    readers={}
+    def reader(path):
+        if path not in readers:
+            readers[path]=PdfReader(str(path))
+        return readers[path]
     writer=PdfWriter()
-    sections=[]
-    def append(path,label,expected=None):
-        first=len(writer.pages)+1
-        actual=validate_pdf(path,expected)
-        writer.append(str(path),outline_item=label,import_outline=False)
-        sections.append((label,first,first+actual-1))
-    append(BOOK/"front.pdf",PART["front"][0]["label"],M.part_pages(PART["front"][0]))
-    append(BOOK/"teacher.pdf",part_title("teacher"),M.part_pages(PART["teacher"][0]))
-    append(BOOK/"official.pdf",part_title("official"),M.part_pages(PART["official"][0]))
-    for ident,title in WORKSHEETS_ORIGINAL:
-        append(PDF/(ident+".pdf"),f"חלק {PART['original'][0]['part']} — "+title,PAGES[ident])
-    for ident,title in WORKSHEETS_ADDITIONAL:
-        append(PDF/(ident+".pdf"),f"חלק {PART['imported'][0]['part']} — "+title,PAGES[ident])
-    append(BOOK/"workshop.pdf",part_title("workshop"),workshop)
-    append(BOOK/"sadna.pdf",part_title("sadna"),sadna)
-    append(BOOK/"answers.pdf",part_title("answers"),answers)
+    placed=[]            # (page_number, item) for every placed page
+    for chapter,first,last in M.layout():
+        chapter_first=len(writer.pages)
+        item_first={}
+        for item in chapter["items"]:
+            path,indices=source_pages(item)
+            item_first[tuple(item)]=len(writer.pages)
+            for index in indices:
+                page=reader(path).pages[index]
+                box=page.mediabox
+                landscape=float(box.width)>float(box.height)
+                if landscape!=(item[0]=="m"):
+                    raise RuntimeError(f"Page orientation of {path.name}#{index+1} does not fit item {item}")
+                writer.add_page(page)
+                placed.append((len(writer.pages),list(item)))
+        if (chapter_first+1,len(writer.pages))!=(first,last):
+            raise RuntimeError(f"Chapter {chapter['key']} occupies {(chapter_first+1,len(writer.pages))}, manifest derives {(first,last)}")
+        parent=writer.add_outline_item(M.chapter_title(chapter),chapter_first)
+        for item in M.item_bookmarks(chapter):
+            writer.add_outline_item(M.item_title(item,summaries),item_first[tuple(item)],parent=parent)
+    # Running page numbers in the bottom margin of every portrait page except the
+    # cover pages, which print their own numbers; the Ministry scans stay untouched.
+    numbered=[n for n,item in placed if item[0]!="m" and item!=["c","front"]]
+    stamps=number_stamps(numbered)
+    for k,n in enumerate(numbered):
+        writer.pages[n-1].merge_page(stamps.pages[k])
     writer.add_metadata({"/Title":"טרנספורמציות — חוברת הוראה מלאה",
-                         "/Subject":"חפיפת צורות, הזזה, סיבוב ושיקוף — מקורות, תרגול מקורי ומפתח תשובות",
+                         "/Subject":"חפיפת צורות, הזזה, סיבוב ושיקוף — סיכומים למורה, שאלות מתוך תוכנית הלימודים, דפי עבודה ומפתח תשובות, לפי נושא",
                          "/Author":"מאגר הוראה במתמטיקה — Trans"})
-    dest=BOOK/"transformations-complete.pdf"
+    dest=ROOT/M.BOOK_FILE
     with dest.open("wb") as f:writer.write(f)
     verify=PdfReader(str(dest))
-    target_pages=M.TOTAL_PAGES
-    if len(verify.pages)!=target_pages:
-        raise RuntimeError(f"Book missing pages: {len(verify.pages)} expected {target_pages} (data/manifest.json)")
-    if len(verify.outline)!=M.TOTAL_BOOKMARKS:
-        raise RuntimeError(f"Book PDF has {len(verify.outline)} bookmarks, manifest derives {M.TOTAL_BOOKMARKS}")
-    # Every file-backed part must start and end exactly where the manifest layout says.
-    spans={label:(start,end) for label,start,end in sections}
-    for part,first,last in M.layout():
-        if "file" not in part: continue
-        label=part["label"] if part["key"]=="front" else part_title(part["key"])
-        if spans.get(label)!=(first,last):
-            raise RuntimeError(f"Part {part['key']} occupies {spans.get(label)} but data/manifest.json derives {(first,last)}")
+    if len(verify.pages)!=M.TOTAL_PAGES:
+        raise RuntimeError(f"Book missing pages: {len(verify.pages)} expected {M.TOTAL_PAGES} (data/manifest.json)")
+    bookmarks=list(flatten(verify.outline))
+    if len(bookmarks)!=M.TOTAL_BOOKMARKS:
+        raise RuntimeError(f"Book PDF has {len(bookmarks)} bookmarks, manifest derives {M.TOTAL_BOOKMARKS}")
+    expected_titles=[]
+    for chapter in M.CHAPTERS:
+        expected_titles.append(M.chapter_title(chapter))
+        expected_titles.extend(M.item_title(i,summaries) for i in M.item_bookmarks(chapter))
+    if [b.title for b in bookmarks]!=expected_titles:
+        raise RuntimeError("Bookmark titles or order differ from the manifest sequence")
+    for bookmark,(chapter_or_item,first) in zip(bookmarks,_expected_targets()):
+        if verify.get_destination_page_number(bookmark)!=first-1:
+            raise RuntimeError(f"Bookmark {bookmark.title!r} points at page {verify.get_destination_page_number(bookmark)+1}, expected {first}")
+    expected_map=[(n,item) for n,_,item,_ in M.page_map()]
+    if placed!=expected_map:
+        raise RuntimeError("Placed pages differ from manifest page map")
     if dest.stat().st_size<1_000_000:
         raise RuntimeError("Merged booklet too small for the manifest scans and worksheets")
-    for name,start,end in sections:print(f"Pages {start:02d}–{end:02d}: {name}")
-    print(f"PASS: complete single PDF {len(verify.pages)} pages, {len(sections)} bookmarked sections, {dest.stat().st_size} bytes")
+    for chapter,first,last in M.layout():
+        print(f"Pages {first:02d}–{last:02d}: {M.chapter_title(chapter)}")
+    print(f"PASS: complete single PDF {len(verify.pages)} pages, {len(M.CHAPTERS)} chapters, {len(bookmarks)} bookmarks, "
+          f"{len(numbered)} numbered pages, {dest.stat().st_size} bytes")
+
+def _expected_targets():
+    """(label owner, first page) for every bookmark in manifest order."""
+    out=[]
+    for chapter,first,_ in M.layout():
+        out.append((chapter,first))
+        page=first
+        for item in chapter["items"]:
+            if len(chapter["items"])>1:
+                out.append((item,page))
+            page+=M.item_pages(item)
+    return out
 
 if __name__=="__main__":build()

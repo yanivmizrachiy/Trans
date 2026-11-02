@@ -2,13 +2,21 @@
 """Single technical inventory for build and QA scripts.
 
 Reads data/manifest.json and derives everything the scripts used to hard-code:
-worksheet ids and order, Ministry page list, booklet part order, page ranges,
-total pages and bookmark count. SOURCE_OF_TRUTH.md remains the only place for
-requirements and decisions; this module only exposes the inventory that the
-published files must match.
+worksheet ids and order, Ministry page list, the booklet's reading sequence
+(the same for book/complete.html and book/transformations-complete.pdf), the
+topic chapters, page ranges, total pages and bookmark count.
+SOURCE_OF_TRUTH.md remains the only place for requirements and decisions;
+this module only exposes the inventory that the published files must match.
+
+Sequence items are two-element lists exactly as written in the manifest:
+  ["s", n]   numbered teacher summary n (one page of book/teacher.pdf)
+  ["m", p]   Ministry source page p (one page of book/official.pdf)
+  ["w", id]  worksheet id (pdf/<id>.pdf, one or more pages)
+  ["c", key] file-backed component (book/<key>.pdf, all of its pages)
 """
 from pathlib import Path
 import json
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = ROOT / "data" / "manifest.json"
@@ -19,62 +27,175 @@ IMPORTED = tuple(w["id"] for w in DATA["worksheets"]["imported"])
 WORKSHEETS = ORIGINAL + IMPORTED
 TITLES = {w["id"]: w["title"] for group in DATA["worksheets"].values() for w in group}
 WORKSHEET_PAGES = {w["id"]: w["pages"] for group in DATA["worksheets"].values() for w in group}
+WORKSHEET_SOURCE = {w["id"]: w.get("source", "original") for group in DATA["worksheets"].values() for w in group}
 MINISTRY_PAGES = tuple(DATA["ministry"]["pages"])
+MINISTRY_HEADING = DATA["ministry"]["heading"]
 BASE_URL = DATA["site"]["base_url"]
 ROOT_PAGES = tuple(DATA["site"]["root_pages"])
 BOOK_FILE = DATA["book"]["file"]
-SADNA_CREDIT = next(p["credit"] for p in DATA["book"]["parts"] if p["key"] == "sadna")
+BOOK_HTML = DATA["book"]["html"]
+COMPONENTS = DATA["book"]["components"]
+CHAPTERS = DATA["book"]["chapters"]
+SUMMARY_COUNT = int(DATA["teacher"]["summaries"])
+SADNA_CREDIT = COMPONENTS["sadna"]["credit"]
 
 
 def ministry_file(page):
     return ROOT / DATA["ministry"]["source_dir"] / DATA["ministry"]["file_pattern"].format(page=page)
 
 
-def part_pages(part):
-    """Number of A4 pages a booklet part contributes."""
-    pages = part["pages"]
+def component_pages(key):
+    """Number of A4 pages a file-backed component contributes."""
+    pages = COMPONENTS[key]["pages"]
     if pages == "ministry":
         return len(MINISTRY_PAGES)
-    if pages == "worksheets.original":
-        return sum(WORKSHEET_PAGES[i] for i in ORIGINAL)
-    if pages == "worksheets.imported":
-        return sum(WORKSHEET_PAGES[i] for i in IMPORTED)
     return int(pages)
 
 
-def part_bookmarks(part):
-    """Bookmarks a part adds: one per worksheet, otherwise one per part."""
-    if part["pages"] == "worksheets.original":
-        return len(ORIGINAL)
-    if part["pages"] == "worksheets.imported":
-        return len(IMPORTED)
-    return 1
+def item_pages(item):
+    kind, ident = item
+    if kind in ("s", "m"):
+        return 1
+    if kind == "w":
+        return WORKSHEET_PAGES[ident]
+    if kind == "c":
+        return component_pages(ident)
+    raise ValueError(f"Unknown sequence item {item!r}")
+
+
+def print_sequence():
+    """Every item of the merged PDF, in reading order (includes the cover)."""
+    return [list(item) for chapter in CHAPTERS for item in chapter["items"]]
+
+
+def reading_sequence():
+    """The items book/complete.html shows: the print sequence without print-only components."""
+    return [item for item in print_sequence()
+            if not (item[0] == "c" and COMPONENTS[item[1]].get("print_only"))]
+
+
+def html_chapters():
+    """[label, index of first item in reading_sequence()] for every chapter shown on the page."""
+    out = []
+    index = 0
+    for chapter in CHAPTERS:
+        shown = [item for item in chapter["items"]
+                 if not (item[0] == "c" and COMPONENTS[item[1]].get("print_only"))]
+        if shown:
+            out.append([chapter_title(chapter), index])
+            index += len(shown)
+    return out
+
+
+def chapter_pages(chapter):
+    return sum(item_pages(item) for item in chapter["items"])
+
+
+def chapter_title(chapter):
+    if "part" in chapter:
+        return f"חלק {chapter['part']} — {chapter['label']}"
+    return chapter["label"]
+
+
+def chapter_summary(chapter):
+    """Short derived description of a chapter's contents for the table of contents."""
+    counts = {"s": 0, "m": [], "w": 0, "c": []}
+    for kind, ident in chapter["items"]:
+        if kind == "s":
+            counts["s"] += 1
+        elif kind == "m":
+            counts["m"].append(ident)
+        elif kind == "w":
+            counts["w"] += 1
+        else:
+            counts["c"].append(COMPONENTS[ident]["label"])
+    bits = []
+    if counts["s"]:
+        bits.append("סיכום אחד למורה" if counts["s"] == 1 else f"{counts['s']} סיכומים למורה")
+    if counts["m"]:
+        pages = ", ".join(str(p) for p in counts["m"])
+        bits.append(f"{MINISTRY_HEADING} — עמוד {pages}" if len(counts["m"]) == 1
+                    else f"{MINISTRY_HEADING} — עמודים {pages}")
+    if counts["w"]:
+        bits.append("דף עבודה אחד" if counts["w"] == 1 else f"{counts['w']} דפי עבודה")
+    bits.extend(counts["c"])
+    return " · ".join(bits)
 
 
 def layout():
-    """Ordered list of (part, first_page, last_page) for the merged booklet."""
+    """Ordered list of (chapter, first_page, last_page) for the merged booklet."""
     out = []
     page = 1
-    for part in DATA["book"]["parts"]:
-        count = part_pages(part)
-        out.append((part, page, page + count - 1))
+    for chapter in CHAPTERS:
+        count = chapter_pages(chapter)
+        out.append((chapter, page, page + count - 1))
         page += count
     return out
 
 
-PARTS = {part["key"]: (part, first, last) for part, first, last in layout()}
-TOTAL_PAGES = sum(part_pages(p) for p in DATA["book"]["parts"])
-TOTAL_BOOKMARKS = sum(part_bookmarks(p) for p in DATA["book"]["parts"])
+def page_map():
+    """Ordered list of (page_number, chapter, item, page_within_item) for every booklet page."""
+    out = []
+    page = 1
+    for chapter in CHAPTERS:
+        for item in chapter["items"]:
+            for k in range(item_pages(item)):
+                out.append((page, chapter, list(item), k))
+                page += 1
+    return out
+
+
+def item_bookmarks(chapter):
+    """Items that get their own nested bookmark: every item of a chapter with more than one item."""
+    return list(chapter["items"]) if len(chapter["items"]) > 1 else []
+
+
+CHAPTER_RANGES = {chapter["key"]: (first, last) for chapter, first, last in layout()}
+TOTAL_PAGES = sum(chapter_pages(c) for c in CHAPTERS)
+TOTAL_BOOKMARKS = sum(1 + len(item_bookmarks(c)) for c in CHAPTERS)
+LETTERED_CHAPTERS = [c for c in CHAPTERS if "part" in c]
 
 
 def page_range(key):
     """'17–24' style range as printed in the table of contents."""
-    _, first, last = PARTS[key]
+    first, last = CHAPTER_RANGES[key]
     return f"{first}–{last}"
 
 
+def summary_titles():
+    """Titles of the numbered teacher summaries, read from book/teacher.html."""
+    html = (ROOT / DATA["teacher"]["html"]).read_text(encoding="utf-8")
+    found = {}
+    for number, body in re.findall(r'<article class="sheet" id="summary-(\d+)">([\s\S]*?)</article>', html):
+        heading = re.search(r"<h1[^>]*>([\s\S]*?)</h1>", body)
+        found[int(number)] = re.sub(r"<[^>]+>", "", heading.group(1)).strip() if heading else ""
+    if sorted(found) != list(range(1, SUMMARY_COUNT + 1)) or not all(found.values()):
+        raise AssertionError(f"{DATA['teacher']['html']} does not contain summaries 1–{SUMMARY_COUNT} with headings")
+    return found
+
+
+def item_title(item, summaries=None):
+    """Bookmark / heading text of one sequence item."""
+    kind, ident = item
+    if kind == "s":
+        summaries = summaries or summary_titles()
+        return f"סיכום {ident} — {summaries[ident]}"
+    if kind == "m":
+        return f"{MINISTRY_HEADING} — עמוד {ident}"
+    if kind == "w":
+        return TITLES[ident]
+    return COMPONENTS[ident]["label"]
+
+
+def numbering_sentence():
+    """The page-numbering sentence that SOURCE_OF_TRUTH.md must state, derived from the layout."""
+    parts = [f"{first}–{last} {chapter_title(chapter)}" for chapter, first, last in layout()]
+    return f"**מספור מאומת בחוברת {TOTAL_PAGES} עמודים:** " + "; ".join(parts) + "."
+
+
 def validate():
-    """Internal consistency: unique ids, every worksheet has HTML and PDF, files named in parts exist."""
+    """Internal consistency: unique ids, every worksheet has HTML and PDF, files named in parts exist,
+    and the reading sequence lists every summary, Ministry page, worksheet and component exactly once."""
     ids = list(WORKSHEETS)
     duplicates = {i for i in ids if ids.count(i) > 1}
     if duplicates:
@@ -86,18 +207,44 @@ def validate():
     for page in MINISTRY_PAGES:
         if not ministry_file(page).is_file():
             raise AssertionError(f"Manifest lists Ministry page {page} but its scan is missing")
-    for part in DATA["book"]["parts"]:
-        if "file" in part and not (ROOT / part["file"]).is_file():
-            raise AssertionError(f"Booklet part {part['key']} names missing file {part['file']}")
-    keys = [p["key"] for p in DATA["book"]["parts"]]
+    for key, component in COMPONENTS.items():
+        for rel in (component["file"], component["html"]):
+            if not (ROOT / rel).is_file():
+                raise AssertionError(f"Booklet component {key} names missing file {rel}")
+    keys = [c["key"] for c in CHAPTERS]
     if len(set(keys)) != len(keys):
-        raise AssertionError("Duplicate booklet part key")
+        raise AssertionError("Duplicate booklet chapter key")
+    parts = [c["part"] for c in LETTERED_CHAPTERS]
+    if len(set(parts)) != len(parts):
+        raise AssertionError("Duplicate booklet part letter")
+    sequence = print_sequence()
+    if any(not (isinstance(i, list) and len(i) == 2) for i in sequence):
+        raise AssertionError("Malformed sequence item in manifest chapters")
+    expected = {
+        "s": set(range(1, SUMMARY_COUNT + 1)),
+        "m": set(MINISTRY_PAGES),
+        "w": set(WORKSHEETS),
+        # teacher and official are consumed page by page through s/m items, never whole.
+        "c": {k for k in COMPONENTS if k not in ("teacher", "official")},
+    }
+    for kind, wanted in expected.items():
+        listed = [ident for k, ident in sequence if k == kind]
+        if len(listed) != len(wanted) or set(listed) != wanted:
+            raise AssertionError(f"Reading sequence lists {kind!r} items {sorted(map(str, listed))}, "
+                                 f"manifest inventory is {sorted(map(str, wanted))}")
+    if sequence[0] != ["c", "front"]:
+        raise AssertionError("The booklet must open with the cover and table of contents")
+    if sequence[-1] != ["c", "answers"]:
+        raise AssertionError("Teacher solutions must close the booklet (SOURCE_OF_TRUTH §כ.1.6)")
+    if component_pages("teacher") != SUMMARY_COUNT:
+        raise AssertionError("teacher component pages differ from the summary count")
     return True
 
 
 if __name__ == "__main__":
     validate()
-    for part, first, last in layout():
-        print(f"{first:02d}–{last:02d}  {part.get('part','  ')}  {part['label']}")
+    for chapter, first, last in layout():
+        print(f"{first:02d}–{last:02d}  {chapter.get('part', '  ')}  {chapter['label']}  [{chapter_summary(chapter)}]")
     print(f"{len(ORIGINAL)} original + {len(IMPORTED)} imported = {len(WORKSHEETS)} worksheets; "
-          f"{len(MINISTRY_PAGES)} Ministry scans; booklet {TOTAL_PAGES} pages, {TOTAL_BOOKMARKS} bookmarks")
+          f"{len(MINISTRY_PAGES)} Ministry scans; {SUMMARY_COUNT} teacher summaries; "
+          f"booklet {TOTAL_PAGES} pages, {TOTAL_BOOKMARKS} bookmarks, {len(CHAPTERS)} chapters")

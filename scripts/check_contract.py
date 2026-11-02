@@ -27,6 +27,7 @@ def demand(test,reason):
 # build workflow has rebuilt and published them. The build workflow and the
 # post-build (workflow_run) check always compare against current PDFs.
 CHECK_BUILT_PDFS=os.environ.get("CHECK_BUILT_PDFS","1")!="0"
+HEBREW_COUNTS={6:"ששת",7:"שבעת",8:"שמונת",9:"תשעת",10:"עשרת"}
 
 def pdf_pages(relative,expected):
     path=ROOT/relative
@@ -61,19 +62,37 @@ def main():
            "Authoritative merged booklet metadata missing")
     demand(f"{len(M.WORKSHEETS)} דפי" in README and f"{len(ORIGINAL)} דפים" in README and f"{M.TOTAL_PAGES} עמודים" in README,
            "README is out of sync with actual inventory")
-    demand("שבעת חלקי החוברת" in INTRO and "ששת חלקי החוברת" not in INTRO,
-           "Old four-part table of contents survives in the introduction")
-    for head in ("| א׳ —","| ב׳ —","| ג׳ —","| ד׳ —","| ה׳ —","| ו׳ —","| ז׳ —"):
-        demand(head in INTRO,f"Missing real workbook part in introduction: {head}")
+    # The introduction's chapter table is generated from the manifest (scripts/sync_book_docs.py);
+    # the chapter count in its heading must name the same number of lettered parts.
+    for old in ("ששת חלקי החוברת","שבעת חלקי החוברת"):
+        demand(old not in INTRO or len(M.LETTERED_CHAPTERS)==({"ששת":6,"שבעת":7}[old.split()[0]]),
+               f"Introduction still describes an older {old} layout")
+    demand(HEBREW_COUNTS[len(M.LETTERED_CHAPTERS)]+" חלקי החוברת" in INTRO,
+           f"Introduction must present the {len(M.LETTERED_CHAPTERS)} lettered parts of the booklet")
+    for chapter in M.LETTERED_CHAPTERS:
+        demand(f"| {chapter['part']} —" in INTRO,f"Missing real workbook part in introduction: {chapter['part']}")
+    # The PDF follows the HTML reading order: both come from the same manifest sequence.
+    import sync_book_docs
+    demand(not sync_book_docs.check(),"Table of contents, chapter table or HTML reading order are stale against the manifest")
     book=pdf_pages(M.BOOK_FILE,M.TOTAL_PAGES)
-    for part,first,last in M.layout():
-        if "file" in part:
-            pdf_pages(part["file"],last-first+1)
-    demand("| מפתח תשובות למורה | 6 עמודים בחוברת |" in SOT,
+    for key,component in M.COMPONENTS.items():
+        pdf_pages(component["file"],M.component_pages(key))
+    demand(f"| מפתח תשובות למורה | {M.component_pages('answers')} עמודים בחוברת |" in SOT,
            "Answer-key page count in the single source of truth contradicts the printed PDF")
     if book is not None:
-        demand(len(book.outline)==M.TOTAL_BOOKMARKS,
-               f"Book must have {M.TOTAL_BOOKMARKS} navigation bookmarks, found {len(book.outline)}")
+        def flatten(items):
+            for item in items:
+                if isinstance(item,list):yield from flatten(item)
+                else:yield item
+        bookmarks=list(flatten(book.outline))
+        demand(len(bookmarks)==M.TOTAL_BOOKMARKS,
+               f"Book must have {M.TOTAL_BOOKMARKS} navigation bookmarks, found {len(bookmarks)}")
+        chapter_titles=[M.chapter_title(c) for c in M.CHAPTERS]
+        demand([b.title for b in book.outline if not isinstance(b,list)]==chapter_titles,
+               "Top-level PDF bookmarks must be the manifest chapters in reading order")
+        firsts=[first for _,first,_ in M.layout()]
+        demand([book.get_destination_page_number(b)+1 for b in book.outline if not isinstance(b,list)]==firsts,
+               "Chapter bookmarks must open on the pages the manifest derives")
     for ident in ORIGINAL:
         pdf_pages(f"pdf/{ident}.pdf",M.WORKSHEET_PAGES[ident])
         html=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
@@ -109,7 +128,8 @@ def main():
         print(f"PASS: {M.TOTAL_PAGES}-page book with {M.TOTAL_BOOKMARKS} bookmarks, 14 teacher pages, {len(SCANS)} original Ministry scans")
     else:
         print(f"SKIPPED built-PDF page and bookmark counts (CHECK_BUILT_PDFS=0); {len(SCANS)} original Ministry scans listed")
-    print(f"PASS: {len(ORIGINAL)} original 1-page A4 worksheets, {len(IMPORTED)} correctly attributed imported worksheets")
+    print(f"PASS: {len(ORIGINAL)} original 1-page A4 worksheets, {len(IMPORTED)} correctly attributed imported worksheets, "
+          f"{len(M.CHAPTERS)} topic chapters shared by HTML and PDF")
 
 if __name__=="__main__":
     main()
