@@ -4,8 +4,9 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader, PdfWriter
 from markdown import markdown
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urlsplit, urljoin
 import re
+import tempfile
 import manifest as M
 
 ROOT=M.ROOT
@@ -76,6 +77,37 @@ def rewrite_book_links(html, target_html):
             raise RuntimeError(f"{target_html.name}: relative link to missing file {match.group(1)}")
     return html
 
+def is_relative(link):
+    url=urlsplit(link)
+    return not url.scheme and not url.netloc and bool(url.path)
+
+def absolute_links(html, base_url):
+    """Resolve every relative href against the page's public URL.
+
+    Used only for the copy that is printed to PDF: Chromium otherwise stores
+    relative links as file:// URIs of the build machine, which are dead in the
+    published booklet. The served HTML keeps its relative links."""
+    return HREF.sub(lambda m: m.group(0) if not is_relative(m.group(1)) else 'href="'+urljoin(base_url,m.group(1))+'"', html)
+
+def pdf_link_uris(path):
+    uris=[]
+    for page in PdfReader(str(path)).pages:
+        for annot in page.get("/Annots") or []:
+            action=annot.get_object().get("/A")
+            if action is not None and action.get("/URI"):
+                uris.append(str(action["/URI"]))
+    return uris
+
+def check_pdf_links(target_pdf, page_html, base_url):
+    expected={urljoin(base_url,link) for link in HREF.findall(page_html) if is_relative(link)}
+    uris=set(pdf_link_uris(target_pdf))
+    dead=sorted(u for u in uris if not u.startswith(("https://","http://","mailto:")))
+    if dead:
+        raise RuntimeError(f"{target_pdf.name}: links that only work on the build machine: {dead}")
+    missing=sorted(expected-uris)
+    if missing:
+        raise RuntimeError(f"{target_pdf.name}: relative links were not published as absolute URLs: {missing}")
+
 def render_markdown(browser, source, target_html, target_pdf, label):
     content=source.read_text(encoding="utf-8")
     if not content.strip().startswith("#"):
@@ -83,15 +115,20 @@ def render_markdown(browser, source, target_html, target_pdf, label):
     html=rewrite_book_links(markdown(content,extensions=["tables","fenced_code","sane_lists"]),target_html)
     page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title><style>"+CSS+"</style></head><body>"+html+"</body></html>"
     target_html.write_text(page_html,encoding="utf-8",newline="\n")
+    public_url=M.BASE_URL.rstrip("/")+"/book/"+target_html.name
     tab=browser.new_page(viewport={"width":1100,"height":1500})
     errors=[]
     tab.on("pageerror",lambda e:errors.append(str(e)))
-    tab.goto(target_html.as_uri(),wait_until="load")
-    tab.emulate_media(media="print")
-    tab.pdf(path=str(target_pdf),format="A4",print_background=True,margin={"top":"14mm","right":"14mm","bottom":"16mm","left":"14mm"})
+    with tempfile.TemporaryDirectory() as temp:
+        print_html=Path(temp)/target_html.name
+        print_html.write_text(absolute_links(page_html,public_url),encoding="utf-8",newline="\n")
+        tab.goto(print_html.as_uri(),wait_until="load")
+        tab.emulate_media(media="print")
+        tab.pdf(path=str(target_pdf),format="A4",print_background=True,margin={"top":"14mm","right":"14mm","bottom":"16mm","left":"14mm"})
     tab.close()
     if errors:
         raise RuntimeError(f"Browser errors while rendering {label}: {errors}")
+    check_pdf_links(target_pdf,page_html,public_url)
     return validate_pdf(target_pdf)
 
 def render_front(browser):
