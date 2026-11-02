@@ -44,8 +44,8 @@ class MathQuality(unittest.TestCase):
                 self.assertGreater(area2(points),0)
                 self.assertTrue(all(abs(x)<=7 and abs(y)<=7 for x,y in points))
                 self.assertEqual(len(set(points)),len(points))
-                self.assertIn("יצירה מקורית: יניב רז",doc)
-                self.assertIn("../assets/raz-logo.svg",doc)
+                self.assertIn("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים",doc)
+                self.assertIn("../assets/logo.png",doc)
                 self.assertEqual(doc.count('class="level"')+doc.count("class='level'"),3)
 
     def test_isometries_preserve_distances_and_area(self):
@@ -157,8 +157,8 @@ class AdditionalOriginalSheets(unittest.TestCase):
                 self.assertIn(name,M.IMPORTED)
                 self.assertEqual(M.WORKSHEET_SOURCE[name],"original-2026-11")
                 self.assertIn("דף מקורי שנכתב לחוברת",doc)
-                self.assertNotIn("raz-logo.svg",doc)
-                self.assertNotIn("יצירה מקורית: יניב רז",doc)
+                self.assertNotIn("assets/logo.png",doc)
+                self.assertNotIn("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים",doc)
 
     def test_community_hall_rectangle(self):
         doc=(ROOT/"worksheets"/"rectangles.html").read_text(encoding="utf-8")

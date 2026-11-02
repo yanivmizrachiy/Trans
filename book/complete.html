@@ -86,7 +86,7 @@ async function build(){
     if(chapterAt.has(i)){const [label,n]=chapterAt.get(i);const head=el("h2","chapter",label);head.id="chapter-"+(n+1);fragment.appendChild(head);}
     if(type==="s"){const block=el("section","doc teacher-zone");block.id="lesson-"+id;block.appendChild(document.importNode(summaries.get(id),true));fragment.appendChild(block);}
     else if(type==="m")fragment.appendChild(officialPage(id));
-    else if(type==="w"){const name=NAMES[id]||id;const sourceNotice=originalIds.has(id)?"דף עבודה מקורי עם דרגות קושי":rewrittenIds.has(id)?"דף מקורי נוסף שנכתב לחוברת (11.2026)":"דף מאגר קודם (razpages) — הייחוס המקורי נשמר";
+    else if(type==="w"){const name=NAMES[id]||id;const sourceNotice=originalIds.has(id)?"דף עבודה מקורי":rewrittenIds.has(id)?"דף מקורי נוסף שנכתב לחוברת (11.2026)":"דף מאגר קודם (razpages) — הייחוס המקורי נשמר";
       fragment.appendChild(frameDoc("../worksheets/"+id+".html",name,sourceNotice,i));}
     else if(type==="c"){const label=id==="krispin-video"?"סיכום מורה לסרטון ההמחשה — איילת קריספין":id==="sadna"?"מעבדת המורה — שלושה חקרים מקוריים":id==="workshop"?"סדנת מורים — ניבוי, בדיקה והנמקה":"מפתח תשובות והנמקות למורה";
       fragment.appendChild(frameDoc(id+".html",label,id==="krispin-video"?"מה רואים בסרטון, מה שואלים ומה לדייק":id==="sadna"?"מערכי חקר חדשים":id==="workshop"?"מערך סדנה מקורי לצוות המורים":"חלק מדריך המורה",i));}

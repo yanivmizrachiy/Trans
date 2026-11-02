@@ -19,3 +19,13 @@
 .footer{flex-wrap:wrap}
 }
 @media print{body{background:white}.toolbar{display:none}.sheet{margin:0;width:210mm;min-height:297mm;box-shadow:none;padding:12mm 15mm 10mm}.header h1{font-size:23px}.diagram{grid-template-columns:180px 1fr}.diagram svg{max-width:180px}.level p,.level ol{font-size:13px}.level h2{font-size:15px}}
+
+/* district header logo and two-line credit footer, shared with the other district projects */
+:root{--wsink:#11203c;--wssoft:#54607a;--wsgold:#c2a24e;--wsgoldline:#e3d3a4}
+.header{justify-content:flex-start;align-items:center;gap:14px;border-bottom:0}.header>div,.head-titles{flex:1;min-width:0}
+.ws-logo{width:64px;height:64px;border-radius:50%;background:#fff;border:2px solid var(--wsgoldline);flex:none;object-fit:cover}
+.student{font-size:11.5px;color:#345765;margin:14px 0 0}
+.ws-foot{margin-top:12px}.ws-credit{margin:0 0 8px;display:flex;flex-direction:column;gap:2px;text-align:center}
+.ws-credit strong{font-weight:700;font-size:13.5px;color:var(--wsink)}.ws-credit span{font-weight:500;font-size:12.5px;color:var(--wssoft)}
+.ws-footline{height:2px;width:100%;border-radius:999px;background:linear-gradient(to left,transparent 0%,var(--wsgoldline) 18%,var(--wsgold) 50%,var(--wsgoldline) 82%,transparent 100%)}
+@media print{.ws-footline{-webkit-print-color-adjust:exact;print-color-adjust:exact}}

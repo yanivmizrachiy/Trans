@@ -39,7 +39,7 @@ def main():
     for ident in ORIGINAL:
         sheet=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
         p=Levels();p.feed(sheet)
-        if len(p.levels)!=3:raise AssertionError(f"{ident}: expected three distinct difficulty levels")
+        if len(p.levels)!=3:raise AssertionError(f"{ident}: expected three distinct questions")
         texts=[" ".join(z).strip() for z in p.levels]
         if any(len(t)<65 for t in texts):raise AssertionError(f"{ident}: truncated or empty problem")
         if len({re.sub(r"\d+","0",t) for t in texts})!=3:
@@ -53,9 +53,11 @@ def main():
         cut=re.search(r"^### |^## ",content,re.M)
         if cut:content=content[:cut.start()]
         answers=re.findall(r"^- \*\*[^\n]+",content,re.M)
-        if len(answers)<3:raise AssertionError(f"{ident}: all three levels must have answers")
-        if sheet.count("יצירה מקורית: יניב רז")!=1 or sheet.count("raz-logo.svg")!=1:
-            raise AssertionError(f"{ident}: exactly one creator credit and logo required")
+        if len(answers)<3:raise AssertionError(f"{ident}: all three questions must have answers")
+        if sheet.count("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים")!=1 or sheet.count("../assets/logo.png")!=1:
+            raise AssertionError(f"{ident}: exactly one district credit and logo required")
+        if re.search(r"רמה [אבג]׳|רמה מקבילה|שלוש רמות|מדורג",sheet):
+            raise AssertionError(f"{ident}: level labels are not shown to students")
     for i,(a,ai,x) in enumerate(seen):
         xx=shingles(x)
         if not xx:raise AssertionError(f"Text parsing failed for {a}")
@@ -64,12 +66,12 @@ def main():
             score=len(xx&yy)/max(1,len(xx|yy))
             if score>0.82:raise AssertionError(f"Near-duplicate prompt: {a}/{ai} and {b}/{bi} ({score:.2%})")
     rotation=(ROOT/"worksheets"/"orig-rotation.html").read_text(encoding="utf-8")
-    if "מהמשולש המקורי ABC (לא מתמונת רמה ב׳)" not in rotation or "A″, B″, C″" not in rotation:
+    if "מהמשולש המקורי ABC (לא מתמונת שאלה 2)" not in rotation or "A″, B″, C″" not in rotation:
         raise AssertionError("Rotation comparison must explicitly use the original triangle and distinguish the second image")
     other=M.IMPORTED
     for ident in other:
         raw=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
-        if "raz-logo.svg" in raw or "יצירה מקורית: יניב רז" in raw:
+        if "assets/logo.png" in raw or "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" in raw:
             raise AssertionError(f"{ident}: other creators' content was falsely credited")
     # Material once derived from an external slide deck was rewritten (SOURCE_OF_TRUTH §כ.8);
     # the deck's file name, date and editors must not creep back into public files.
@@ -86,6 +88,6 @@ def main():
     for ident in ("rectangles","true-false","triangle"):
         if "דף מקורי שנכתב לחוברת" not in (ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8"):
             raise AssertionError(f"{ident}: rewritten sheet must declare that it was written for this booklet")
-    print(f"PASS: {len(ORIGINAL)} original worksheets, {len(seen)} graded problems, 11 complete answer-key sections, no near-duplicates, exclusive branding")
+    print(f"PASS: {len(ORIGINAL)} original worksheets, {len(seen)} problems, 11 complete answer-key sections, no near-duplicates, district branding only on originals")
 
 if __name__=="__main__":main()
