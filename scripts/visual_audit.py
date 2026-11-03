@@ -63,8 +63,23 @@ def main():
         words=[w[4] for w in page.get_text("words",clip=corner)]
         if words!=[str(n)]:
             raise RuntimeError(f"Page {n}: top-left corner must hold only the page number, found {words}")
-        if not page.get_images(full=True):
+        # The footer closes every page: a dark-blue line across the whole width and, below it,
+        # the district logo centred on the page (SOURCE_OF_TRUTH §כג.16).
+        mm=72/25.4
+        logos=[r for r in (fitz.Rect(info["bbox"]) for info in page.get_image_info())
+               if r.y1>height-30*mm and 8*mm<r.width<16*mm]
+        if not logos:
             raise RuntimeError(f"Page {n}: the logo footer is missing")
+        logo=max(logos,key=lambda r:r.y1)
+        if abs((logo.x0+logo.x1)/2-width/2)>1.5*mm:
+            raise RuntimeError(f"Page {n}: the footer logo must be centred on the page")
+        band=page.get_pixmap(matrix=fitz.Matrix(2,2),clip=fitz.Rect(0,logo.y0-9*mm,width,logo.y0),alpha=False)
+        strip=Image.frombytes("RGB",(band.width,band.height),band.samples)
+        dark_blue=lambda c:c[2]>=80 and c[2]-c[0]>=45 and c[0]<=80 and c[1]<=110
+        full=[sum(1 for x in range(0,strip.width,3) if dark_blue(strip.getpixel((x,y))))*3>=.96*strip.width
+              for y in range(strip.height)]
+        if not any(full):
+            raise RuntimeError(f"Page {n}: the dark-blue line above the footer must cross the whole page")
         stats.append((n,round(occupied,4)))
 
     for label,numbers in samples():
