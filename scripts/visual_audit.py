@@ -58,8 +58,8 @@ def main():
         extracted=page.get_text().strip()
         if len(extracted)<65:
             raise RuntimeError(f"Text page {n}: extracted text suspiciously short ({len(extracted)} chars)")
-        # The only page number is stamped in the top-left corner of every page (its circle is
-        # centred 17.7 mm from the left and 12 mm from the top), and no other text sits there.
+        # The only page number is stamped in the top-left corner of every page (its disc is
+        # centred 17.9 mm from the left and 12 mm from the top), and no other text sits there.
         corner=fitz.Rect(0,0,26*72/25.4,19*72/25.4)
         words=[w[4] for w in page.get_text("words",clip=corner)]
         if words!=[str(n)]:
@@ -81,6 +81,16 @@ def main():
               for y in range(strip.height)]
         if not any(full):
             raise RuntimeError(f"Page {n}: the dark-blue line above the footer must cross the whole page")
+        # The number is white on a solid dark-blue disc (SOURCE_OF_TRUTH §כג.22): a ring 3.2 mm from
+        # the centre, outside the digits and inside the disc's 3.9 mm radius, is dark blue all round.
+        cx,cy,half=17.9*mm,12.0*mm,4.5*mm
+        zoom=4
+        disc=page.get_pixmap(matrix=fitz.Matrix(zoom,zoom),clip=fitz.Rect(cx-half,cy-half,cx+half,cy+half),alpha=False)
+        disc_img=Image.frombytes("RGB",(disc.width,disc.height),disc.samples)
+        ring=[disc_img.getpixel((int((half+3.2*mm*cos)*zoom),int((half+3.2*mm*sin)*zoom)))
+              for cos,sin in ((1,0),(.7071,.7071),(0,1),(-.7071,.7071),(-1,0),(-.7071,-.7071),(0,-1),(.7071,-.7071))]
+        if not all(dark_blue(c) for c in ring):
+            raise RuntimeError(f"Page {n}: the page number must sit on a solid dark-blue disc, ring colours {ring}")
         # The series line of the teacher summaries looks the same on every page that carries it
         # (SOURCE_OF_TRUTH §כג.21): one font, one size, one colour.
         for block in page.get_text("dict")["blocks"]:
