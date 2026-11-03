@@ -27,7 +27,6 @@ def demand(test,reason):
 # build workflow has rebuilt and published them. The build workflow and the
 # post-build (workflow_run) check always compare against current PDFs.
 CHECK_BUILT_PDFS=os.environ.get("CHECK_BUILT_PDFS","1")!="0"
-HEBREW_COUNTS={6:"ששת",7:"שבעת",8:"שמונת",9:"תשעת",10:"עשרת"}
 
 def pdf_pages(relative,expected):
     path=ROOT/relative
@@ -62,18 +61,14 @@ def main():
            "Authoritative merged booklet metadata missing")
     demand(f"{len(M.WORKSHEETS)} דפי" in README and f"{len(ORIGINAL)} דפים" in README and f"{M.TOTAL_PAGES} עמודים" in README,
            "README is out of sync with actual inventory")
-    # The introduction's chapter table is generated from the manifest (scripts/sync_book_docs.py);
-    # the chapter count in its heading must name the same number of lettered parts.
-    for old in ("ששת חלקי החוברת","שבעת חלקי החוברת"):
-        demand(old not in INTRO or len(M.LETTERED_CHAPTERS)==({"ששת":6,"שבעת":7}[old.split()[0]]),
-               f"Introduction still describes an older {old} layout")
-    demand(HEBREW_COUNTS[len(M.LETTERED_CHAPTERS)]+" חלקי החוברת" in INTRO,
-           f"Introduction must present the {len(M.LETTERED_CHAPTERS)} lettered parts of the booklet")
-    for chapter in M.LETTERED_CHAPTERS:
-        demand(f"| {chapter['part']} —" in INTRO,f"Missing real workbook part in introduction: {chapter['part']}")
+    # The introduction's chapter table is generated from the manifest (scripts/sync_book_docs.py).
+    # Chapters carry no part letters and the booklet has no table-of-contents page (SOURCE_OF_TRUTH §כג.5).
+    for chapter in M.CONTENT_CHAPTERS:
+        demand(f"| {chapter['label']} |" in INTRO,f"Missing booklet chapter in introduction: {chapter['label']}")
+    demand(not re.search(r"חלק [א-י]׳ —",INTRO),"Introduction must not label chapters with part letters")
     # The PDF follows the HTML reading order: both come from the same manifest sequence.
     import sync_book_docs
-    demand(not sync_book_docs.check(),"Table of contents, chapter table or HTML reading order are stale against the manifest")
+    demand(not sync_book_docs.check(),"Chapter table or HTML reading order are stale against the manifest")
     book=pdf_pages(M.BOOK_FILE,M.TOTAL_PAGES)
     for key,component in M.COMPONENTS.items():
         pdf_pages(component["file"],M.component_pages(key))
@@ -118,7 +113,7 @@ def main():
     demand("איילת קריספין" in teacher_portal and "https://mamhishim.my.canva.site/" in teacher_portal,
            "Teacher portal must reference and credit the creator's verified resource")
     sadna=(ROOT/"book"/"sadna.html").read_text(encoding="utf-8")
-    demand(sadna.count('class="sheet"')==3 and sadna.count("מערך הוראה מקורי — יניב רז")==3,
+    demand(sadna.count('class="sheet"')==3 and sadna.count(M.SADNA_CREDIT)==3,
            "Every newly authored teacher-lab page must have its original author credit")
     demand("שרית מאירוביץ" not in sadna and "סיגלית אטשי" not in sadna,
            "Former third-party workshop material or credits remain in original replacement")

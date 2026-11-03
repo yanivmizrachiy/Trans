@@ -137,8 +137,7 @@ def render_markdown(browser, source, target_html, target_pdf, label):
     return validate_pdf(target_pdf)
 
 def render_front(browser):
-    """Cover and table of contents. The contents rows are generated from the manifest
-    (scripts/sync_book_docs.py); the build refuses a stale table."""
+    """Cover page. The build refuses stale manifest-derived blocks (scripts/sync_book_docs.py)."""
     import sync_book_docs
     stale=sync_book_docs.check()
     if stale:

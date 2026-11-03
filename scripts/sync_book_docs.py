@@ -5,7 +5,6 @@ Derived blocks live between markers inside hand-written files, so the
 surrounding prose stays editable while the inventory-driven parts are never
 typed by hand:
 
-- book/front.html      <!-- toc:start --> … <!-- toc:end -->       printed table of contents
 - book/INTRO.md        <!-- chapters:start --> … <!-- chapters:end --> chapter table
 - book/complete.html   the `const ORDER=` and `const CHAPTERS=` lines   reading sequence
 
@@ -23,24 +22,12 @@ import manifest as M  # noqa: E402
 ROOT = M.ROOT
 
 
-def toc_block():
-    rows = []
-    for chapter, first, last in M.layout():
-        if "part" not in chapter:
-            continue
-        rows.append(f'<div class="navrow"><div><strong>{M.chapter_title(chapter)}</strong>'
-                    f'<small>{M.chapter_summary(chapter)}</small></div><span class="pg">{first}–{last}</span></div>')
-    rows.append(f'<p class="total">סך הכול {M.TOTAL_PAGES} עמודים ו־{M.TOTAL_BOOKMARKS} סימניות ניווט; '
-                f'עמודים 1–2 הם השער ותוכן העניינים. כל עמוד נושא מספר רץ, מלבד צילומי המקור שנשמרים ללא תוספת.</p>')
-    return "\n".join(rows)
-
-
 def chapters_table():
-    lines = ["| חלק | עמודים בחוברת | תכולה |", "|---|---:|---|"]
+    lines = ["| נושא | עמודים בחוברת | תכולה |", "|---|---:|---|"]
     for chapter, first, last in M.layout():
-        if "part" not in chapter:
+        if chapter["key"] == "front":
             continue
-        lines.append(f"| {chapter['part']} — {chapter['label']} | {first}–{last} | {M.chapter_summary(chapter)} |")
+        lines.append(f"| {chapter['label']} | {first}–{last} | {M.chapter_summary(chapter)} |")
     return "\n".join(lines)
 
 
@@ -69,7 +56,6 @@ def replace_line(text, prefix, line, name):
 def targets():
     """{relative path: function(current text) -> text with fresh derived blocks}"""
     return {
-        "book/front.html": lambda t: replace_between(t, "<!-- toc:start -->", "<!-- toc:end -->", toc_block(), "book/front.html"),
         "book/INTRO.md": lambda t: replace_between(t, "<!-- chapters:start -->", "<!-- chapters:end -->", chapters_table(), "book/INTRO.md"),
         M.BOOK_HTML: lambda t: replace_line(replace_line(t, "const ORDER=", order_line(), M.BOOK_HTML),
                                             "const CHAPTERS=", chapters_line(), M.BOOK_HTML),
@@ -108,5 +94,5 @@ if __name__ == "__main__":
         if stale:
             print("STALE derived blocks: " + ", ".join(stale) + " — run python scripts/sync_book_docs.py --write")
             sys.exit(1)
-        print(f"PASS: table of contents, chapter table and reading sequence match data/manifest.json "
-              f"({len(M.LETTERED_CHAPTERS)} lettered chapters, {M.TOTAL_PAGES} pages)")
+        print(f"PASS: chapter table and reading sequence match data/manifest.json "
+              f"({len(M.CONTENT_CHAPTERS)} chapters, {M.TOTAL_PAGES} pages)")

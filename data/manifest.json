@@ -152,10 +152,10 @@
   "html": "book/complete.html",
   "components": {
    "front": {
-    "label": "שער ותוכן עניינים",
+    "label": "שער",
     "file": "book/front.pdf",
     "html": "book/front.html",
-    "pages": 2,
+    "pages": 1,
     "print_only": true
    },
    "teacher": {
@@ -177,14 +177,14 @@
     "pages": 7
    },
    "sadna": {
-    "label": "מעבדת המורה — שלושה חקרי טרנספורמציות מקוריים",
+    "label": "מעבדת המורה — שלושה חקרי טרנספורמציות",
     "file": "book/sadna.pdf",
     "html": "book/sadna.html",
     "pages": 3,
-    "credit": "מערך הוראה מקורי — יניב רז"
+    "credit": "מערך הוראה — יניב רז"
    },
    "workshop": {
-    "label": "סדנת מורים — ניבוי, בדיקה והנמקה (מערך מקורי)",
+    "label": "סדנת מורים — ניבוי, בדיקה והנמקה",
     "file": "book/workshop.pdf",
     "html": "book/workshop.html",
     "pages": 2,
@@ -201,7 +201,7 @@
   "chapters": [
    {
     "key": "front",
-    "label": "שער ותוכן עניינים",
+    "label": "שער",
     "items": [
      [
       "c",
@@ -211,8 +211,7 @@
    },
    {
     "key": "congruence",
-    "part": "א׳",
-    "label": "מבנה החוברת ומושג החפיפה",
+    "label": "מושג החפיפה",
     "items": [
      [
       "s",
@@ -242,7 +241,6 @@
    },
    {
     "key": "translation",
-    "part": "ב׳",
     "label": "הזזה",
     "items": [
      [
@@ -257,7 +255,6 @@
    },
    {
     "key": "rotation",
-    "part": "ג׳",
     "label": "סיבוב",
     "items": [
      [
@@ -276,7 +273,6 @@
    },
    {
     "key": "reflection",
-    "part": "ד׳",
     "label": "שיקוף (היפוך)",
     "items": [
      [
@@ -295,7 +291,6 @@
    },
    {
     "key": "symmetry",
-    "part": "ה׳",
     "label": "סימטרייה",
     "items": [
      [
@@ -314,7 +309,6 @@
    },
    {
     "key": "composition",
-    "part": "ו׳",
     "label": "שפת השאלות, אוריינות ורצפי פעולות",
     "items": [
      [
@@ -337,7 +331,6 @@
    },
    {
     "key": "summative",
-    "part": "ז׳",
     "label": "ניסוחי השאלות",
     "items": [
      [
@@ -348,7 +341,6 @@
    },
    {
     "key": "teaching",
-    "part": "ח׳",
     "label": "מערכי הוראה, מעבדת המורה וסיכום הסרטון",
     "items": [
      [
@@ -379,7 +371,6 @@
    },
    {
     "key": "worksheets",
-    "part": "ט׳",
     "label": "דפי עבודה לכיתה",
     "items": [
      [
@@ -466,7 +457,6 @@
    },
    {
     "key": "answers",
-    "part": "י׳",
     "label": "מפתח תשובות למורה",
     "items": [
      [

@@ -156,7 +156,7 @@ class AdditionalOriginalSheets(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertIn(name,M.IMPORTED)
                 self.assertEqual(M.WORKSHEET_SOURCE[name],"original-2026-11")
-                self.assertIn("דף מקורי שנכתב לחוברת",doc)
+                self.assertNotIn("נכתב לחוברת",doc)
                 self.assertNotIn("assets/logo.png",doc)
                 self.assertNotIn("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים",doc)
 

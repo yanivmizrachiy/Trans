@@ -85,9 +85,15 @@ def main():
             if token in text:raise AssertionError(f"{rel}: remnant of the replaced slide deck: {token!r}")
     if "עידן אחוון" in (ROOT/"docs"/"TEACHER_WORKSHOP.md").read_text(encoding="utf-8"):
         raise AssertionError("docs/TEACHER_WORKSHOP.md must be original, not a deck summary")
-    for ident in ("rectangles","true-false","triangle"):
-        if "דף מקורי שנכתב לחוברת" not in (ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8"):
-            raise AssertionError(f"{ident}: rewritten sheet must declare that it was written for this booklet")
+    # The printed booklet carries no meta notes about itself or its sources (SOURCE_OF_TRUTH §כג.5).
+    booklet=["book/front.html","book/teacher.html","book/sadna.html","book/krispin-video.html",
+             "docs/TEACHER_WORKSHOP.md","docs/ANSWER_KEY.md",*(f"worksheets/{i}.html" for i in M.WORKSHEETS)]
+    meta=("חוברת הוראה אחת","חוברת מאוחדת","העמודים הרשמיים","נכתב לחוברת","נכתבו עבור החוברת","נכתב במיוחד",
+          "אינו העתק","אינו ציטוט","אינם ציטוט","נוסחו מחדש","בהשראת","ייחוס","SOURCE_OF_TRUTH","תוכן עניינים")
+    for rel in booklet:
+        text=(ROOT/rel).read_text(encoding="utf-8")
+        for token in meta:
+            if token in text:raise AssertionError(f"{rel}: meta wording in the booklet: {token!r}")
     print(f"PASS: {len(ORIGINAL)} original worksheets, {len(seen)} problems, 11 complete answer-key sections, no near-duplicates, district branding only on originals")
 
 if __name__=="__main__":main()

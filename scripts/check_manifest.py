@@ -73,22 +73,14 @@ def check_catalogs():
 
 
 def check_derived_blocks():
-    """Table of contents, chapter table and the HTML reading sequence are generated, never typed."""
+    """The chapter table and the HTML reading sequence are generated, never typed."""
     stale = sync_book_docs.check()
     demand(not stale, f"Derived blocks differ from the manifest: {stale} (python scripts/sync_book_docs.py --write)")
-    front = read("book/front.html")
-    for chapter, first, last in M.layout():
-        if "part" not in chapter:
-            continue
-        demand(f'<span class="pg">{first}–{last}</span>' in front,
-               f"book/front.html table of contents lacks pages {first}–{last} for part {chapter['part']}")
-    demand(f"{M.TOTAL_PAGES} עמודים" in front and f"{M.TOTAL_BOOKMARKS} סימניות" in front,
-           "front.html must state the manifest-derived page and bookmark totals")
     intro = read("book/INTRO.md")
     for chapter, first, last in M.layout():
-        if "part" in chapter:
-            demand(re.search(rf"^\| {re.escape(chapter['part'])} — [^|]*\| {first}–{last} \|", intro, re.M),
-                   f"book/INTRO.md part table lacks '{chapter['part']} … | {first}–{last} |'")
+        if chapter["key"] != "front":
+            demand(re.search(rf"^\| {re.escape(chapter['label'])} \| {first}–{last} \|", intro, re.M),
+                   f"book/INTRO.md chapter table lacks '{chapter['label']} | {first}–{last} |'")
 
 
 def check_documents():

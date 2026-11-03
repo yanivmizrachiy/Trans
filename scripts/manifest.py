@@ -92,8 +92,6 @@ def chapter_pages(chapter):
 
 
 def chapter_title(chapter):
-    if "part" in chapter:
-        return f"חלק {chapter['part']} — {chapter['label']}"
     return chapter["label"]
 
 
@@ -153,7 +151,8 @@ def item_bookmarks(chapter):
 CHAPTER_RANGES = {chapter["key"]: (first, last) for chapter, first, last in layout()}
 TOTAL_PAGES = sum(chapter_pages(c) for c in CHAPTERS)
 TOTAL_BOOKMARKS = sum(1 + len(item_bookmarks(c)) for c in CHAPTERS)
-LETTERED_CHAPTERS = [c for c in CHAPTERS if "part" in c]
+# Every chapter after the cover; chapters carry no part letters.
+CONTENT_CHAPTERS = [c for c in CHAPTERS if c["key"] != "front"]
 
 
 def page_range(key):
@@ -214,9 +213,6 @@ def validate():
     keys = [c["key"] for c in CHAPTERS]
     if len(set(keys)) != len(keys):
         raise AssertionError("Duplicate booklet chapter key")
-    parts = [c["part"] for c in LETTERED_CHAPTERS]
-    if len(set(parts)) != len(parts):
-        raise AssertionError("Duplicate booklet part letter")
     sequence = print_sequence()
     if any(not (isinstance(i, list) and len(i) == 2) for i in sequence):
         raise AssertionError("Malformed sequence item in manifest chapters")
@@ -233,7 +229,7 @@ def validate():
             raise AssertionError(f"Reading sequence lists {kind!r} items {sorted(map(str, listed))}, "
                                  f"manifest inventory is {sorted(map(str, wanted))}")
     if sequence[0] != ["c", "front"]:
-        raise AssertionError("The booklet must open with the cover and table of contents")
+        raise AssertionError("The booklet must open with the cover")
     if sequence[-1] != ["c", "answers"]:
         raise AssertionError("Teacher solutions must close the booklet (SOURCE_OF_TRUTH §כ.1.6)")
     if component_pages("teacher") != SUMMARY_COUNT:
@@ -244,7 +240,7 @@ def validate():
 if __name__ == "__main__":
     validate()
     for chapter, first, last in layout():
-        print(f"{first:02d}–{last:02d}  {chapter.get('part', '  ')}  {chapter['label']}  [{chapter_summary(chapter)}]")
+        print(f"{first:02d}–{last:02d}  {chapter['label']}  [{chapter_summary(chapter)}]")
     print(f"{len(ORIGINAL)} original + {len(IMPORTED)} imported = {len(WORKSHEETS)} worksheets; "
           f"{len(MINISTRY_PAGES)} Ministry scans; {SUMMARY_COUNT} teacher summaries; "
           f"booklet {TOTAL_PAGES} pages, {TOTAL_BOOKMARKS} bookmarks, {len(CHAPTERS)} chapters")
