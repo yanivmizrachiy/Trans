@@ -57,7 +57,6 @@ def main():
     packed=complete.read_bytes()
     assert len(packed)>1_000_000 and packed.startswith(b"%PDF-") and b"%%EOF" in packed[-4096:], "Merged book must be a real complete PDF"
     assert "book/transformations-complete.pdf" in index, "Homepage must link to the whole real booklet"
-    assert (R/"book"/"front.html").is_file(), "Book cover and contents missing"
     official_source=(R/"book"/"official.html").read_text(encoding="utf-8")
     assert "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" not in official_source and "assets/logo.png" not in official_source, "Ministry page must have no author credit"
     for page_number in M.MINISTRY_PAGES:

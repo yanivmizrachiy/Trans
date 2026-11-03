@@ -132,8 +132,8 @@ def item_bookmarks(chapter):
 CHAPTER_RANGES = {chapter["key"]: (first, last) for chapter, first, last in layout()}
 TOTAL_PAGES = sum(chapter_pages(c) for c in CHAPTERS)
 TOTAL_BOOKMARKS = sum(1 + len(item_bookmarks(c)) for c in CHAPTERS)
-# Every chapter after the cover; chapters carry no part letters.
-CONTENT_CHAPTERS = [c for c in CHAPTERS if c["key"] != "front"]
+# Chapters carry no part letters; the booklet has no cover page (SOURCE_OF_TRUTH §כג.9).
+CONTENT_CHAPTERS = list(CHAPTERS)
 
 
 def page_range(key):
@@ -209,8 +209,6 @@ def validate():
         if len(listed) != len(wanted) or set(listed) != wanted:
             raise AssertionError(f"Reading sequence lists {kind!r} items {sorted(map(str, listed))}, "
                                  f"manifest inventory is {sorted(map(str, wanted))}")
-    if sequence[0] != ["c", "front"]:
-        raise AssertionError("The booklet must open with the cover")
     if sequence[-1] != ["c", "answers"]:
         raise AssertionError("Teacher solutions must close the booklet (SOURCE_OF_TRUTH §כ.1.6)")
     if component_pages("teacher") != SUMMARY_COUNT:

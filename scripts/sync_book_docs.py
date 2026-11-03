@@ -23,8 +23,6 @@ ROOT = M.ROOT
 def chapters_table():
     lines = ["| נושא | עמודים בחוברת | תכולה |", "|---|---:|---|"]
     for chapter, first, last in M.layout():
-        if chapter["key"] == "front":
-            continue
         lines.append(f"| {chapter['label']} | {first}–{last} | {M.chapter_summary(chapter)} |")
     return "\n".join(lines)
 
