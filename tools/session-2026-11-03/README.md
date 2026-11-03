@@ -2,7 +2,7 @@
 
 These are the helper scripts from the session that produced PRs #53, #54 and #55. They are kept here at the owner's request ("save everything"). The site, the build and the checks do not use them.
 
-SOURCE_OF_TRUTH §כג.21–23 records what they were used for.
+SOURCE_OF_TRUTH §כג.21, §כג.22 and §כג.24 record what they were used for.
 
 Run them with `PYTHONIOENCODING=utf-8`. Use `python -P` (or `python -I -X utf8`) for anything that reads a downloaded file, and keep downloads in their own empty folder.
 
