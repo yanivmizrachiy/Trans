@@ -54,8 +54,9 @@ def main():
         if cut:content=content[:cut.start()]
         answers=re.findall(r"^- \*\*[^\n]+",content,re.M)
         if len(answers)<3:raise AssertionError(f"{ident}: all three questions must have answers")
-        if sheet.count("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים")!=1 or sheet.count("../assets/logo.png")!=1:
-            raise AssertionError(f"{ident}: exactly one district credit and logo required")
+        pages=M.WORKSHEET_PAGES[ident]
+        if sheet.count("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים")!=pages or sheet.count("../assets/logo.png")!=pages:
+            raise AssertionError(f"{ident}: one district credit and logo footer on each of its {pages} printed page(s)")
         if re.search(r"רמה [אבג]׳|רמה מקבילה|שלוש רמות|מדורג",sheet):
             raise AssertionError(f"{ident}: level labels are not shown to students")
     for i,(a,ai,x) in enumerate(seen):

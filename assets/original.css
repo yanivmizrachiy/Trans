@@ -58,3 +58,20 @@
 @media screen{.squares{min-height:20mm}.squares.tall{min-height:30mm}}
 .squares svg{display:block;width:100%;height:100%}
 @media print{.sheet>section.level:has(.squares.tall){flex-grow:2}}
+/* two-page sheets: a page break between the sheets; precise coordinate planes beside coordinate tables (SOURCE_OF_TRUTH §כג.15) */
+@media print{.sheet{break-after:page}.sheet:last-of-type{break-after:auto}}
+.given{font-size:13px;margin:12px 0 2px}
+.work{display:flex;align-items:stretch;gap:6mm;margin-top:6px}
+.plane{position:relative;flex:none}.plane>svg{position:absolute;top:0;right:0;display:block}
+.plane.full{margin:8px 0 2px}
+.side{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.coords{border-collapse:collapse;width:100%;font-size:13px}
+.coords th,.coords td{border:1px solid #b3cbd0;padding:5px 4px;text-align:center}
+.coords th{background:#e6f2f1;color:#0a445c;font-weight:700;font-size:12px;line-height:1.3}
+.coords td:first-child{font-weight:700;color:#005954}
+.coords.report{margin-top:8px}
+.blank i,.fill i{display:inline-block;width:8mm;height:1em;border-bottom:1px solid #6f97a0;margin:0 1px;vertical-align:-2px}
+.side p.fill{margin:0}.fill i{width:16mm;margin:0 5px}
+.side .squares{margin-top:0}
+@media print{.given{font-size:14px}.coords{font-size:14px}.coords th{font-size:13px}.sheet>section.level>.work{flex:1 0 auto}}
+@media screen and (max-width:800px){.work{flex-direction:column}.plane{width:auto!important;min-height:0!important}.plane>svg{position:static;width:100%;height:auto}}

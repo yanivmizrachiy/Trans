@@ -45,21 +45,27 @@ def main():
                             raise RuntimeError(f"JavaScript errors in original worksheet {stem}: {page_errors}")
                         # Lay out at the printed A4 width (794px matches max-width rules a wider viewport
                         # misses): the footer must close the sheet and every question keeps at least one
-                        # writing line (SOURCE_OF_TRUTH §כג.11).
+                        # writing line (SOURCE_OF_TRUTH §כג.11), on every sheet of a two-page worksheet (§כג.15).
                         page.set_viewport_size({"width": 794, "height": 1123})
                         page.emulate_media(media="print")
                         bad = page.evaluate("""() => {
                           if (window.snapSquares) window.snapSquares();
-                          const sheet = document.querySelector('article.sheet'), foot = sheet.querySelector('.ws-foot');
-                          const gap = sheet.getBoundingClientRect().bottom - foot.getBoundingClientRect().bottom;
-                          const short = [...sheet.querySelectorAll('.lines, .squares')].filter(l => l.getBoundingClientRect().height < 27).length;
-                          const row = 5 * 96 / 25.4;
-                          const cut = [...sheet.querySelectorAll('.squares')].filter(b => {
-                            const r = b.getBoundingClientRect().height / row; return Math.abs(r - Math.round(r)) > 0.02 || !b.querySelector('svg'); }).length;
-                          return Math.abs(gap) > 3 || short || cut ? {gap: Math.round(gap), short, cut} : null;
+                          const row = 5 * 96 / 25.4, out = [];
+                          document.querySelectorAll('article.sheet').forEach((sheet, i) => {
+                            const foot = sheet.querySelector('.ws-foot');
+                            const gap = foot ? sheet.getBoundingClientRect().bottom - foot.getBoundingClientRect().bottom : 999;
+                            const short = [...sheet.querySelectorAll('.lines, .squares')].filter(l => l.getBoundingClientRect().height < 27).length;
+                            const cut = [...sheet.querySelectorAll('.squares')].filter(b => {
+                              const r = b.getBoundingClientRect().height / row; return Math.abs(r - Math.round(r)) > 0.02 || !b.querySelector('svg'); }).length;
+                            const spill = [...sheet.querySelectorAll('.plane')].filter(f => {
+                              const s = f.querySelector('svg'), a = s && s.getBoundingClientRect(), r = f.getBoundingClientRect();
+                              return !a || !s.querySelector('polygon') || a.bottom > r.bottom + 1 || a.left < r.left - 1; }).length;
+                            if (Math.abs(gap) > 3 || short || cut || spill) out.push({sheet: i + 1, gap: Math.round(gap), short, cut, spill});
+                          });
+                          return out.length ? out : null;
                         }""")
                         if bad:
-                            raise RuntimeError(f"Printed layout of {stem}: footer must close the A4 sheet and every question needs writing lines ({bad})")
+                            raise RuntimeError(f"Printed layout of {stem}: the footer must close every A4 sheet, every question needs writing space and each plane stays in its frame ({bad})")
                     page.evaluate("""async () => {
                       if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
                         await Promise.race([
