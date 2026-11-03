@@ -13,23 +13,20 @@
 <body>
 <header class="top">
   <h1>טרנספורמציות וחפיפת צורות</h1>
-  <p>חוברת קריאה רציפה — הסברים למורה, שאלות מתוך תוכנית הלימודים, דפי עבודה, חקר ופתרונות. כל התכנים מוצגים לפי מהלך מתמטי, ולא לפי מי שחיבר את הדף.</p>
+  <p>סיכום סרטון ההמחשה של איילת קריספין, סיכומים למורה, שאלות מתוך תוכנית הלימודים, מערכי הוראה, דפי עבודה לכיתה ומפתח תשובות.</p>
   <nav class="booknav"><a href="../index.html">המאגר הראשי</a><a href="../teacher.html">מרכז המורה</a><a href="transformations-complete.pdf">חוברת להדפסה (PDF)</a></nav>
 </header>
-<div class="status"><strong>מהדורה רציפה:</strong> 14 סיכומי מורה, עמודי התוכנית הרשמיים, 20 דפי עבודה, מעבדת המורה, סדנת המורים ומפתח התשובות — באותו סדר נושאי שבו ערוכה חוברת ה־PDF. שישה דפים מ־razpages נשמרים עם ייחוסם; כל יתר החומרים נכתבו במקור.</div>
 <main class="reader" id="reading" aria-label="חוברת מלאה בגלילה אנכית">
   <p class="loading" id="loading">טוען את סיכומי המורה ואת דפי העבודה…</p>
 </main>
-<footer class="foot">מתמטיקה · חטיבת הביניים · תשפ״ז · <a href="https://github.com/yanivmizrachiy/Trans/blob/main/SOURCE_OF_TRUTH.md">מקור האמת</a></footer>
+<footer class="foot">מתמטיקה · חטיבת הביניים · תשפ״ז</footer>
 <noscript><p>כדי להציג את כל הדפים ברצף, יש להפעיל JavaScript. <a href="transformations-complete.pdf">אפשר לפתוח את גרסת ה־PDF</a>.</p></noscript>
 <script>
 "use strict";
-const ORDER=[["s",1],["s",2],["s",3],["s",4],["m",34],["m",91],["s",5],["m",48],["s",6],["m",35],["m",38],["s",7],["m",36],["m",37],["s",8],["m",88],["m",89],["s",9],["m",50],["m",51],["s",10],["s",11],["s",12],["s",13],["s",14],["c","sadna"],["c","workshop"],["c","krispin-video"],["w","orig-rectangles"],["w","349"],["w","orig-translation"],["w","orig-robot-grid"],["w","549"],["w","rectangles"],["w","orig-rotation"],["w","orig-conveyor"],["w","orig-center-p"],["w","orig-symbol-turn"],["w","350"],["w","352"],["w","orig-reflection"],["w","orig-mirror-route"],["w","385"],["w","orig-symmetry"],["w","orig-composition"],["w","351"],["w","true-false"],["w","triangle"],["c","answers"]];
-const CHAPTERS=[["חלק א׳ — מבנה החוברת ומושג החפיפה",0],["חלק ב׳ — הזזה",6],["חלק ג׳ — סיבוב",8],["חלק ד׳ — שיקוף (היפוך)",11],["חלק ה׳ — סימטרייה",14],["חלק ו׳ — שפת השאלות, אוריינות ורצפי פעולות",17],["חלק ז׳ — ניסוחי השאלות",21],["חלק ח׳ — מערכי הוראה, מעבדת המורה וסיכום הסרטון",22],["חלק ט׳ — דפי עבודה לכיתה",28],["חלק י׳ — מפתח תשובות למורה",48]];
-const NAMES={"349":"חפיפה והזזה — דף קודם","350":"סיבוב — דף קודם","351":"רצף פעולות — דף קודם","352":"סיבוב וסימטרייה — דף קודם","385":"שיקוף ושטח — דף קודם","549":"הזזה במערכת צירים — דף קודם","rectangles":"שטיח המרכז הקהילתי — מלבנים חופפים","true-false":"מי צודק? עשר טענות","triangle":"תחנות ההעתקה — המשולש PQR","orig-rectangles":"פארק המרצפות","orig-translation":"שליח הקואורדינטות","orig-robot-grid":"הרובוט בגינה","orig-rotation":"תחנת הרוח","orig-conveyor":"מכונת המיון","orig-center-p":"מערכת המעקב","orig-symbol-turn":"שלט הכיוון","orig-reflection":"מוזאון המראות","orig-mirror-route":"מסדרון השערים","orig-symmetry":"סמל העיר","orig-composition":"מעבדת סדר הפעולות"};
+const ORDER=[["c","krispin-video"],["s",1],["s",2],["s",3],["s",4],["m",34],["m",91],["s",5],["m",48],["s",6],["m",35],["m",38],["s",7],["m",36],["m",37],["s",8],["m",88],["m",89],["s",9],["m",50],["m",51],["s",10],["s",11],["s",12],["s",13],["s",14],["c","sadna"],["c","workshop"],["w","orig-rectangles"],["w","349"],["w","orig-translation"],["w","orig-robot-grid"],["w","549"],["w","rectangles"],["w","orig-rotation"],["w","orig-conveyor"],["w","orig-center-p"],["w","orig-symbol-turn"],["w","350"],["w","352"],["w","orig-reflection"],["w","orig-mirror-route"],["w","385"],["w","orig-symmetry"],["w","orig-composition"],["w","351"],["w","true-false"],["w","triangle"],["c","answers"]];
+const CHAPTERS=[["סיכום סרטון ההמחשה — איילת קריספין",0],["מושג החפיפה",1],["הזזה",7],["סיבוב",9],["שיקוף (היפוך)",12],["סימטרייה",15],["שפת השאלות, אוריינות ורצפי פעולות",18],["ניסוחי השאלות",22],["מערכי הוראה ומעבדת המורה",23],["דפי עבודה לכיתה",28],["מפתח תשובות למורה",48]];
+const NAMES={"349":"חפיפה והזזה","350":"סיבוב","351":"רצף פעולות","352":"סיבוב וסימטרייה","385":"שיקוף ושטח","549":"הזזה במערכת צירים","rectangles":"שטיח המרכז הקהילתי — מלבנים חופפים","true-false":"מי צודק? עשר טענות","triangle":"תחנות ההעתקה — המשולש PQR","orig-rectangles":"פארק המרצפות","orig-translation":"שליח הקואורדינטות","orig-robot-grid":"הרובוט בגינה","orig-rotation":"תחנת הרוח","orig-conveyor":"מכונת המיון","orig-center-p":"מערכת המעקב","orig-symbol-turn":"שלט הכיוון","orig-reflection":"מוזאון המראות","orig-mirror-route":"מסדרון השערים","orig-symmetry":"סמל העיר","orig-composition":"מעבדת סדר הפעולות"};
 const ROOT=document.getElementById("reading");
-const rewrittenIds=new Set(["rectangles","true-false","triangle"]);
-const originalIds=new Set(["orig-rectangles","orig-conveyor","orig-mirror-route","orig-center-p","orig-symbol-turn","orig-robot-grid","orig-translation","orig-reflection","orig-rotation","orig-composition","orig-symmetry"]);
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e}
 function frameDoc(relative,title,qualifier,idx){
   const section=el("section","doc",null);section.id="item-"+idx;
@@ -66,9 +63,8 @@ function frameDoc(relative,title,qualifier,idx){
 function officialPage(n){
   const section=el("article","doc official");section.id="ministry-"+n;
   section.appendChild(el("h2","","שאלות מתוך תוכנית הלימודים"));
-  section.appendChild(el("p","origin","משרד החינוך — גאומטריה לכיתה ז׳ · עמוד מקור "+n+" · צילום ללא שינוי"));
-  const a=document.createElement("a");a.href="../sources/ministry/grade7-p"+String(n).padStart(3,"0")+".webp";a.target="_blank";a.rel="noopener";a.className="doc-link";a.textContent="פתיחת עמוד המקור בגודל מלא";
-  const image=document.createElement("img");image.src=a.href;image.loading="lazy";image.alt="צילום עמוד "+n+" ממסמך תוכנית הלימודים של משרד החינוך";section.appendChild(image);section.appendChild(a);
+  section.appendChild(el("p","origin","משרד החינוך — גאומטריה לכיתה ז׳ · עמוד "+n));
+  const image=document.createElement("img");image.src="../sources/ministry/grade7-p"+String(n).padStart(3,"0")+".webp";image.loading="lazy";image.alt="צילום עמוד "+n+" ממסמך תוכנית הלימודים של משרד החינוך";section.appendChild(image);
   return section;
 }
 async function build(){
@@ -86,10 +82,10 @@ async function build(){
     if(chapterAt.has(i)){const [label,n]=chapterAt.get(i);const head=el("h2","chapter",label);head.id="chapter-"+(n+1);fragment.appendChild(head);}
     if(type==="s"){const block=el("section","doc teacher-zone");block.id="lesson-"+id;block.appendChild(document.importNode(summaries.get(id),true));fragment.appendChild(block);}
     else if(type==="m")fragment.appendChild(officialPage(id));
-    else if(type==="w"){const name=NAMES[id]||id;const sourceNotice=originalIds.has(id)?"דף עבודה מקורי":rewrittenIds.has(id)?"דף מקורי נוסף שנכתב לחוברת (11.2026)":"דף מאגר קודם (razpages) — הייחוס המקורי נשמר";
+    else if(type==="w"){const name=NAMES[id]||id;const sourceNotice="";
       fragment.appendChild(frameDoc("../worksheets/"+id+".html",name,sourceNotice,i));}
-    else if(type==="c"){const label=id==="krispin-video"?"סיכום מורה לסרטון ההמחשה — איילת קריספין":id==="sadna"?"מעבדת המורה — שלושה חקרים מקוריים":id==="workshop"?"סדנת מורים — ניבוי, בדיקה והנמקה":"מפתח תשובות והנמקות למורה";
-      fragment.appendChild(frameDoc(id+".html",label,id==="krispin-video"?"מה רואים בסרטון, מה שואלים ומה לדייק":id==="sadna"?"מערכי חקר חדשים":id==="workshop"?"מערך סדנה מקורי לצוות המורים":"חלק מדריך המורה",i));}
+    else if(type==="c"){const label=id==="krispin-video"?"סיכום מורה לסרטון ההמחשה — איילת קריספין":id==="sadna"?"מעבדת המורה — שלושה חקרים":id==="workshop"?"סדנת מורים — ניבוי, בדיקה והנמקה":"מפתח תשובות והנמקות למורה";
+      fragment.appendChild(frameDoc(id+".html",label,id==="krispin-video"?"מה רואים בסרטון, מה שואלים ומה לדייק":"",i));}
   }
   document.getElementById("loading").remove();
   ROOT.appendChild(fragment);

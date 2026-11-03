@@ -20,7 +20,7 @@ PAGE_MAP={n:(chapter,item) for n,chapter,item,_ in M.page_map()}
 
 def samples():
     """Contact sheets whose page numbers come from the manifest layout."""
-    openers=[first for chapter,first,_ in M.layout() if "part" in chapter]
+    openers=[first for chapter,first,_ in M.layout() if chapter["key"]!="front"]
     scans=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="m"]
     worksheets=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="w"]
     summaries=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="s"]
