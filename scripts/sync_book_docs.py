@@ -6,13 +6,11 @@ surrounding prose stays editable while the inventory-driven parts are never
 typed by hand:
 
 - book/INTRO.md        <!-- chapters:start --> … <!-- chapters:end --> chapter table
-- book/complete.html   the `const ORDER=` and `const CHAPTERS=` lines   reading sequence
 
 Usage: python scripts/sync_book_docs.py --check   (exit 1 and list stale files)
        python scripts/sync_book_docs.py --write   (rewrite the blocks in place)
 """
 from pathlib import Path
-import json
 import re
 import sys
 
@@ -31,14 +29,6 @@ def chapters_table():
     return "\n".join(lines)
 
 
-def order_line():
-    return "const ORDER=" + json.dumps(M.reading_sequence(), ensure_ascii=False, separators=(",", ":")) + ";"
-
-
-def chapters_line():
-    return "const CHAPTERS=" + json.dumps(M.html_chapters(), ensure_ascii=False, separators=(",", ":")) + ";"
-
-
 def replace_between(text, start, end, body, name):
     pattern = re.compile(re.escape(start) + r"[\s\S]*?" + re.escape(end))
     if not pattern.search(text):
@@ -46,19 +36,10 @@ def replace_between(text, start, end, body, name):
     return pattern.sub(lambda _: start + "\n" + body + "\n" + end, text, count=1)
 
 
-def replace_line(text, prefix, line, name):
-    pattern = re.compile(r"^" + re.escape(prefix) + r"[^\n]*$", re.M)
-    if len(pattern.findall(text)) != 1:
-        raise AssertionError(f"{name}: expected exactly one line starting with {prefix!r}")
-    return pattern.sub(lambda _: line, text, count=1)
-
-
 def targets():
     """{relative path: function(current text) -> text with fresh derived blocks}"""
     return {
         "book/INTRO.md": lambda t: replace_between(t, "<!-- chapters:start -->", "<!-- chapters:end -->", chapters_table(), "book/INTRO.md"),
-        M.BOOK_HTML: lambda t: replace_line(replace_line(t, "const ORDER=", order_line(), M.BOOK_HTML),
-                                            "const CHAPTERS=", chapters_line(), M.BOOK_HTML),
     }
 
 
@@ -94,5 +75,5 @@ if __name__ == "__main__":
         if stale:
             print("STALE derived blocks: " + ", ".join(stale) + " — run python scripts/sync_book_docs.py --write")
             sys.exit(1)
-        print(f"PASS: chapter table and reading sequence match data/manifest.json "
+        print(f"PASS: chapter table matches data/manifest.json "
               f"({len(M.CONTENT_CHAPTERS)} chapters, {M.TOTAL_PAGES} pages)")

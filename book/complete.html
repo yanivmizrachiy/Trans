@@ -2,94 +2,53 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="חוברת טרנספורמציות וחפיפת צורות בגלילה אנכית רצופה: סיכומי המורה והשאלות לפי נושא, ואחריהם מערכי ההוראה, סיכום הסרטון וכל דפי העבודה יחד.">
-<title>חוברת רציפה — טרנספורמציות וחפיפת צורות</title>
+<meta name="description" content="חוברת טרנספורמציות וחפיפת צורות: כל עמודי חוברת ה־A4 ברצף אחד.">
+<title>טרנספורמציות וחפיפת צורות</title>
 <style>
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f0f5f5;color:#163a4a;font:16px/1.65 Arial,"Noto Sans Hebrew",sans-serif;overflow-x:hidden}a{color:#086e68}.top{padding:28px max(16px,calc((100vw - 970px)/2));background:#0b3749;color:white}.top a{color:#c3faf0}.top h1{font-size:clamp(27px,5vw,42px);margin:0 0 8px}.top p{margin:8px 0;max-width:850px}.booknav{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;font-size:14px}.booknav a{color:#e6fff5}.status{margin:14px auto;max-width:900px;padding:11px 15px;background:#fff8e9;border-right:3px solid #b4954a;font-size:13px}.reader{max-width:980px;margin:auto;padding:0 12px 44px;min-width:0}.doc{margin:15px auto;max-width:100%;min-width:0;scroll-margin-top:15px}.chapter{font-size:clamp(22px,5vw,30px);color:#0b3749;margin:34px 0 6px;padding:10px 0 8px;border-bottom:3px solid #0e7772}.doc>h2{font-size:clamp(19px,4vw,26px);margin:10px 0;padding:6px 3px;color:#0b5a5b}.origin{font-size:12px;color:#496d74;margin:4px 0 11px}.official{background:white;padding:12px 14px 18px;border:1px solid #d8e4e5;border-radius:10px}.official h2{margin:4px 0 9px;font-size:21px}.official img{width:100%;height:auto;display:block;object-fit:contain}.official .doc-link{display:inline-block;font-size:12px;margin:7px 0}.framewrap{position:relative;width:100%;overflow:hidden;min-height:260px;background:#fff;border:1px solid #dbe5e5;border-radius:10px}.framewrap iframe{display:block;width:100%;height:700px;border:0;overflow:hidden;transform-origin:top right;background:white}.framewrap .frame-error{display:none;padding:13px}.teacher-zone .sheet{box-shadow:none!important;margin:0 auto!important;max-width:100%!important}.teacher-zone{min-width:0}.teacher-zone .sheet:last-child{margin-bottom:0!important}.teacher-zone .sheet .source{margin-top:auto}.loading{padding:20px;text-align:center}.foot{margin:0;background:#0b3749;color:#d6f0ee;padding:22px 16px;text-align:center}.foot a{color:#d6f0ee}.note{font-size:12px;color:#48616d}.credits{background:#eef7f3;padding:10px 12px;border-right:3px solid #0e7772}.placeholder{min-height:90px;padding:18px;background:#fff}
-@media(max-width:820px){.reader{padding:0 7px 30px}.top{padding:24px 14px}.teacher-zone .sheet{margin:0!important;border-radius:0}.doc{margin:12px auto}.official{padding:8px}.framewrap{border-radius:0}.status{margin:10px 7px}.doc>h2{padding:5px 9px}}
-@media print{.top,.status,.foot,.booknav{display:none}.chapter{break-before:page}.reader{width:100%;max-width:none}.doc,.framewrap{break-inside:avoid}.official{break-before:page}.official img{max-height:90vh}}
+html,body{margin:0;background:#0b2a4a}
+.book{max-width:980px;margin:0 auto;background:#fff}
+.page{position:relative;width:100%;background:#fff;border-bottom:6px solid #0b2a4a}
+.page:last-child{border-bottom:0}
+.page canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.fallback{display:block;width:100%;height:100vh;border:0;background:#fff}
 </style>
 </head>
 <body>
-<header class="top">
-  <h1>טרנספורמציות וחפיפת צורות</h1>
-  <p>סיכום סרטון ההמחשה של איילת קריספין, סיכומים למורה, שאלות מתוך תוכנית הלימודים, מערכי הוראה, דפי עבודה לכיתה ומפתח תשובות.</p>
-  <nav class="booknav"><a href="../index.html">המאגר הראשי</a><a href="../teacher.html">מרכז המורה</a><a href="transformations-complete.pdf">חוברת להדפסה (PDF)</a></nav>
-</header>
-<main class="reader" id="reading" aria-label="חוברת מלאה בגלילה אנכית">
-  <p class="loading" id="loading">טוען את סיכומי המורה ואת דפי העבודה…</p>
-</main>
-<footer class="foot">מתמטיקה · חטיבת הביניים · תשפ״ז</footer>
-<noscript><p>כדי להציג את כל הדפים ברצף, יש להפעיל JavaScript. <a href="transformations-complete.pdf">אפשר לפתוח את גרסת ה־PDF</a>.</p></noscript>
+<main class="book" id="book" aria-label="חוברת טרנספורמציות וחפיפת צורות"></main>
+<noscript><iframe class="fallback" src="transformations-complete.pdf" title="חוברת טרנספורמציות וחפיפת צורות"></iframe></noscript>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 "use strict";
-const ORDER=[["c","krispin-video"],["s",1],["s",2],["s",3],["s",4],["m",34],["m",91],["s",5],["m",48],["s",6],["m",35],["m",38],["s",7],["m",36],["m",37],["s",8],["m",88],["m",89],["s",9],["m",50],["m",51],["s",10],["s",11],["s",12],["s",13],["s",14],["c","sadna"],["c","workshop"],["w","orig-rectangles"],["w","349"],["w","orig-translation"],["w","orig-robot-grid"],["w","549"],["w","rectangles"],["w","orig-rotation"],["w","orig-conveyor"],["w","orig-center-p"],["w","orig-symbol-turn"],["w","350"],["w","352"],["w","orig-reflection"],["w","orig-mirror-route"],["w","385"],["w","orig-symmetry"],["w","orig-composition"],["w","351"],["w","true-false"],["w","triangle"],["c","answers"]];
-const CHAPTERS=[["סיכום סרטון ההמחשה — איילת קריספין",0],["מושג החפיפה",1],["הזזה",7],["סיבוב",9],["שיקוף (היפוך)",12],["סימטרייה",15],["שפת השאלות, אוריינות ורצפי פעולות",18],["ניסוחי השאלות",22],["מערכי הוראה ומעבדת המורה",23],["דפי עבודה לכיתה",28],["מפתח תשובות למורה",48]];
-const NAMES={"349":"חפיפה והזזה","350":"סיבוב","351":"רצף פעולות","352":"סיבוב וסימטרייה","385":"שיקוף ושטח","549":"הזזה במערכת צירים","rectangles":"שטיח המרכז הקהילתי — מלבנים חופפים","true-false":"מי צודק? עשר טענות","triangle":"תחנות ההעתקה — המשולש PQR","orig-rectangles":"פארק המרצפות","orig-translation":"שליח הקואורדינטות","orig-robot-grid":"הרובוט בגינה","orig-rotation":"תחנת הרוח","orig-conveyor":"מכונת המיון","orig-center-p":"מערכת המעקב","orig-symbol-turn":"שלט הכיוון","orig-reflection":"מוזאון המראות","orig-mirror-route":"מסדרון השערים","orig-symmetry":"סמל העיר","orig-composition":"מעבדת סדר הפעולות"};
-const ROOT=document.getElementById("reading");
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e}
-function frameDoc(relative,title,qualifier,idx){
-  const section=el("section","doc",null);section.id="item-"+idx;
-  if(title)section.appendChild(el("h2","",title));
-  if(qualifier)section.appendChild(el("p","origin",qualifier));
-  const box=el("div","framewrap");
-  const iframe=document.createElement("iframe");iframe.setAttribute("title",title||"דף חוברת");
-  iframe.setAttribute("loading","lazy");iframe.setAttribute("scrolling","no");iframe.src=relative;
-  const msg=el("div","frame-error","לא ניתן להציג כרגע את הדף המשולב.");box.appendChild(msg);
-  box.appendChild(iframe);section.appendChild(box);
-  const resize=()=>{
-    try{
-      const d=iframe.contentDocument;if(!d||!d.body)return;
-      d.documentElement.style.overflow="hidden";d.body.style.overflow="hidden";
-      const w=box.clientWidth||360;
-      iframe.style.transform="none";iframe.style.width=w+"px";iframe.style.height="200px";
-      let natural=Math.max(d.body.scrollWidth,d.documentElement.scrollWidth,w);
-      let factor=natural>w+4?w/natural:1;
-      if(factor<1){iframe.style.width=natural+"px";iframe.style.transform="scale("+factor+")";}
-      const fullHeight=Math.max(d.body.scrollHeight,d.documentElement.scrollHeight);
-      const height=Math.max(160,Math.min(18000,Math.ceil(fullHeight*factor)+2));
-      iframe.style.height=Math.ceil(fullHeight)+"px";
-      box.style.height=height+"px";
-      msg.style.display="none";
-    }catch(err){msg.style.display="block";box.style.height="340px";}
-  };
-  iframe.addEventListener("load",()=>{
-    resize();
-    try{const d=iframe.contentDocument;const st=d.createElement("style");st.textContent="body{margin:0!important}nav,.nav,button[onclick*=print],button[onclick*=print]{display:none!important}";d.head.appendChild(st);resize();if(window.ResizeObserver)new ResizeObserver(()=>resize()).observe(d.body);}catch(err){}
-  });
-  window.addEventListener("resize",resize,{passive:true});
-  return section;
-}
-function officialPage(n){
-  const section=el("article","doc official");section.id="ministry-"+n;
-  section.appendChild(el("h2","","שאלות מתוך תוכנית הלימודים"));
-  section.appendChild(el("p","origin","משרד החינוך — גאומטריה לכיתה ז׳ · עמוד "+n));
-  const image=document.createElement("img");image.src="../sources/ministry/grade7-p"+String(n).padStart(3,"0")+".webp";image.loading="lazy";image.alt="צילום עמוד "+n+" ממסמך תוכנית הלימודים של משרד החינוך";section.appendChild(image);
-  return section;
-}
-async function build(){
-  const response=await fetch("teacher.html",{cache:"no-cache"});
-  if(!response.ok)throw new Error("Teacher source HTTP "+response.status);
-  const source=new DOMParser().parseFromString(await response.text(),"text/html");
-  const style=source.querySelector("style");if(!style)throw new Error("Missing teacher styles");
-  const scoped=style.cloneNode(true);document.head.insertBefore(scoped,document.head.querySelector("style"));
-  const summaries=new Map([...source.querySelectorAll('article.sheet[id^="summary-"]')].map(e=>[Number(e.id.slice(8)),e]));
-  if(summaries.size!==14)throw new Error("Expected 14 teacher summaries");
-  const fragment=document.createDocumentFragment();
-  const chapterAt=new Map(CHAPTERS.map(([label,index],n)=>[index,[label,n]]));
-  for(const [i,entry] of ORDER.entries()){
-    const [type,id]=entry;
-    if(chapterAt.has(i)){const [label,n]=chapterAt.get(i);const head=el("h2","chapter",label);head.id="chapter-"+(n+1);fragment.appendChild(head);}
-    if(type==="s"){const block=el("section","doc teacher-zone");block.id="lesson-"+id;block.appendChild(document.importNode(summaries.get(id),true));fragment.appendChild(block);}
-    else if(type==="m")fragment.appendChild(officialPage(id));
-    else if(type==="w"){const name=NAMES[id]||id;const sourceNotice="";
-      fragment.appendChild(frameDoc("../worksheets/"+id+".html",name,sourceNotice,i));}
-    else if(type==="c"){const label=id==="krispin-video"?"סיכום מורה לסרטון ההמחשה — איילת קריספין":id==="sadna"?"מעבדת המורה — שלושה חקרים":id==="workshop"?"סדנת מורים — ניבוי, בדיקה והנמקה":"מפתח תשובות והנמקות למורה";
-      fragment.appendChild(frameDoc(id+".html",label,id==="krispin-video"?"מה רואים בסרטון, מה שואלים ומה לדייק":"",i));}
+// The reading view shows the printed A4 booklet itself, page after page, with nothing added (SOURCE_OF_TRUTH §כג.6).
+const PDF="transformations-complete.pdf";
+const BOOK=document.getElementById("book");
+function fallback(){BOOK.innerHTML="";const f=document.createElement("iframe");f.className="fallback";f.src=PDF;f.title="חוברת טרנספורמציות וחפיפת צורות";BOOK.appendChild(f);}
+async function show(){
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const doc=await pdfjsLib.getDocument({url:PDF,disableAutoFetch:true}).promise;
+  const slots=[];
+  for(let n=1;n<=doc.numPages;n++){
+    const page=await doc.getPage(n);
+    const box=page.getViewport({scale:1});
+    const slot=document.createElement("div");slot.className="page";slot.id="page-"+n;
+    slot.style.aspectRatio=box.width+" / "+box.height;
+    slot.setAttribute("role","img");slot.setAttribute("aria-label","עמוד "+n);
+    BOOK.appendChild(slot);slots.push([slot,page]);
   }
-  document.getElementById("loading").remove();
-  ROOT.appendChild(fragment);
+  const drawn=new WeakMap();
+  const draw=async(slot,page)=>{
+    const width=slot.clientWidth;const ratio=Math.min(2,window.devicePixelRatio||1);
+    if(drawn.get(slot)===width)return;drawn.set(slot,width);
+    const view=page.getViewport({scale:width*ratio/page.getViewport({scale:1}).width});
+    const canvas=document.createElement("canvas");canvas.width=Math.ceil(view.width);canvas.height=Math.ceil(view.height);
+    await page.render({canvasContext:canvas.getContext("2d"),viewport:view}).promise;
+    slot.replaceChildren(canvas);
+  };
+  const pages=new Map(slots);
+  const watch=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting)draw(e.target,pages.get(e.target)).catch(()=>{});},{rootMargin:"1600px 0px"});
+  slots.forEach(([slot])=>watch.observe(slot));
 }
-build().catch(err=>{document.getElementById("loading").textContent="לא ניתן לטעון את כל רכיבי החוברת כרגע. ניתן להשתמש בגרסת ה־PDF המקושרת למעלה. "+err.message;});
+if(window.pdfjsLib)show().catch(fallback);else fallback();
 </script>
-</body></html>
+</body>
+</html>

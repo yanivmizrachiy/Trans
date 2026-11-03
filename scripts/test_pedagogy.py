@@ -94,6 +94,10 @@ def main():
         text=(ROOT/rel).read_text(encoding="utf-8")
         for token in meta:
             if token in text:raise AssertionError(f"{rel}: meta wording in the booklet: {token!r}")
+    # Ayelet Krispin's exact title, as in the district repositories (jerusalem RULES.md).
+    video=(ROOT/"book"/"krispin-video.html").read_text(encoding="utf-8")
+    if "איילת קריספין, מתכללת את תחום המתמטיקה בעל יסודי בעיר ירושלים ובמחוז ירושלים" not in video:
+        raise AssertionError("book/krispin-video.html: Ayelet Krispin's title must be stated exactly")
     # A4 print booklet, not online pages: no "open full size" links (SOURCE_OF_TRUTH §כג.6).
     for path in sorted((ROOT/"book").glob("*.html")):
         if "בגודל מלא" in path.read_text(encoding="utf-8"):

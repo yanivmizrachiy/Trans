@@ -106,23 +106,14 @@ def check_documents():
 
 
 def check_continuous_book():
-    """The public reading page must contain the complete inventory in one vertical flow,
-    in exactly the manifest's order (the same order as the printed booklet)."""
+    """The public reading page shows the printed booklet PDF itself, page after page,
+    so its order and content are the booklet's by construction; it adds no captions."""
     html = read(M.BOOK_HTML)
-    line = next((row for row in html.splitlines() if row.startswith("const ORDER=")), None)
-    demand(line is not None and line.endswith(";"), "Continuous booklet lacks a machine-readable reading sequence")
-    sequence = json.loads(line[len("const ORDER="):-1])
-    demand(sequence == M.reading_sequence(),
-           f"{M.BOOK_HTML} reading order differs from the manifest's printed order")
-    chapters = next((row for row in html.splitlines() if row.startswith("const CHAPTERS=")), None)
-    demand(chapters is not None and json.loads(chapters[len("const CHAPTERS="):-1]) == M.html_chapters(),
-           f"{M.BOOK_HTML} chapter headings differ from the manifest chapters")
-    demand(M.MINISTRY_HEADING in html and "overflow-x:hidden" in html,
-           "Reading flow must label original Ministry scans and avoid horizontal scrolling")
-    demand("id=\"loading\"" in html and "new DOMParser" in html,
-           "Teacher summaries must be loaded into the same continuous document")
-    demand(f"summaries.size!=={M.SUMMARY_COUNT}" in html, "Continuous page must insist on every teacher summary")
-
+    pdf_name = Path(M.BOOK_FILE).name
+    demand(f'const PDF="{pdf_name}";' in html, f"{M.BOOK_HTML} must render {M.BOOK_FILE}")
+    demand("border-bottom:6px solid #0b2a4a" in html, f"{M.BOOK_HTML} pages must sit back to back with a dark-blue divider")
+    for tag in ("<h1", "<h2", "<header", "<footer", "<nav", "<figcaption"):
+        demand(tag not in html, f"{M.BOOK_HTML} must not add captions or headings ({tag})")
 
 def flatten(items):
     for item in items:
