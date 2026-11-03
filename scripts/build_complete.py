@@ -276,11 +276,11 @@ def source_pages(item):
         return PDF/f"{ident}.pdf",list(range(PAGES[ident]))
     return ROOT/M.COMPONENTS[ident]["file"],list(range(M.component_pages(ident)))
 
-# The page number: a thin dark-blue circle whose left edge sits on the 14 mm text margin and
-# whose centre is 12 mm below the top edge, inside every printer's printable area
-# (SOURCE_OF_TRUTH §כג.9, §כג.10, §כג.14). FOLIO_ZONE (mm from the top-left corner) is the
-# circle plus 1.5 mm, and must be blank on every page before it is stamped.
-FOLIO_X,FOLIO_Y,FOLIO_R=17.7,12.0,3.7
+# The page number: white on a solid disc in the dark blue of the footer line. The disc's left
+# edge sits on the 14 mm text margin and its centre is 12 mm below the top edge, inside every
+# printer's printable area (SOURCE_OF_TRUTH §כג.9, §כג.10, §כג.14, §כג.22). FOLIO_ZONE (mm from
+# the top-left corner) is the disc plus 1.5 mm, and must be blank on every page before it is stamped.
+FOLIO_X,FOLIO_Y,FOLIO_R=17.9,12.0,3.9
 FOLIO_ZONE=(FOLIO_X-FOLIO_R-1.5,FOLIO_Y-FOLIO_R-1.5,FOLIO_X+FOLIO_R+1.5,FOLIO_Y+FOLIO_R+1.5)
 
 def folio_clear(path,index,cache={}):
@@ -294,19 +294,17 @@ def folio_clear(path,index,cache={}):
 
 def number_stamps(numbers):
     """A PDF with one portrait A4 page per requested number: the booklet's only page
-    number, in the top-left corner inside a thin dark-blue circle."""
+    number, white on a solid dark-blue disc in the top-left corner."""
     buffer=BytesIO()
     canvas=Canvas(buffer,pagesize=A4)
     width,height=A4
     x,y=FOLIO_X*mm,height-FOLIO_Y*mm
     for n in numbers:
-        canvas.setStrokeColorRGB(11/255,42/255,74/255)
+        canvas.setFillColorRGB(11/255,58/255,117/255)
+        canvas.circle(x,y,FOLIO_R*mm,stroke=0,fill=1)
         canvas.setFillColorRGB(1,1,1)
-        canvas.setLineWidth(0.9)
-        canvas.circle(x,y,FOLIO_R*mm,stroke=1,fill=1)
-        canvas.setFillColorRGB(11/255,42/255,74/255)
-        canvas.setFont("Helvetica-Bold",9.5)
-        canvas.drawCentredString(x,y-3.3,str(n))
+        canvas.setFont("Helvetica-Bold",10)
+        canvas.drawCentredString(x,y-3.5,str(n))
         canvas.showPage()
     canvas.save()
     buffer.seek(0)
