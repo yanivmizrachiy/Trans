@@ -46,7 +46,7 @@ def main():
             assert not local.suffix==".md" or p.parent.name!="book",(p.name,"book pages must link to rendered HTML, not Markdown",link)
         if p.parent.name=="worksheets":
             own=p.stem in OWN
-            assert ("../assets/logo.png" in html)==own,(p.name,"district logo belongs only on own worksheets")
+            assert "../assets/logo.png" in html,(p.name,"every printed worksheet page carries the logo footer (SOURCE_OF_TRUTH §כג.14)")
             assert ("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" in html)==own,(p.name,"incorrect credit")
             assert "raz-logo.svg" not in html and "יצירה מקורית: יניב רז" not in html,(p.name,"retired creator logo/credit")
             if own: assert (html.count('class="level"') + html.count("class='level'"))==3,p.name

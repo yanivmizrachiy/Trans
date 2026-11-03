@@ -96,8 +96,8 @@ def main():
     for ident in IMPORTED:
         pdf_pages(f"pdf/{ident}.pdf",M.WORKSHEET_PAGES[ident])
         html=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
-        demand("assets/logo.png" not in html and "הדף נערך ע״י יניב רז" not in html,
-               f"Imported content must not carry creator logo: {ident}")
+        demand("הדף נערך ע״י יניב רז" not in html and html.count("assets/logo.png")==M.WORKSHEET_PAGES[ident],
+               f"Imported content keeps its own credit, and each printed page carries the booklet's logo footer: {ident}")
     for path in ("book/teacher.html","book/official.html","original.html","curriculum.html",
                  "book/answers.html","book/workshop.html","book/sadna.html","book/krispin-video.html","index.html"):
         demand((ROOT/path).is_file(),f"Missing public part of the book: {path}")

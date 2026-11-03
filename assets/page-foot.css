@@ -1,0 +1,14 @@
+/* Printed-page footer shared by the booklet pages (SOURCE_OF_TRUTH §כג.9, §כג.14):
+   a full-width dark-blue line, then the district logo beside a centred two-line credit. */
+.page-foot{flex:none;text-align:center;break-inside:avoid}
+.page-foot .src{color:#5d747b;font-size:10.5px;line-height:1.45;text-align:center;margin:0 16mm 5px}
+.page-foot .ws-footline{height:1.3px;width:100%;background:#0b2a4a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page-foot .ws-brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:3.2mm 14mm}
+.page-foot .ws-logo{width:42px;height:42px;border-radius:50%;background:#fff;border:2px solid #e3d3a4;flex:none;object-fit:cover}
+.page-foot .ws-credit{margin:0;display:flex;flex-direction:column;gap:1px;text-align:center;line-height:1.35}
+.page-foot .ws-credit strong,.page-foot .ws-credit .f1{font-weight:700!important;font-size:13px;color:#11203c}
+.page-foot .ws-credit span,.page-foot .ws-credit .f2{font-weight:500;font-size:12px;color:#54607a;margin:0}
+/* razpages keep their own credit wording; only the footer style is shared */
+.a4-page>.gz-footer.page-foot{margin:auto -18mm -10mm;padding:0;border-top:0;line-height:1.35}
+.a4-page.cfq-page>.gz-footer.page-foot{margin:auto -10mm -8mm}
+@media screen and (max-width:850px){.a4-page>.gz-footer.page-foot{margin:22px -12px -18px}}

@@ -191,8 +191,7 @@ def check_pdfs():
         want = readers[source].pages[index]
         demand(same_page(got, want, number),
                f"Booklet page {number} is not {source} page {index + 1} ({item})")
-        landscape = float(got.mediabox.width) > float(got.mediabox.height)
-        demand(landscape == (kind == "m"), f"Booklet page {number}: unexpected orientation for {item}")
+        demand(float(got.mediabox.width) < float(got.mediabox.height), f"Booklet page {number}: not portrait A4 ({item})")
     # Links inside the published PDFs must work for a reader, not only on the build machine.
     for pdf in [c["file"] for c in M.COMPONENTS.values()] + [M.BOOK_FILE]:
         for page in PdfReader(str(ROOT / pdf)).pages:

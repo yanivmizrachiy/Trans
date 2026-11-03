@@ -4,8 +4,8 @@
 Chromium generates the individual documents. PyMuPDF is a second,
 independent PDF renderer used to find blank pages, bad page geometry,
 missing text/scans, and to preserve contact sheets for human inspection.
-Which pages are landscape Ministry scans and which carry a running page
-number is derived from the manifest's reading sequence.
+Every page is portrait A4 and carries the running page number; which pages
+are Ministry scans is derived from the manifest's reading sequence.
 """
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageOps
@@ -43,10 +43,8 @@ def main():
         chapter,item=PAGE_MAP[n]
         is_official=item[0]=="m"
         width,height=page.rect.width,page.rect.height
-        if is_official and not (width>height and abs(width-841.89)<5):
-            raise RuntimeError(f"Original ministry page {n}: A4 landscape orientation missing")
-        if not is_official and not (height>width and abs(width-595.28)<5):
-            raise RuntimeError(f"Book page {n}: A4 portrait orientation missing")
+        if not (height>width and abs(width-595.28)<5 and abs(height-841.89)<5):
+            raise RuntimeError(f"Book page {n}: A4 portrait page size missing")
         pic=page.get_pixmap(matrix=fitz.Matrix(.38,.38),alpha=False)
         image=Image.frombytes("RGB",(pic.width,pic.height),pic.samples)
         gray=ImageOps.grayscale(image)
@@ -54,19 +52,19 @@ def main():
         occupied=sum(hist[:245])/max(1,sum(hist))
         if occupied<.005:
             raise RuntimeError(f"Possible blank or near-blank page {n}: ink={occupied:.3%}")
-        if is_official:
-            if not page.get_images(full=True):
-                raise RuntimeError(f"Official page {n}: original image missing")
-        else:
-            extracted=page.get_text().strip()
-            if len(extracted)<65:
-                raise RuntimeError(f"Text page {n}: extracted text suspiciously short ({len(extracted)} chars)")
-            # The only page number is stamped in the top-left corner of every portrait page,
-            # and no other text may sit under its circle.
-            corner=fitz.Rect(0,0,28*72/25.4,12*72/25.4)
-            words=[w[4] for w in page.get_text("words",clip=corner)]
-            if words!=[str(n)]:
-                raise RuntimeError(f"Page {n}: top-left corner must hold only the page number, found {words}")
+        if is_official and not page.get_images(full=True):
+            raise RuntimeError(f"Official page {n}: original image missing")
+        extracted=page.get_text().strip()
+        if len(extracted)<65:
+            raise RuntimeError(f"Text page {n}: extracted text suspiciously short ({len(extracted)} chars)")
+        # The only page number is stamped in the top-left corner of every page (its circle is
+        # centred 17.7 mm from the left and 12 mm from the top), and no other text sits there.
+        corner=fitz.Rect(0,0,26*72/25.4,19*72/25.4)
+        words=[w[4] for w in page.get_text("words",clip=corner)]
+        if words!=[str(n)]:
+            raise RuntimeError(f"Page {n}: top-left corner must hold only the page number, found {words}")
+        if not page.get_images(full=True):
+            raise RuntimeError(f"Page {n}: the logo footer is missing")
         stats.append((n,round(occupied,4)))
 
     for label,numbers in samples():
@@ -87,7 +85,7 @@ def main():
         target=DEST/(label+".jpg")
         panel.save(target,quality=88,optimize=True,progressive=True)
         print(f"Preview {target.relative_to(ROOT)}: {target.stat().st_size} bytes")
-    print(f"PASS: {len(doc)} independently rendered pages; no blank pages, missing image scans, bad A4 orientation, missing text or missing page numbers")
+    print(f"PASS: {len(doc)} independently rendered portrait A4 pages; no blank pages, missing scans or footers, missing text or missing page numbers")
     print("Ink-coverage range:",min(x[1] for x in stats),max(x[1] for x in stats))
 
 if __name__=="__main__":main()
