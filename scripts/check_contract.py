@@ -123,7 +123,7 @@ def main():
         print(f"PASS: {M.TOTAL_PAGES}-page book with {M.TOTAL_BOOKMARKS} bookmarks, 14 teacher pages, {len(SCANS)} original Ministry scans")
     else:
         print(f"SKIPPED built-PDF page and bookmark counts (CHECK_BUILT_PDFS=0); {len(SCANS)} original Ministry scans listed")
-    print(f"PASS: {len(ORIGINAL)} original 1-page A4 worksheets, {len(IMPORTED)} correctly attributed imported worksheets, "
+    print(f"PASS: {len(ORIGINAL)} original A4 worksheets, {len(IMPORTED)} correctly attributed imported worksheets, "
           f"{len(M.CHAPTERS)} topic chapters shared by HTML and PDF")
 
 if __name__=="__main__":

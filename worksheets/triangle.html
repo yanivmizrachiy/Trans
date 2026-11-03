@@ -24,10 +24,10 @@
 <p><strong>בדיקה עצמית:</strong> בכל תמונה הצלע הקצרה באורך 3, הארוכה באורך 4 והיתר באורך 5. אם יצא אחרת — אחד הקודקודים במקום הלא נכון.</p>
 <footer class="page-foot"><div class="ws-footline" aria-hidden="true"></div><div class="ws-brand"><img class="ws-logo" src="../assets/logo.png" alt="יחידת מתמטיקה — מחוז ירושלים והעיר ירושלים" width="64" height="64"><p class="ws-credit"><strong>יחידת המתמטיקה · מחוז ירושלים והעיר ירושלים</strong><span>הדרכה במחוז ירושלים והעיר ירושלים - מנח״י, בהובלת איילת קריספין</span></p></div></footer></article>
 <script>
-(function(){const ns="http://www.w3.org/2000/svg",svg=document.getElementById("flag-grid");const add=(t,a,x)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);if(x!==undefined)e.textContent=x;svg.appendChild(e);return e};
+(function(){const ns="http://www.w3.org/2000/svg",svg=document.getElementById("flag-grid");svg.style.direction="ltr";const add=(t,a,x)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);if(x!==undefined)e.textContent=x;svg.appendChild(e);return e};
 const u=30,o=240,px=p=>[o+p[0]*u,o-p[1]*u];add("rect",{width:480,height:480,fill:"#fff"});
 for(let n=-7;n<=7;n++){const c=o+n*u;add("line",{x1:c,y1:20,x2:c,y2:460,stroke:n?"#dde7e9":"#284e62","stroke-width":n?0.8:2.2});add("line",{x1:20,y1:c,x2:460,y2:c,stroke:n?"#dde7e9":"#284e62","stroke-width":n?0.8:2.2});
-if(n&&n%2===0){add("text",{x:c,y:o+13,"font-family":"Arial","font-size":10,fill:"#345965","text-anchor":"middle"},n);add("text",{x:o-6,y:o-n*u+4,"font-family":"Arial","font-size":10,fill:"#345965","text-anchor":"end"},n)}}
+if(n&&n%2===0){add("text",{x:c,y:o+13,"font-family":"Arial","font-size":10,fill:"#345965","text-anchor":"middle"},n<0?"−"+(-n):n);add("text",{x:o-6,y:o-n*u+4,"font-family":"Arial","font-size":10,fill:"#345965","text-anchor":"end"},n<0?"−"+(-n):n)}}
 add("path",{d:"M452 233 L462 240 L452 247 M233 28 L240 18 L247 28",stroke:"#284e62","stroke-width":2,fill:"none"});add("text",{x:464,y:231,"font-family":"Arial","font-size":15,fill:"#284e62"},"x");add("text",{x:250,y:24,"font-family":"Arial","font-size":15,fill:"#284e62"},"y");
 const pts=[[2,1],[6,1],[2,4]],names=["P","Q","R"];add("polygon",{points:pts.map(p=>px(p).join(",")).join(" "),fill:"#b5e3da","fill-opacity":.65,stroke:"#08766b","stroke-width":2.6});
 pts.forEach((p,i)=>{const [x,y]=px(p);add("circle",{cx:x,cy:y,r:3.7,fill:"#08766b"});add("text",{x:x+6,y:y-7,"font-family":"Arial","font-size":13,"font-weight":"bold",fill:"#075a58"},names[i])});})();
