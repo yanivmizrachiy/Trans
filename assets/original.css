@@ -75,3 +75,12 @@
 .side .squares{margin-top:0}
 @media print{.given{font-size:14px}.coords{font-size:14px}.coords th{font-size:13px}.sheet>section.level>.work{flex:1 0 auto}}
 @media screen and (max-width:800px){.work{flex-direction:column}.plane{width:auto!important;min-height:0!important}.plane>svg{position:static;width:100%;height:auto}}
+/* order-of-operations chains and route table (orig-composition, SOURCE_OF_TRUTH §כג.20) */
+.chains{display:flex;flex-direction:column;gap:8px;margin:7px 0 6px}
+.chain{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:14px}
+.chain .tag{flex:none;min-width:17mm;font-weight:800;color:#0a445c}
+.chain .pt{font-weight:700}
+.chain .op{padding:3px 10px 3px 15px;background:#dcefed;color:#0a445c;font-size:12.5px;font-weight:700;clip-path:polygon(9px 0,100% 0,100% 100%,9px 100%,0 50%)}
+.chain .blank i{width:13mm}
+.fill i.long{width:55mm}
+.route th small{display:block;font-weight:500;font-size:11px;color:#3f5d69;margin-top:1px}.route td{white-space:nowrap}@media screen and (max-width:800px){.route td{white-space:normal}.route .blank i{width:5mm}}.route .to{margin:0 4px;color:#3f5d69}.route .blank i{width:6.5mm}

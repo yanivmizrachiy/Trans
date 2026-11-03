@@ -21,6 +21,7 @@ from urllib.parse import unquote, urlsplit, urljoin
 import re
 import tempfile
 import manifest as M
+import answer_key_page
 
 ROOT=M.ROOT
 BOOK=ROOT/"book"
@@ -143,15 +144,17 @@ def foot_overlay(browser):
         FOOT_OVERLAY=PdfReader(BytesIO(data)).pages[0]
     return FOOT_OVERLAY
 
-def render_markdown(browser, source, target_html, target_pdf, label, pages):
+def render_markdown(browser, source, target_html, target_pdf, label, pages, to_html=None, style=CSS, head="", fonts=()):
     """Render a Markdown text onto exactly `pages` A4 pages, at the largest zoom that fits,
     so the pages are filled rather than left half empty. (CSS zoom lays the right-to-left text
-    out again; Chromium's print scale would cut it off at the right edge.)"""
+    out again; Chromium's print scale would cut it off at the right edge.) `to_html` replaces the
+    plain Markdown conversion with a dedicated layout; `fonts` are web fonts that must load."""
     content=source.read_text(encoding="utf-8")
     if not content.strip().startswith("#"):
         raise RuntimeError(f"Cannot render unstructured {source}")
-    html=rewrite_book_links(markdown(content,extensions=["tables","fenced_code","sane_lists"]),target_html)
-    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title><style>"+CSS+"</style></head><body>"+html+"</body></html>"
+    body=to_html(content) if to_html else markdown(content,extensions=["tables","fenced_code","sane_lists"])
+    html=rewrite_book_links(body,target_html)
+    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title>"+head+"<style>"+style+"</style></head><body>"+html+"</body></html>"
     target_html.write_text(page_html,encoding="utf-8",newline="\n")
     public_url=M.BASE_URL.rstrip("/")+"/book/"+target_html.name
     tab=browser.new_page(viewport={"width":1100,"height":1500})
@@ -162,16 +165,34 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages):
         print_html.write_text(absolute_links(page_html,public_url),encoding="utf-8",newline="\n")
         tab.goto(print_html.as_uri(),wait_until="load")
         tab.emulate_media(media="print")
+        if fonts:
+            missing=tab.evaluate("""async (families) => {
+              await document.fonts.ready;
+              const loaded=new Set([...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family.replace(/["']/g,'')));
+              return families.filter(f=>!loaded.has(f));
+            }""",list(fonts))
+            if missing:
+                raise RuntimeError(f"{label}: web fonts did not load: {missing}")
+        def fits(z):
+            tab.evaluate("z => { document.body.style.zoom = z; }",z)
+            data=tab.pdf(format="A4",print_background=True,margin=MD_MARGIN)
+            return data if len(PdfReader(BytesIO(data)).pages)<=pages else None
         fitted=None
         for step in range(19):
             scale=round(1.30-0.025*step,3)
-            tab.evaluate("z => { document.body.style.zoom = z; }",scale)
-            data=tab.pdf(format="A4",print_background=True,margin=MD_MARGIN)
-            if len(PdfReader(BytesIO(data)).pages)<=pages:
-                fitted=data
+            fitted=fits(scale)
+            if fitted:
                 break
         if fitted is None:
             raise RuntimeError(f"{label} does not fit on {pages} A4 pages even at scale 0.85")
+        # then in finer steps up to the next coarse step, so the last page is filled too
+        for fine in (0.02,0.015,0.01,0.005):
+            bigger=round(scale+fine,3)
+            if bigger<=1.30:
+                data=fits(bigger)
+                if data:
+                    fitted,scale=data,bigger
+                    break
     tab.close()
     writer=PdfWriter(clone_from=PdfReader(BytesIO(fitted)))
     for page in writer.pages:
@@ -318,7 +339,8 @@ def build():
                                      M.component_pages("workshop"))
             answers=render_markdown(browser,ROOT/M.COMPONENTS["answers"]["source"],
                                     BOOK/"answers.html",BOOK/"answers.pdf","מפתח תשובות למורה",
-                                    M.component_pages("answers"))
+                                    M.component_pages("answers"),to_html=answer_key_page.page_body,
+                                    style=answer_key_page.STYLE,head=answer_key_page.HEAD,fonts=answer_key_page.FONTS)
         finally:
             browser.close()
     for key,count in (("workshop",workshop),("answers",answers)):
