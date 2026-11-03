@@ -68,25 +68,6 @@ def print_sequence():
     return [list(item) for chapter in CHAPTERS for item in chapter["items"]]
 
 
-def reading_sequence():
-    """The items book/complete.html shows: the print sequence without print-only components."""
-    return [item for item in print_sequence()
-            if not (item[0] == "c" and COMPONENTS[item[1]].get("print_only"))]
-
-
-def html_chapters():
-    """[label, index of first item in reading_sequence()] for every chapter shown on the page."""
-    out = []
-    index = 0
-    for chapter in CHAPTERS:
-        shown = [item for item in chapter["items"]
-                 if not (item[0] == "c" and COMPONENTS[item[1]].get("print_only"))]
-        if shown:
-            out.append([chapter_title(chapter), index])
-            index += len(shown)
-    return out
-
-
 def chapter_pages(chapter):
     return sum(item_pages(item) for item in chapter["items"])
 
