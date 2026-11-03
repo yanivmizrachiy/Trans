@@ -52,3 +52,9 @@
 .lines.tall{min-height:15mm}.sheet>section.level:has(.lines.tall){flex-grow:2}
 .diagram.wide{grid-template-columns:220px 1fr}.diagram.wide svg{max-width:220px}
 }
+/* squared answer areas instead of writing lines: whole 5 mm squares drawn as a vector grid by original-grid.js,
+   36 across the 180 mm text width; in print each box is trimmed to full rows (SOURCE_OF_TRUTH §כג.12) */
+.squares{flex:1 0 auto;min-height:20mm;margin-top:6px}
+.squares.tall{min-height:30mm}
+.squares svg{display:block;width:100%;height:100%}
+@media print{.sheet>section.level:has(.squares.tall){flex-grow:2}}

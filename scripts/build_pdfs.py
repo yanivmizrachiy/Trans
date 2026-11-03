@@ -49,10 +49,14 @@ def main():
                         page.set_viewport_size({"width": 794, "height": 1123})
                         page.emulate_media(media="print")
                         bad = page.evaluate("""() => {
+                          if (window.snapSquares) window.snapSquares();
                           const sheet = document.querySelector('article.sheet'), foot = sheet.querySelector('.ws-foot');
                           const gap = sheet.getBoundingClientRect().bottom - foot.getBoundingClientRect().bottom;
-                          const short = [...sheet.querySelectorAll('.lines')].filter(l => l.getBoundingClientRect().height < 27).length;
-                          return Math.abs(gap) > 3 || short ? {gap: Math.round(gap), short} : null;
+                          const short = [...sheet.querySelectorAll('.lines, .squares')].filter(l => l.getBoundingClientRect().height < 27).length;
+                          const row = 5 * 96 / 25.4;
+                          const cut = [...sheet.querySelectorAll('.squares')].filter(b => {
+                            const r = b.getBoundingClientRect().height / row; return Math.abs(r - Math.round(r)) > 0.02 || !b.querySelector('svg'); }).length;
+                          return Math.abs(gap) > 3 || short || cut ? {gap: Math.round(gap), short, cut} : null;
                         }""")
                         if bad:
                             raise RuntimeError(f"Printed layout of {stem}: footer must close the A4 sheet and every question needs writing lines ({bad})")
