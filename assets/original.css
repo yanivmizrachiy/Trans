@@ -35,4 +35,20 @@
 .ws-footline{height:1.3px;width:100%;border-radius:0;background:#0b2a4a}
 .ws-brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:4mm 15mm}.ws-brand .ws-logo{width:44px;height:44px}
 .ws-brand .ws-credit{margin:0}
-@media(max-width:800px){.ws-foot{margin:18px -14px -18px}.ws-brand{padding:12px 14px}}
+@media screen and (max-width:800px){.ws-foot{margin:18px -14px -18px}.ws-brand{padding:12px 14px}}
+/* printed sheet: one type scale, real writing lines that fill the free height, larger drawing grid where students draw several images (SOURCE_OF_TRUTH §כג.11) */
+.machines{border-collapse:collapse;margin:6px 0 8px}
+.machines th{text-align:right;font-weight:700;color:#0a445c;padding:3px 0 3px 14px;white-space:nowrap}
+.machines{width:auto;align-self:flex-start}.machines td{padding:3px 0;text-align:right}
+.level ol.parts{list-style-type:hebrew}.level ol.parts li{margin:2px 0}
+.diagram .given{font-size:14px;color:#15333c;margin:0 0 8px}
+@media print{
+.sheet>p{font-size:14px;margin:9px 0 4px}
+.diagram p,.diagram .hint{font-size:13px;line-height:1.65;color:#405b65;margin:0}
+.level p,.level ol,.machines{font-size:14px}
+.level h2{font-size:16px}
+.sheet>section.level{flex:1 0 auto;display:flex;flex-direction:column}
+.lines{flex:1 0 auto;height:auto;min-height:7.5mm;margin-top:4px;background:linear-gradient(to top,#a9bec4 .3mm,transparent .3mm) 0 0/100% 7.5mm repeat-y}
+.lines.tall{min-height:15mm}.sheet>section.level:has(.lines.tall){flex-grow:2}
+.diagram.wide{grid-template-columns:220px 1fr}.diagram.wide svg{max-width:220px}
+}
