@@ -136,35 +136,6 @@ def render_markdown(browser, source, target_html, target_pdf, label):
     check_pdf_links(target_pdf,page_html,public_url)
     return validate_pdf(target_pdf)
 
-def render_front(browser):
-    """Cover page. The build refuses stale manifest-derived blocks (scripts/sync_book_docs.py)."""
-    import sync_book_docs
-    stale=sync_book_docs.check()
-    if stale:
-        raise RuntimeError("Derived booklet blocks are stale: "+", ".join(stale)+" (run python scripts/sync_book_docs.py --write)")
-    path=BOOK/"front.html"
-    dest=BOOK/"front.pdf"
-    expected=M.component_pages("front")
-    tab=browser.new_page(viewport={"width":1250,"height":1700})
-    errors=[]
-    tab.on("pageerror",lambda e:errors.append(str(e)))
-    tab.goto(path.as_uri(),wait_until="load")
-    tab.emulate_media(media="print")
-    check=tab.evaluate("""() => {
-      const pages=Array.from(document.querySelectorAll('section.page'));
-      return {count:pages.length,fail:pages.flatMap((p,i)=>{
-        const f=p.querySelector('.foot'), b=p.getBoundingClientRect(), z=f.getBoundingClientRect();
-        let e=[]; if(p.scrollHeight>p.clientHeight+2)e.push([i+1,'overflow']);
-        if(z.bottom>b.bottom-6)e.push([i+1,'footer outside page']);
-        return e;
-      })};
-    }""")
-    if check["count"]!=expected or check["fail"] or errors:
-        raise RuntimeError(f"Cover layout invalid: {check}, errors: {errors}")
-    tab.pdf(path=str(dest),format="A4",print_background=True,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
-    tab.close()
-    return validate_pdf(dest,expected)
-
 SADNA_CREDIT=M.SADNA_CREDIT
 def render_sadna(browser):
     """Three independent, originally authored teacher investigations."""
@@ -212,7 +183,7 @@ def render_video(browser):
         const b=p.getBoundingClientRect(), z=f.getBoundingClientRect();
         if(p.scrollHeight>p.clientHeight+2)e.push([i+1,'overflow']);
         if(m.getBoundingClientRect().bottom>z.top-2)e.push([i+1,'footer overlap']);
-        if(z.bottom>b.bottom-6)e.push([i+1,'footer outside page']);
+        if(z.bottom>b.bottom+1)e.push([i+1,'footer outside page']);
         return e;
       })};
     }""")
@@ -234,15 +205,20 @@ def source_pages(item):
     return ROOT/M.COMPONENTS[ident]["file"],list(range(M.component_pages(ident)))
 
 def number_stamps(numbers):
-    """A PDF with one portrait A4 page per requested number: the running page number
-    printed in the bottom margin. Ministry scans and the cover are never stamped."""
+    """A PDF with one portrait A4 page per requested number: the booklet's only page
+    number, centred in the top margin inside a thin dark-blue circle (SOURCE_OF_TRUTH §כג.9).
+    The Ministry scans are never stamped."""
     buffer=BytesIO()
     canvas=Canvas(buffer,pagesize=A4)
-    width,_=A4
+    width,height=A4
     for n in numbers:
-        canvas.setFont("Helvetica",9)
-        canvas.setFillGray(0.35)
-        canvas.drawCentredString(width/2,5.5*mm,str(n))
+        canvas.setStrokeColorRGB(11/255,42/255,74/255)
+        canvas.setFillColorRGB(1,1,1)
+        canvas.setLineWidth(0.9)
+        canvas.circle(width/2,height-6*mm,3.7*mm,stroke=1,fill=1)
+        canvas.setFillColorRGB(11/255,42/255,74/255)
+        canvas.setFont("Helvetica-Bold",9.5)
+        canvas.drawCentredString(width/2,height-6*mm-3.3,str(n))
         canvas.showPage()
     canvas.save()
     buffer.seek(0)
@@ -257,6 +233,10 @@ def flatten(outline):
 
 def build():
     M.validate()
+    import sync_book_docs
+    stale=sync_book_docs.check()
+    if stale:
+        raise RuntimeError("Derived booklet blocks are stale: "+", ".join(stale)+" (run python scripts/sync_book_docs.py --write)")
     validate_pdf(BOOK/"teacher.pdf",M.component_pages("teacher"))
     validate_pdf(BOOK/"official.pdf",M.component_pages("official"))
     for ident in M.WORKSHEETS:
@@ -264,7 +244,6 @@ def build():
     with sync_playwright() as p:
         browser=p.chromium.launch(headless=True,args=["--no-sandbox"])
         try:
-            render_front(browser)
             render_sadna(browser)
             render_video(browser)
             workshop=render_markdown(browser,ROOT/M.COMPONENTS["workshop"]["source"],
@@ -303,9 +282,9 @@ def build():
         parent=writer.add_outline_item(M.chapter_title(chapter),chapter_first)
         for item in M.item_bookmarks(chapter):
             writer.add_outline_item(M.item_title(item,summaries),item_first[tuple(item)],parent=parent)
-    # Running page numbers in the bottom margin of every portrait page except the
-    # cover pages, which print their own numbers; the Ministry scans stay untouched.
-    numbered=[n for n,item in placed if item[0]!="m" and item!=["c","front"]]
+    # One running page number at the top of every portrait page; the pages carry no
+    # numbers of their own and the Ministry scans stay untouched.
+    numbered=[n for n,item in placed if item[0]!="m"]
     stamps=number_stamps(numbered)
     for k,n in enumerate(numbered):
         writer.pages[n-1].merge_page(stamps.pages[k])

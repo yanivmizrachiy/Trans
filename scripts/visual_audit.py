@@ -20,11 +20,11 @@ PAGE_MAP={n:(chapter,item) for n,chapter,item,_ in M.page_map()}
 
 def samples():
     """Contact sheets whose page numbers come from the manifest layout."""
-    openers=[first for chapter,first,_ in M.layout() if chapter["key"]!="front"]
+    openers=[first for chapter,first,_ in M.layout()]
     scans=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="m"]
     worksheets=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="w"]
     summaries=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="s"]
-    closing=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="c" and item[1]!="front"]
+    closing=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="c"]
     return [
         ("chapter-openers",openers[:10]),
         ("ministry-source-pages",scans),
@@ -61,11 +61,10 @@ def main():
             extracted=page.get_text().strip()
             if len(extracted)<65:
                 raise RuntimeError(f"Text page {n}: extracted text suspiciously short ({len(extracted)} chars)")
-            if item!=["c","front"]:
-                # The running page number is stamped in the bottom 12 mm of every portrait page.
-                foot=fitz.Rect(0,page.rect.height-12*72/25.4,page.rect.width,page.rect.height)
-                if str(n) not in page.get_text("text",clip=foot).split():
-                    raise RuntimeError(f"Page {n}: running page number missing from the bottom margin")
+            # The only page number is stamped in the top 12 mm of every portrait page.
+            top=fitz.Rect(0,0,page.rect.width,12*72/25.4)
+            if str(n) not in [w[4] for w in page.get_text("words",clip=top)]:
+                raise RuntimeError(f"Page {n}: running page number missing from the top margin")
         stats.append((n,round(occupied,4)))
 
     for label,numbers in samples():

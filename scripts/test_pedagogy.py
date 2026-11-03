@@ -76,7 +76,7 @@ def main():
     # Material once derived from an external slide deck was rewritten (SOURCE_OF_TRUTH §כ.8);
     # the deck's file name, date and editors must not creep back into public files.
     public=["worksheets/rectangles.html","worksheets/true-false.html","worksheets/triangle.html",
-            "docs/TEACHER_WORKSHOP.md","teacher.html","index.html","book/front.html","book/INTRO.md",
+            "docs/TEACHER_WORKSHOP.md","teacher.html","index.html","book/INTRO.md",
             "book/complete.html","README.md","data/manifest.json"]
     remnants=("PRESENTATION_2026","21.10.2026","מצגת ההשתלמות","מצגת קהילת","סיכום מצגת","סיכום השתלמות")
     for rel in public:
@@ -86,7 +86,7 @@ def main():
     if "עידן אחוון" in (ROOT/"docs"/"TEACHER_WORKSHOP.md").read_text(encoding="utf-8"):
         raise AssertionError("docs/TEACHER_WORKSHOP.md must be original, not a deck summary")
     # The printed booklet carries no meta notes about itself or its sources (SOURCE_OF_TRUTH §כג.5).
-    booklet=["book/front.html","book/teacher.html","book/sadna.html","book/krispin-video.html",
+    booklet=["book/teacher.html","book/sadna.html","book/krispin-video.html",
              "docs/TEACHER_WORKSHOP.md","docs/ANSWER_KEY.md",*(f"worksheets/{i}.html" for i in M.WORKSHEETS)]
     meta=("חוברת הוראה אחת","חוברת מאוחדת","העמודים הרשמיים","נכתב לחוברת","נכתבו עבור החוברת","נכתב במיוחד",
           "אינו העתק","אינו ציטוט","אינם ציטוט","נוסחו מחדש","בהשראת","ייחוס","SOURCE_OF_TRUTH","תוכן עניינים")
@@ -96,7 +96,7 @@ def main():
             if token in text:raise AssertionError(f"{rel}: meta wording in the booklet: {token!r}")
     # Ayelet Krispin's exact title, as in the district repositories (jerusalem RULES.md).
     video=(ROOT/"book"/"krispin-video.html").read_text(encoding="utf-8")
-    if "איילת קריספין, מתכללת את תחום המתמטיקה בעל יסודי בעיר ירושלים ובמחוז ירושלים" not in video:
+    if "איילת קריספין, מתכללת את תחום המתמטיקה במחוז ירושלים והעיר ירושלים - מנח״י" not in video:
         raise AssertionError("book/krispin-video.html: Ayelet Krispin's title must be stated exactly")
     # A4 print booklet, not online pages: no "open full size" links (SOURCE_OF_TRUTH §כג.6).
     for path in sorted((ROOT/"book").glob("*.html")):

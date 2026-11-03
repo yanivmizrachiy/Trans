@@ -16,7 +16,6 @@ on:
       - 'book/official.html'
       - 'sources/ministry/**'
       - 'scripts/build_official.py'
-      - 'book/front.html'
       - 'book/complete.html'
       - 'book/INTRO.md'
       - 'book/sadna.html'

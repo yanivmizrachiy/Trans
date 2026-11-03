@@ -8,7 +8,7 @@ bookmark count, the HTML reading order) is compared here with:
 
 - the files on disk (HTML <-> PDF, scans, booklet component PDFs);
 - the homepage catalog, the originals catalog and the official viewer;
-- the printed table of contents (book/front.html), the introduction and
+- the introduction and
   the continuous reading page (book/complete.html), all regenerated from the
   manifest by scripts/sync_book_docs.py;
 - README.md and SOURCE_OF_TRUTH.md totals;
@@ -78,9 +78,8 @@ def check_derived_blocks():
     demand(not stale, f"Derived blocks differ from the manifest: {stale} (python scripts/sync_book_docs.py --write)")
     intro = read("book/INTRO.md")
     for chapter, first, last in M.layout():
-        if chapter["key"] != "front":
-            demand(re.search(rf"^\| {re.escape(chapter['label'])} \| {first}–{last} \|", intro, re.M),
-                   f"book/INTRO.md chapter table lacks '{chapter['label']} | {first}–{last} |'")
+        demand(re.search(rf"^\| {re.escape(chapter['label'])} \| {first}–{last} \|", intro, re.M),
+               f"book/INTRO.md chapter table lacks '{chapter['label']} | {first}–{last} |'")
 
 
 def check_documents():

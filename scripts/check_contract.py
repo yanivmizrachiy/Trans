@@ -99,7 +99,7 @@ def main():
         demand("assets/logo.png" not in html and "הדף נערך ע״י יניב רז" not in html,
                f"Imported content must not carry creator logo: {ident}")
     for path in ("book/teacher.html","book/official.html","original.html","curriculum.html",
-                 "book/front.html","book/answers.html","book/workshop.html","book/sadna.html","book/krispin-video.html","index.html"):
+                 "book/answers.html","book/workshop.html","book/sadna.html","book/krispin-video.html","index.html"):
         demand((ROOT/path).is_file(),f"Missing public part of the book: {path}")
     # Keep the 14 published teacher summaries and demonstrations in sync.
     teacher_summaries=(ROOT/"book"/"teacher.html").read_text(encoding="utf-8")

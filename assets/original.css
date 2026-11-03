@@ -29,3 +29,10 @@
 .ws-credit strong{font-weight:700;font-size:13.5px;color:var(--wsink)}.ws-credit span{font-weight:500;font-size:12.5px;color:var(--wssoft)}
 .ws-footline{height:2px;width:100%;border-radius:999px;background:linear-gradient(to left,var(--wsgoldline) 0%,var(--wsgold) 50%,var(--wsgoldline) 100%)}
 @media print{.ws-footline{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+
+/* footer: thin dark-blue line across the whole page, logo and credits centred below it (SOURCE_OF_TRUTH §כג.9) */
+.sheet{display:flex;flex-direction:column}.ws-foot{margin:auto -15mm -10mm;padding-top:12px}
+.ws-footline{height:1.3px;width:100%;border-radius:0;background:#0b2a4a}
+.ws-brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:4mm 15mm}.ws-brand .ws-logo{width:44px;height:44px}
+.ws-brand .ws-credit{margin:0}
+@media(max-width:800px){.ws-foot{margin:18px -14px -18px}.ws-brand{padding:12px 14px}}

@@ -151,13 +151,6 @@
   "file": "book/transformations-complete.pdf",
   "html": "book/complete.html",
   "components": {
-   "front": {
-    "label": "שער",
-    "file": "book/front.pdf",
-    "html": "book/front.html",
-    "pages": 1,
-    "print_only": true
-   },
    "teacher": {
     "label": "סיכומים למורה",
     "file": "book/teacher.pdf",
@@ -174,7 +167,7 @@
     "label": "סיכום מורה לסרטון ההמחשה — איילת קריספין",
     "file": "book/krispin-video.pdf",
     "html": "book/krispin-video.html",
-    "pages": 10
+    "pages": 11
    },
    "sadna": {
     "label": "מעבדת המורה — שלושה חקרי טרנספורמציות",
@@ -199,16 +192,6 @@
    }
   },
   "chapters": [
-   {
-    "key": "front",
-    "label": "שער",
-    "items": [
-     [
-      "c",
-      "front"
-     ]
-    ]
-   },
    {
     "key": "video",
     "label": "סיכום סרטון ההמחשה — איילת קריספין",
