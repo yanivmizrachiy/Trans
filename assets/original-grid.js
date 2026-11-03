@@ -62,7 +62,7 @@ for(const node of nodes){
     const boxes=Array.from(document.querySelectorAll(".squares"));
     boxes.forEach(b=>{b.replaceChildren();b.style.height="";b.style.flexGrow="";});
     const heights=boxes.map(b=>b.getBoundingClientRect().height);
-    boxes.forEach((b,i)=>{b.style.flexGrow="0";b.style.height=Math.max(4,Math.floor(heights[i]/row+0.01))*row+"px";});
+    boxes.forEach((b,i)=>{b.style.flexGrow="0";b.style.height=Math.max(2,Math.floor(heights[i]/row+0.01))*row+"px";});
     boxes.forEach(draw);
   }
   window.snapSquares=snap;
