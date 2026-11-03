@@ -35,6 +35,8 @@ on:
   pull_request:
     paths:
       - 'worksheets/**'
+      - 'data/manifest.json'
+      - 'book/INTRO.md'
       - 'assets/**'
       - 'book/*.html'
       - 'sources/ministry/**'
