@@ -94,6 +94,10 @@ def main():
         text=(ROOT/rel).read_text(encoding="utf-8")
         for token in meta:
             if token in text:raise AssertionError(f"{rel}: meta wording in the booklet: {token!r}")
+    # A4 print booklet, not online pages: no "open full size" links (SOURCE_OF_TRUTH §כג.6).
+    for path in sorted((ROOT/"book").glob("*.html")):
+        if "בגודל מלא" in path.read_text(encoding="utf-8"):
+            raise AssertionError(f"book/{path.name}: full-size link in the print booklet")
     print(f"PASS: {len(ORIGINAL)} original worksheets, {len(seen)} problems, 11 complete answer-key sections, no near-duplicates, district branding only on originals")
 
 if __name__=="__main__":main()
