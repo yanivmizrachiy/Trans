@@ -43,6 +43,19 @@ def main():
                             raise RuntimeError(f"Failed visible logo, geometry drawing, or RTL check: {stem}")
                         if page_errors:
                             raise RuntimeError(f"JavaScript errors in original worksheet {stem}: {page_errors}")
+                        # Lay out at the printed A4 width (794px matches max-width rules a wider viewport
+                        # misses): the footer must close the sheet and every question keeps at least one
+                        # writing line (SOURCE_OF_TRUTH §כג.11).
+                        page.set_viewport_size({"width": 794, "height": 1123})
+                        page.emulate_media(media="print")
+                        bad = page.evaluate("""() => {
+                          const sheet = document.querySelector('article.sheet'), foot = sheet.querySelector('.ws-foot');
+                          const gap = sheet.getBoundingClientRect().bottom - foot.getBoundingClientRect().bottom;
+                          const short = [...sheet.querySelectorAll('.lines')].filter(l => l.getBoundingClientRect().height < 27).length;
+                          return Math.abs(gap) > 3 || short ? {gap: Math.round(gap), short} : null;
+                        }""")
+                        if bad:
+                            raise RuntimeError(f"Printed layout of {stem}: footer must close the A4 sheet and every question needs writing lines ({bad})")
                     page.evaluate("""async () => {
                       if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
                         await Promise.race([

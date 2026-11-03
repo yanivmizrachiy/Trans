@@ -206,19 +206,20 @@ def source_pages(item):
 
 def number_stamps(numbers):
     """A PDF with one portrait A4 page per requested number: the booklet's only page
-    number, centred in the top margin inside a thin dark-blue circle (SOURCE_OF_TRUTH §כג.9).
+    number, in the top-left corner inside a thin dark-blue circle (SOURCE_OF_TRUTH §כג.9, §כג.10).
     The Ministry scans are never stamped."""
     buffer=BytesIO()
     canvas=Canvas(buffer,pagesize=A4)
     width,height=A4
+    x,y=14*mm,height-6*mm
     for n in numbers:
         canvas.setStrokeColorRGB(11/255,42/255,74/255)
         canvas.setFillColorRGB(1,1,1)
         canvas.setLineWidth(0.9)
-        canvas.circle(width/2,height-6*mm,3.7*mm,stroke=1,fill=1)
+        canvas.circle(x,y,3.7*mm,stroke=1,fill=1)
         canvas.setFillColorRGB(11/255,42/255,74/255)
         canvas.setFont("Helvetica-Bold",9.5)
-        canvas.drawCentredString(width/2,height-6*mm-3.3,str(n))
+        canvas.drawCentredString(x,y-3.3,str(n))
         canvas.showPage()
     canvas.save()
     buffer.seek(0)

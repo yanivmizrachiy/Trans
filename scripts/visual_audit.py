@@ -61,10 +61,12 @@ def main():
             extracted=page.get_text().strip()
             if len(extracted)<65:
                 raise RuntimeError(f"Text page {n}: extracted text suspiciously short ({len(extracted)} chars)")
-            # The only page number is stamped in the top 12 mm of every portrait page.
-            top=fitz.Rect(0,0,page.rect.width,12*72/25.4)
-            if str(n) not in [w[4] for w in page.get_text("words",clip=top)]:
-                raise RuntimeError(f"Page {n}: running page number missing from the top margin")
+            # The only page number is stamped in the top-left corner of every portrait page,
+            # and no other text may sit under its circle.
+            corner=fitz.Rect(0,0,28*72/25.4,12*72/25.4)
+            words=[w[4] for w in page.get_text("words",clip=corner)]
+            if words!=[str(n)]:
+                raise RuntimeError(f"Page {n}: top-left corner must hold only the page number, found {words}")
         stats.append((n,round(occupied,4)))
 
     for label,numbers in samples():
