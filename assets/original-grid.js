@@ -44,3 +44,28 @@ for(const node of nodes){
   node.replaceWith(fragment);
 }
 })();
+// Squared answer areas: whole 5 mm squares only, drawn as a crisp vector grid. In print each box is first
+// trimmed to full rows, so no row is cut at the frame (SOURCE_OF_TRUTH §כג.12). The PDF build calls window.snapSquares().
+(function(){
+  const row=5*96/25.4, NS="http://www.w3.org/2000/svg";
+  function draw(box){
+    const w=box.clientWidth, h=box.clientHeight, cols=Math.max(1,Math.round(w/row)), rows=Math.max(1,Math.round(h/row));
+    let d="";
+    for(let i=1;i<cols;i++){const x=(i*w/cols).toFixed(2);d+=`M${x} 0V${h}`;}
+    for(let j=1;j<rows;j++){const y=(j*h/rows).toFixed(2);d+=`M0 ${y}H${w}`;}
+    const svg=document.createElementNS(NS,"svg");
+    svg.setAttribute("viewBox",`0 0 ${w} ${h}`);svg.setAttribute("aria-hidden","true");
+    svg.innerHTML=`<path d="${d}" fill="none" stroke="#c3d8dd" stroke-width=".7"/><rect x=".5" y=".5" width="${w-1}" height="${h-1}" rx="3" fill="none" stroke="#7fa9b2" stroke-width="1"/>`;
+    box.replaceChildren(svg);
+  }
+  function snap(){
+    const boxes=Array.from(document.querySelectorAll(".squares"));
+    boxes.forEach(b=>{b.replaceChildren();b.style.height="";b.style.flexGrow="";});
+    const heights=boxes.map(b=>b.getBoundingClientRect().height);
+    boxes.forEach((b,i)=>{b.style.flexGrow="0";b.style.height=Math.max(4,Math.floor(heights[i]/row+0.01))*row+"px";});
+    boxes.forEach(draw);
+  }
+  window.snapSquares=snap;
+  snap();
+  ["beforeprint","afterprint","resize"].forEach(e=>window.addEventListener(e,snap));
+})();
