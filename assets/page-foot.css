@@ -1,13 +1,21 @@
-/* Printed-page footer shared by the booklet pages (SOURCE_OF_TRUTH §כג.9, §כג.14):
-   a full-width dark-blue line, then the district logo beside a centred two-line credit. */
+/* Printed-page footer shared by every booklet page (SOURCE_OF_TRUTH §כג.9, §כג.14, §כג.16): a dark-blue line across
+   the whole page, then the district logo centred at the foot of the page between the two black credit lines.
+   The selectors start at the footer element so they win over the older per-page footer rules. */
 .page-foot{flex:none;text-align:center;break-inside:avoid}
-.page-foot .src{color:#5d747b;font-size:10.5px;line-height:1.45;text-align:center;margin:0 16mm 5px}
-.page-foot .ws-footline{height:1.3px;width:100%;background:#0b2a4a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.page-foot .ws-brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:3.2mm 14mm}
-.page-foot .ws-logo{width:42px;height:42px;border-radius:50%;background:#fff;border:2px solid #e3d3a4;flex:none;object-fit:cover}
-.page-foot .ws-credit{margin:0;display:flex;flex-direction:column;gap:1px;text-align:center;line-height:1.35}
-.page-foot .ws-credit strong,.page-foot .ws-credit .f1{font-weight:700!important;font-size:13px;color:#11203c}
-.page-foot .ws-credit span,.page-foot .ws-credit .f2{font-weight:500;font-size:12px;color:#54607a;margin:0}
+.page-foot .src{font-size:10.5px;line-height:1.45;text-align:center;margin:0 16mm 5px}
+footer .src{color:#000}
+footer .ws-footline{height:3px;width:100%;border-radius:0;background:#0b3a75;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+footer .ws-brand{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:7mm;padding:3mm 12mm}
+footer .ws-brand .ws-logo{grid-column:2;grid-row:1;width:44px;height:44px;margin:0;border-radius:50%;background:#fff;border:2px solid #e3d3a4;object-fit:cover}
+footer .ws-brand .ws-credit{display:contents}
+footer .ws-brand .ws-credit>strong,footer .ws-brand .ws-credit>.f1{grid-column:1;grid-row:1;margin:0;font-weight:700!important;font-size:12.5px;line-height:1.35;color:#000;text-align:center;text-wrap:balance}
+footer .ws-brand .ws-credit>span,footer .ws-brand .ws-credit>.f2{grid-column:3;grid-row:1;margin:0;font-weight:500;font-size:12px;line-height:1.35;color:#000;text-align:center;text-wrap:balance}
+@media screen and (max-width:850px){
+footer .ws-brand{grid-template-columns:1fr;row-gap:5px;padding:12px 14px}
+footer .ws-brand .ws-logo{grid-column:1;justify-self:center}
+footer .ws-brand .ws-credit>strong,footer .ws-brand .ws-credit>.f1{grid-column:1;grid-row:2}
+footer .ws-brand .ws-credit>span,footer .ws-brand .ws-credit>.f2{grid-column:1;grid-row:3}
+}
 /* razpages keep their own credit wording; only the footer style is shared */
 .a4-page>.gz-footer.page-foot{margin:auto -18mm -10mm;padding:0;border-top:0;line-height:1.35}
 .a4-page.cfq-page>.gz-footer.page-foot{margin:auto -10mm -8mm}

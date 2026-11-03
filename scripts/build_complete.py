@@ -126,11 +126,11 @@ def foot_overlay(browser):
               f"<link rel='stylesheet' href='{(ROOT/'assets'/'page-foot.css').as_uri()}'>"
               "<style>@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
               "body{font-family:Arial,'Noto Sans Hebrew',sans-serif}.page-foot{position:fixed;left:0;right:0;bottom:0}"
-              ".page-foot .ws-footline{height:0;background:none;border-top:1.3px solid #0b2a4a}</style></head><body>"
+              ".page-foot .ws-footline{height:0;background:none;border-top:3px solid #0b3a75}</style></head><body>"
               "<footer class='page-foot'><div class='ws-footline'></div><div class='ws-brand'>"
               f"<img class='ws-logo' src='{logo}' alt='' width='64' height='64'><p class='ws-credit'>"
               "<strong>הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים</strong>"
-              "<span>הדרכה במחוז ירושלים והעיר ירושלים - מנח״י, בהובלת איילת קריספין</span></p></div></footer></body></html>")
+              "<span>הדרכה במחוז ירושלים והעיר ירושלים - מנח״י,<br>בהובלת איילת קריספין</span></p></div></footer></body></html>")
         tab=browser.new_page()
         with tempfile.TemporaryDirectory() as temp:
             page=Path(temp)/"foot.html"

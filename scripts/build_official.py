@@ -54,7 +54,7 @@ def sheet(page,scan,logo):
             '<footer class="page-foot"><div class="ws-footline" aria-hidden="true"></div><div class="ws-brand">'
             f'<img class="ws-logo" src="{logo}" alt="יחידת מתמטיקה — מחוז ירושלים והעיר ירושלים" width="64" height="64">'
             '<p class="ws-credit"><strong>יחידת המתמטיקה · מחוז ירושלים והעיר ירושלים</strong>'
-            '<span>הדרכה במחוז ירושלים והעיר ירושלים - מנח״י, בהובלת איילת קריספין</span></p></div></footer></article>')
+            '<span>הדרכה במחוז ירושלים והעיר ירושלים - מנח״י,<br>בהובלת איילת קריספין</span></p></div></footer></article>')
 
 def main():
     if set(EXPECTED)!=set(M.MINISTRY_PAGES):
