@@ -38,6 +38,7 @@ def main():
     doc=fitz.open(SOURCE)
     if len(doc)!=EXPECTED:raise RuntimeError(f"Expected {EXPECTED} pages (data/manifest.json); got {len(doc)}")
     stats=[]
+    series={}            # page -> how the series line "טרנספורמציות - סיכומים למורה" is printed there
     for i,page in enumerate(doc):
         n=i+1
         chapter,item=PAGE_MAP[n]
@@ -80,7 +81,19 @@ def main():
               for y in range(strip.height)]
         if not any(full):
             raise RuntimeError(f"Page {n}: the dark-blue line above the footer must cross the whole page")
+        # The series line of the teacher summaries looks the same on every page that carries it
+        # (SOURCE_OF_TRUTH §כג.21): one font, one size, one colour.
+        for block in page.get_text("dict")["blocks"]:
+            for line in block.get("lines",[]):
+                words=set("".join(span["text"] for span in line["spans"]).replace("-"," ").split())
+                if {"טרנספורמציות","סיכומים","למורה"}<=words:   # spans may come in visual order
+                    series.setdefault(n,set()).update((span["font"],round(span["size"],1),span["color"]) for span in line["spans"] if span["text"].strip())
         stats.append((n,round(occupied,4)))
+    summaries=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="s"]
+    if missing:=[n for n in summaries if n not in series]:
+        raise RuntimeError(f"Teacher-summary pages without the series line: {missing}")
+    if len({frozenset(page_looks) for page_looks in series.values()})!=1:
+        raise RuntimeError(f"The series line must look the same on every page: {sorted((n,sorted(v)) for n,v in series.items())}")
 
     for label,numbers in samples():
         cellw,cellh=(900,1300) if label=="ministry-source-pages" else (450,650)
