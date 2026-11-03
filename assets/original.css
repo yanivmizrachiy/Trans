@@ -25,7 +25,7 @@
 .header{justify-content:flex-start;align-items:center;gap:14px;border-bottom:0}.header>div,.head-titles{flex:1;min-width:0}
 .ws-logo{width:64px;height:64px;border-radius:50%;background:#fff;border:2px solid var(--wsgoldline);flex:none;object-fit:cover}
 .student{font-size:11.5px;color:#345765;margin:14px 0 0}
-.ws-foot{margin-top:12px}.ws-credit{margin:0 0 8px;display:flex;flex-direction:column;gap:2px;text-align:center}
+.ws-foot{margin-top:12px}.ws-credit{margin:8px 0 0;display:flex;flex-direction:column;gap:2px;text-align:center}
 .ws-credit strong{font-weight:700;font-size:13.5px;color:var(--wsink)}.ws-credit span{font-weight:500;font-size:12.5px;color:var(--wssoft)}
-.ws-footline{height:2px;width:100%;border-radius:999px;background:linear-gradient(to left,transparent 0%,var(--wsgoldline) 18%,var(--wsgold) 50%,var(--wsgoldline) 82%,transparent 100%)}
+.ws-footline{height:2px;width:100%;border-radius:999px;background:linear-gradient(to left,var(--wsgoldline) 0%,var(--wsgold) 50%,var(--wsgoldline) 100%)}
 @media print{.ws-footline{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
