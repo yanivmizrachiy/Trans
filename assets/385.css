@@ -1,2 +1,18 @@
 @import url('./geometry7.css');
-.page-385 .figrow { gap: 12px; }
+/* The icon story beside one computed figure of all four shapes, and the base shape beside question 3 (SOURCE_OF_TRUTH §כג.19). */
+.page-385 .story { display: flex; gap: 5mm; align-items: center; padding: 7px 12px; }
+.page-385 .story-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.page-385 .story-text p { margin: 0; }
+.page-385 figure { margin: 0; flex: none; }
+.page-385 figure svg { display: block; }
+.page-385 .tone { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-left: 6px; vertical-align: -1px; border: 1px solid; }
+.page-385 .tone.tb { background: #daf1e3; border-color: #1d7646; }
+.page-385 .tone.tc { background: #fde9cf; border-color: #a85b0c; }
+.page-385 .tone.td { background: #ebe1f8; border-color: #683ca4; }
+.page-385 .q3 { display: flex; gap: 6mm; align-items: center; }
+.page-385 .q3-text { flex: 1; min-width: 0; }
+.page-385 > .f2 { margin: 3px 0 2mm; font-size: 12px; color: #475569; }
+@media screen and (max-width: 850px) {
+  .page-385 .story, .page-385 .q3 { flex-direction: column; align-items: stretch; }
+  .page-385 figure svg { max-width: 100%; height: auto; margin: 0 auto; }
+}
