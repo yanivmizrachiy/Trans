@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""Assemble eleven source-identical photographed ministry curriculum pages into an unmodified-page PDF."""
-from pathlib import Path
+"""Lay out eleven source-identical photographed Ministry curriculum pages as portrait A4 booklet pages.
+
+Each scan is checked against its verified Git-blob hash and shown unchanged. A landscape scan
+upright on a portrait page would print at 71% of its size, so it is turned a quarter turn (a
+lossless pixel rotation: Chromium misplaces images inside CSS-rotated boxes) and printed at 85%,
+beside the heading SOURCE_OF_TRUTH requires, turned with it. The portrait page keeps the
+booklet's logo footer, and its page number is stamped in the margin when the booklet is merged
+(SOURCE_OF_TRUTH §כג.14).
+"""
 from io import BytesIO
 from hashlib import sha1
+from pathlib import Path
+import tempfile
 from PIL import Image
-from reportlab.pdfgen.canvas import Canvas
-from reportlab.lib.pagesizes import landscape, A4
-from reportlab.lib.utils import ImageReader
+from playwright.sync_api import sync_playwright
 from pypdf import PdfReader
 import manifest as M
 
@@ -27,32 +34,83 @@ EXPECTED={
     91:"6947bf786be3d0eae082ecbfb87bf016797f30c2",
 }
 
+CSS="""@page{size:A4;margin:0}*{box-sizing:border-box}html,body{margin:0;background:#fff}
+body{font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#153949}
+.sheet{width:210mm;height:297mm;padding-top:20mm;display:flex;flex-direction:column;overflow:hidden;break-after:page;page-break-after:always}
+.sheet:last-child{break-after:auto;page-break-after:auto}
+.area{flex:1;display:flex;align-items:center;direction:ltr;padding:0 7mm 0 8mm;gap:4mm}
+.strip{position:relative;width:13mm;height:252mm;flex:none}
+.strip .head{position:absolute;left:50%;top:50%;width:252mm;transform:translate(-50%,-50%) rotate(-90deg);direction:rtl;display:flex;align-items:baseline;gap:14px;border-bottom:2px solid #087971;padding:0 4mm 6px}
+.series{color:#087971;font-size:22px;font-weight:900;line-height:1.25}
+.sub{color:#5e7480;font-size:13px}
+.scan{margin:0;flex:none}
+.scan img{display:block;width:178mm;height:auto}
+.page-foot{margin:0}"""
+
+def sheet(page,scan,logo):
+    return ('<article class="sheet"><div class="area"><div class="strip"><header class="head">'
+            f'<div class="series">{M.MINISTRY_HEADING}</div><div class="sub">משרד החינוך · עדכון גאומטריה ז׳ · עמוד {page}</div></header></div>'
+            f'<figure class="scan"><img src="{scan}" alt="תוכנית הלימודים בגאומטריה לכיתה ז׳, עמוד {page}"></figure></div>'
+            '<footer class="page-foot"><div class="ws-footline" aria-hidden="true"></div><div class="ws-brand">'
+            f'<img class="ws-logo" src="{logo}" alt="יחידת מתמטיקה — מחוז ירושלים והעיר ירושלים" width="64" height="64">'
+            '<p class="ws-credit"><strong>יחידת המתמטיקה · מחוז ירושלים והעיר ירושלים</strong>'
+            '<span>הדרכה במחוז ירושלים והעיר ירושלים - מנח״י, בהובלת איילת קריספין</span></p></div></footer></article>')
+
 def main():
     if set(EXPECTED)!=set(M.MINISTRY_PAGES):
         raise RuntimeError(f"Verified scan hashes cover {sorted(EXPECTED)} but data/manifest.json lists {list(M.MINISTRY_PAGES)}")
-    w,h=landscape(A4)
-    canvas=Canvas(str(OUTPUT),pagesize=(w,h),pageCompression=1)
-    for n, expected_sha in EXPECTED.items():
+    sheets=[]
+    temp=tempfile.TemporaryDirectory()
+    for n in M.MINISTRY_PAGES:
         src=SOURCE/f"grade7-p{n:03}.webp"
         data=src.read_bytes()
         gitsha=sha1(b"blob "+str(len(data)).encode()+bytes([0])+data).hexdigest()
-        if gitsha!=expected_sha:
+        if gitsha!=EXPECTED[n]:
             raise RuntimeError(f"Ministry page {n} changed from its original verified source")
         with Image.open(BytesIO(data)) as img:
-            rgb=img.convert("RGB")
-            if rgb.width < 1200 or rgb.height < 800:
+            if img.width < 1200 or img.height < 800:
                 raise RuntimeError(f"Low resolution source page {n}")
-            scale=min(w/rgb.width,h/rgb.height)
-            cw,ch=rgb.width*scale,rgb.height*scale
-            canvas.drawImage(ImageReader(rgb),(w-cw)/2,(h-ch)/2,width=cw,height=ch,preserveAspectRatio=True)
-        canvas.showPage()
-    canvas.save()
+            turned=Path(temp.name)/f"grade7-p{n:03}.png"
+            img.convert("RGB").transpose(Image.Transpose.ROTATE_90).save(turned)
+        sheets.append(sheet(n,turned.as_uri(),(ROOT/"assets"/"logo.png").as_uri()))
+    html=('<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>שאלות מתוך תוכנית הלימודים</title>'
+          f'<link rel="stylesheet" href="{(ROOT/"assets"/"page-foot.css").as_uri()}"><style>{CSS}</style></head><body>'+"".join(sheets)+"</body></html>")
+    with sync_playwright() as p:
+        browser=p.chromium.launch(headless=True,args=["--no-sandbox"])
+        try:
+            tab=browser.new_page(viewport={"width":794,"height":1123})
+            errors=[]
+            tab.on("pageerror",lambda e:errors.append(str(e)))
+            if True:
+                page=Path(temp.name)/"official-print.html"
+                page.write_text(html,encoding="utf-8")
+                tab.goto(page.as_uri(),wait_until="load")
+                tab.emulate_media(media="print")
+                bad=tab.evaluate("""() => [...document.querySelectorAll('article.sheet')].flatMap((s,i) => {
+                  const img=s.querySelector('.scan img'), logo=s.querySelector('.ws-logo'), f=s.querySelector('.page-foot');
+                  const e=[];
+                  if(!img.complete||img.naturalHeight<1200)e.push([i+1,'scan not loaded']);
+                  if(!logo.complete||!logo.naturalWidth)e.push([i+1,'logo not loaded']);
+                  if(s.scrollHeight>s.clientHeight+1)e.push([i+1,'overflow']);
+                  if(Math.abs(f.getBoundingClientRect().bottom-s.getBoundingClientRect().bottom)>2)e.push([i+1,'footer must close the page']);
+                  const r=img.getBoundingClientRect();
+                  if(r.bottom>f.getBoundingClientRect().top-4||r.top<s.getBoundingClientRect().top+76)e.push([i+1,'scan outside its panel']);
+                  if(r.height<900)e.push([i+1,'scan printed too small',Math.round(r.height)]);
+                  return e;})""")
+                if bad or errors:
+                    raise RuntimeError(f"Ministry pages layout failed: {bad} {errors}")
+                tab.pdf(path=str(OUTPUT),format="A4",print_background=True,prefer_css_page_size=True,
+                        margin={"top":"0","right":"0","bottom":"0","left":"0"})
+            tab.close()
+        finally:
+            browser.close()
+            temp.cleanup()
     pdf=PdfReader(str(OUTPUT))
     if len(pdf.pages)!=len(EXPECTED): raise RuntimeError("Original page count mismatch")
     for i,page in enumerate(pdf.pages):
-        if not (830<float(page.mediabox.width)<850 and 580<float(page.mediabox.height)<610):
-            raise RuntimeError(f"Wrong original orientation for page {i+1}")
+        if not (588<float(page.mediabox.width)<604 and 834<float(page.mediabox.height)<850):
+            raise RuntimeError(f"Ministry page {i+1} is not portrait A4")
     if OUTPUT.stat().st_size<90000:raise RuntimeError("Official PDF unexpectedly small")
-    print(f"PASS: {len(EXPECTED)} unchanged ministry source pages, Git-blob hashes verified, landscape A4 PDF ({OUTPUT.stat().st_size} bytes)")
+    print(f"PASS: {len(EXPECTED)} unchanged ministry source pages, Git-blob hashes verified, portrait A4 pages with logo footer ({OUTPUT.stat().st_size} bytes)")
 
 if __name__=="__main__":main()

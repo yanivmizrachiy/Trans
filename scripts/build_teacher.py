@@ -21,6 +21,7 @@ def main():
             page.goto(SOURCE.as_uri(), wait_until="load", timeout=60000)
             page.emulate_media(media="print")
             page.evaluate("document.fonts.ready")
+            page.evaluate("() => window.fitSheets && window.fitSheets()")
             inspection = page.evaluate("""() => {
                 const sheets = Array.from(document.querySelectorAll("article.sheet"));
                 const issues = [];
@@ -28,7 +29,9 @@ def main():
                     const a=s.getBoundingClientRect(), main=s.querySelector(".content").getBoundingClientRect(),
                       foot=s.querySelector(".source").getBoundingClientRect();
                     if (main.bottom > foot.top - 2) issues.push([i+1,"footer overlap",Math.round(main.bottom-foot.top)]);
-                    if (foot.bottom > a.bottom - 10) issues.push([i+1,"foot out of paper",Math.round(foot.bottom-a.bottom)]);
+                    if (Math.abs(foot.bottom - a.bottom) > 2) issues.push([i+1,"footer must close the page",Math.round(foot.bottom-a.bottom)]);
+                    const logo = s.querySelector(".source img.ws-logo");
+                    if (!logo || !logo.complete || !logo.naturalWidth) issues.push([i+1,"footer logo missing"]);
                     if (s.scrollHeight > s.clientHeight + 2) issues.push([i+1,"overflow",s.scrollHeight-s.clientHeight]);
                     if (!s.querySelector(".source").textContent.includes("אסמכתה")) issues.push([i+1,"missing source"]);
                 }

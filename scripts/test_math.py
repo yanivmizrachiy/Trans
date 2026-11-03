@@ -157,7 +157,8 @@ class AdditionalOriginalSheets(unittest.TestCase):
                 self.assertIn(name,M.IMPORTED)
                 self.assertEqual(M.WORKSHEET_SOURCE[name],"original-2026-11")
                 self.assertNotIn("נכתב לחוברת",doc)
-                self.assertNotIn("assets/logo.png",doc)
+                # the booklet's logo footer on every printed page (SOURCE_OF_TRUTH §כג.14)
+                self.assertEqual(doc.count("assets/logo.png"),M.WORKSHEET_PAGES[name])
                 self.assertNotIn("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים",doc)
 
     def test_community_hall_rectangle(self):

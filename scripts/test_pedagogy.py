@@ -71,8 +71,14 @@ def main():
     other=M.IMPORTED
     for ident in other:
         raw=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
-        if "assets/logo.png" in raw or "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" in raw:
+        if "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" in raw:
             raise AssertionError(f"{ident}: other creators' content was falsely credited")
+        # Every printed page carries the booklet's logo footer (SOURCE_OF_TRUTH §כג.14),
+        # with the page's own credit wording, not the project's editing credit.
+        if raw.count('class="ws-footline"')!=M.WORKSHEET_PAGES[ident] or raw.count("assets/logo.png")!=M.WORKSHEET_PAGES[ident]:
+            raise AssertionError(f"{ident}: every printed page needs exactly one logo footer")
+        if "תאריך:" in raw or "שם התלמיד" in raw:
+            raise AssertionError(f"{ident}: worksheets carry no name or date line")
     # Material once derived from an external slide deck was rewritten (SOURCE_OF_TRUTH §כ.8);
     # the deck's file name, date and editors must not creep back into public files.
     public=["worksheets/rectangles.html","worksheets/true-false.html","worksheets/triangle.html",

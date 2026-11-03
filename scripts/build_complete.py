@@ -9,6 +9,7 @@ so the public part files stay exactly what they are and only their order in
 the merged booklet is decided here.
 """
 from io import BytesIO
+import fitz
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader, PdfWriter
@@ -26,7 +27,6 @@ BOOK=ROOT/"book"
 PDF=ROOT/"pdf"
 PAGES=M.WORKSHEET_PAGES
 CSS = """
-@page{size:A4;margin:14mm 14mm 16mm}
 *{box-sizing:border-box}
 html{direction:rtl}
 body{font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#183e4c;font-size:12.5px;line-height:1.65;margin:0}
@@ -113,7 +113,40 @@ def check_pdf_links(target_pdf, page_html, base_url):
     if missing:
         raise RuntimeError(f"{target_pdf.name}: relative links were not published as absolute URLs: {missing}")
 
-def render_markdown(browser, source, target_html, target_pdf, label):
+# Flowing teacher texts: the top margin keeps clear of the page number, the bottom margin
+# holds the booklet's logo footer, which is laid over every page (SOURCE_OF_TRUTH §כג.14).
+MD_MARGIN={"top":"20mm","right":"14mm","bottom":"27mm","left":"14mm"}
+FOOT_OVERLAY=None
+def foot_overlay(browser):
+    """One transparent A4 page holding only the shared footer, to lay over flowing pages."""
+    global FOOT_OVERLAY
+    if FOOT_OVERLAY is None:
+        logo=(ROOT/"assets"/"logo.png").as_uri()
+        html=("<!doctype html><html lang='he' dir='rtl'><head><meta charset='utf-8'>"
+              f"<link rel='stylesheet' href='{(ROOT/'assets'/'page-foot.css').as_uri()}'>"
+              "<style>@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
+              "body{font-family:Arial,'Noto Sans Hebrew',sans-serif}.page-foot{position:fixed;left:0;right:0;bottom:0}"
+              ".page-foot .ws-footline{height:0;background:none;border-top:1.3px solid #0b2a4a}</style></head><body>"
+              "<footer class='page-foot'><div class='ws-footline'></div><div class='ws-brand'>"
+              f"<img class='ws-logo' src='{logo}' alt='' width='64' height='64'><p class='ws-credit'>"
+              "<strong>הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים</strong>"
+              "<span>הדרכה במחוז ירושלים והעיר ירושלים - מנח״י, בהובלת איילת קריספין</span></p></div></footer></body></html>")
+        tab=browser.new_page()
+        with tempfile.TemporaryDirectory() as temp:
+            page=Path(temp)/"foot.html"
+            page.write_text(html,encoding="utf-8")
+            tab.goto(page.as_uri(),wait_until="load")
+            if not tab.evaluate("() => document.querySelector('img').naturalWidth > 0"):
+                raise RuntimeError("Footer logo did not load")
+            data=tab.pdf(format="A4",print_background=False,margin={"top":"0","right":"0","bottom":"0","left":"0"})
+        tab.close()
+        FOOT_OVERLAY=PdfReader(BytesIO(data)).pages[0]
+    return FOOT_OVERLAY
+
+def render_markdown(browser, source, target_html, target_pdf, label, pages):
+    """Render a Markdown text onto exactly `pages` A4 pages, at the largest zoom that fits,
+    so the pages are filled rather than left half empty. (CSS zoom lays the right-to-left text
+    out again; Chromium's print scale would cut it off at the right edge.)"""
     content=source.read_text(encoding="utf-8")
     if not content.strip().startswith("#"):
         raise RuntimeError(f"Cannot render unstructured {source}")
@@ -129,8 +162,23 @@ def render_markdown(browser, source, target_html, target_pdf, label):
         print_html.write_text(absolute_links(page_html,public_url),encoding="utf-8",newline="\n")
         tab.goto(print_html.as_uri(),wait_until="load")
         tab.emulate_media(media="print")
-        tab.pdf(path=str(target_pdf),format="A4",print_background=True,margin={"top":"14mm","right":"14mm","bottom":"16mm","left":"14mm"})
+        fitted=None
+        for step in range(19):
+            scale=round(1.30-0.025*step,3)
+            tab.evaluate("z => { document.body.style.zoom = z; }",scale)
+            data=tab.pdf(format="A4",print_background=True,margin=MD_MARGIN)
+            if len(PdfReader(BytesIO(data)).pages)<=pages:
+                fitted=data
+                break
+        if fitted is None:
+            raise RuntimeError(f"{label} does not fit on {pages} A4 pages even at scale 0.85")
     tab.close()
+    writer=PdfWriter(clone_from=PdfReader(BytesIO(fitted)))
+    for page in writer.pages:
+        page.merge_page(foot_overlay(browser))
+    with target_pdf.open("wb") as f:
+        writer.write(f)
+    print(f"{target_pdf.name}: zoom {scale}")
     if errors:
         raise RuntimeError(f"Browser errors while rendering {label}: {errors}")
     check_pdf_links(target_pdf,page_html,public_url)
@@ -147,15 +195,18 @@ def render_sadna(browser):
     tab.on("pageerror",lambda e:errors.append(str(e)))
     tab.goto(path.as_uri(),wait_until="load")
     tab.emulate_media(media="print")
+    tab.evaluate("() => window.fitSheets && window.fitSheets()")
     check=tab.evaluate("""(credit) => {
       const pages=Array.from(document.querySelectorAll('article.sheet'));
       return {count:pages.length,fail:pages.flatMap((p,i)=>{
         const f=p.querySelector('.credit'), m=p.querySelector('.content'); let e=[];
         if(!f||!f.textContent.includes(credit))return [[i+1,'missing original lesson credit']];
+        const logo=f.querySelector('img.ws-logo');
+        if(!logo||!logo.complete||!logo.naturalWidth)e.push([i+1,'footer logo missing']);
         const b=p.getBoundingClientRect(), z=f.getBoundingClientRect();
         if(p.scrollHeight>p.clientHeight+2)e.push([i+1,'overflow']);
         if(m.getBoundingClientRect().bottom>z.top-2)e.push([i+1,'footer overlap']);
-        if(z.bottom>b.bottom-6)e.push([i+1,'footer outside page']);
+        if(Math.abs(z.bottom-b.bottom)>2)e.push([i+1,'footer must close the page']);
         return e;
       })};
     }""",SADNA_CREDIT)
@@ -204,19 +255,34 @@ def source_pages(item):
         return PDF/f"{ident}.pdf",list(range(PAGES[ident]))
     return ROOT/M.COMPONENTS[ident]["file"],list(range(M.component_pages(ident)))
 
+# The page number: a thin dark-blue circle whose left edge sits on the 14 mm text margin and
+# whose centre is 12 mm below the top edge, inside every printer's printable area
+# (SOURCE_OF_TRUTH §כג.9, §כג.10, §כג.14). FOLIO_ZONE (mm from the top-left corner) is the
+# circle plus 1.5 mm, and must be blank on every page before it is stamped.
+FOLIO_X,FOLIO_Y,FOLIO_R=17.7,12.0,3.7
+FOLIO_ZONE=(FOLIO_X-FOLIO_R-1.5,FOLIO_Y-FOLIO_R-1.5,FOLIO_X+FOLIO_R+1.5,FOLIO_Y+FOLIO_R+1.5)
+
+def folio_clear(path,index,cache={}):
+    """True when nothing is printed where the page number goes."""
+    if path not in cache:
+        cache[path]=fitz.open(str(path))
+    pt=72/25.4
+    x0,y0,x1,y1=FOLIO_ZONE
+    pix=cache[path][index].get_pixmap(clip=fitz.Rect(x0*pt,y0*pt,x1*pt,y1*pt),dpi=150,alpha=False)
+    return min(pix.samples)>=235
+
 def number_stamps(numbers):
     """A PDF with one portrait A4 page per requested number: the booklet's only page
-    number, in the top-left corner inside a thin dark-blue circle (SOURCE_OF_TRUTH §כג.9, §כג.10).
-    The Ministry scans are never stamped."""
+    number, in the top-left corner inside a thin dark-blue circle."""
     buffer=BytesIO()
     canvas=Canvas(buffer,pagesize=A4)
     width,height=A4
-    x,y=14*mm,height-6*mm
+    x,y=FOLIO_X*mm,height-FOLIO_Y*mm
     for n in numbers:
         canvas.setStrokeColorRGB(11/255,42/255,74/255)
         canvas.setFillColorRGB(1,1,1)
         canvas.setLineWidth(0.9)
-        canvas.circle(x,y,3.7*mm,stroke=1,fill=1)
+        canvas.circle(x,y,FOLIO_R*mm,stroke=1,fill=1)
         canvas.setFillColorRGB(11/255,42/255,74/255)
         canvas.setFont("Helvetica-Bold",9.5)
         canvas.drawCentredString(x,y-3.3,str(n))
@@ -248,9 +314,11 @@ def build():
             render_sadna(browser)
             render_video(browser)
             workshop=render_markdown(browser,ROOT/M.COMPONENTS["workshop"]["source"],
-                                     BOOK/"workshop.html",BOOK/"workshop.pdf",M.COMPONENTS["workshop"]["label"])
+                                     BOOK/"workshop.html",BOOK/"workshop.pdf",M.COMPONENTS["workshop"]["label"],
+                                     M.component_pages("workshop"))
             answers=render_markdown(browser,ROOT/M.COMPONENTS["answers"]["source"],
-                                    BOOK/"answers.html",BOOK/"answers.pdf","מפתח תשובות למורה")
+                                    BOOK/"answers.html",BOOK/"answers.pdf","מפתח תשובות למורה",
+                                    M.component_pages("answers"))
         finally:
             browser.close()
     for key,count in (("workshop",workshop),("answers",answers)):
@@ -273,9 +341,10 @@ def build():
             for index in indices:
                 page=reader(path).pages[index]
                 box=page.mediabox
-                landscape=float(box.width)>float(box.height)
-                if landscape!=(item[0]=="m"):
-                    raise RuntimeError(f"Page orientation of {path.name}#{index+1} does not fit item {item}")
+                if float(box.width)>float(box.height):
+                    raise RuntimeError(f"{path.name}#{index+1} ({item}) is not a portrait A4 page")
+                if not folio_clear(path,index):
+                    raise RuntimeError(f"{path.name}#{index+1} ({item}) prints where the page number goes {FOLIO_ZONE} mm")
                 writer.add_page(page)
                 placed.append((len(writer.pages),list(item)))
         if (chapter_first+1,len(writer.pages))!=(first,last):
@@ -283,9 +352,9 @@ def build():
         parent=writer.add_outline_item(M.chapter_title(chapter),chapter_first)
         for item in M.item_bookmarks(chapter):
             writer.add_outline_item(M.item_title(item,summaries),item_first[tuple(item)],parent=parent)
-    # One running page number at the top of every portrait page; the pages carry no
-    # numbers of their own and the Ministry scans stay untouched.
-    numbered=[n for n,item in placed if item[0]!="m"]
+    # One running page number on every page, the Ministry pages included: it sits in the
+    # page margin, outside the unchanged scan, and the pages carry no numbers of their own.
+    numbered=[n for n,item in placed]
     stamps=number_stamps(numbered)
     for k,n in enumerate(numbered):
         writer.pages[n-1].merge_page(stamps.pages[k])
@@ -294,6 +363,13 @@ def build():
                          "/Author":"מאגר הוראה במתמטיקה — Trans"})
     dest=ROOT/M.BOOK_FILE
     with dest.open("wb") as f:writer.write(f)
+    # Every part PDF embeds its own copy of the footer logo. Identical objects are merged in
+    # two passes: the first unites the logos' transparency masks, which makes the logo
+    # images themselves identical for the second.
+    for _ in range(2):
+        packed=PdfWriter(clone_from=PdfReader(BytesIO(dest.read_bytes())))
+        packed.compress_identical_objects(remove_identicals=True,remove_orphans=True)
+        with dest.open("wb") as f:packed.write(f)
     verify=PdfReader(str(dest))
     if len(verify.pages)!=M.TOTAL_PAGES:
         raise RuntimeError(f"Book missing pages: {len(verify.pages)} expected {M.TOTAL_PAGES} (data/manifest.json)")
