@@ -178,16 +178,15 @@ def validate():
     if duplicates:
         raise AssertionError(f"Duplicate worksheet id in manifest: {sorted(duplicates)}")
     for ident in ids:
-        for rel in (f"worksheets/{ident}.html", f"pdf/{ident}.pdf"):
-            if not (ROOT / rel).is_file():
-                raise AssertionError(f"Manifest lists {ident} but {rel} is missing")
+        if not (ROOT / f"worksheets/{ident}.html").is_file():
+            raise AssertionError(f"Manifest lists {ident} but worksheets/{ident}.html is missing")
     for page in MINISTRY_PAGES:
         if not ministry_file(page).is_file():
             raise AssertionError(f"Manifest lists Ministry page {page} but its scan is missing")
     for key, component in COMPONENTS.items():
-        for rel in (component["file"], component["html"]):
-            if not (ROOT / rel).is_file():
-                raise AssertionError(f"Booklet component {key} names missing file {rel}")
+        rel = component.get("source") or component["html"]
+        if not (ROOT / rel).is_file():
+            raise AssertionError(f"Booklet component {key} names missing file {rel}")
     keys = [c["key"] for c in CHAPTERS]
     if len(set(keys)) != len(keys):
         raise AssertionError("Duplicate booklet chapter key")

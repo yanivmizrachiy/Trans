@@ -168,3 +168,12 @@ html body article.fill .work { flex: 1 1 10mm; min-height: 10mm; border: .3mm so
   background-image: linear-gradient(var(--book-cell) .2mm, transparent .2mm), linear-gradient(90deg, var(--book-cell) .2mm, transparent .2mm);
   background-size: 5mm 5mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 html body article.practice-sheet .key span { border-color: var(--book-rule); border-radius: 1.2mm; }
+
+/* ---------- Imported worksheets: plain question blocks that share the height of the page ---------- */
+html body .a4-page { display: flex; flex-direction: column; }
+html body .a4-page > .sheet-content { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; }
+html body .a4-page > .page-foot { margin-top: 0; }
+html body .a4-page .q, html body .a4-page .q-card { background: none; border: 0; border-bottom: 1px solid var(--book-rule); border-radius: 0; box-shadow: none; }
+html body .a4-page .q:last-child, html body .a4-page .q-card:last-child { border-bottom: 0; }
+html body .q-card h3 { color: var(--book-ink); }
+html body .rule-box { background: var(--book-tint); border: 0; border-right: 1mm solid var(--book-ink); border-radius: 1mm; color: var(--book-text); }

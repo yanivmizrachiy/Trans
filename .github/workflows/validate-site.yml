@@ -9,7 +9,6 @@ on:
       - 'scripts/manifest.py'
       - 'scripts/check_manifest.py'
       - 'assets/**'
-      - 'pdf/**'
       - 'scripts/validate_site.py'
       - 'scripts/test_math.py'
       - 'scripts/test_properties.py'
@@ -20,31 +19,23 @@ on:
       - 'README.md'
       - 'book/complete.html'
       - 'book/transformations-complete.pdf'
-      - 'book/teacher.pdf'
-      - 'book/official.pdf'
       - 'scripts/publish_pdfs.sh'
       - 'scripts/test_publish_pdfs.py'
       - '.github/workflows/validate-site.yml'
   pull_request:
   workflow_dispatch:
-  workflow_run:
-    workflows: ['Build printable transformation PDFs']
-    types: [completed]
 permissions:
   contents: read
 jobs:
   check:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      # On push and pull_request the committed PDFs may lag behind changed
-      # sources until the build workflow rebuilds and publishes them; the
-      # build workflow and the post-build run compare against fresh PDFs.
-      CHECK_BUILT_PDFS: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && '0' || '1' }}
+      # Build outputs are not in Git; the build workflow checks them after building.
+      CHECK_BUILT_PDFS: '0'
     steps:
       - uses: actions/checkout@v7.0.1
-      - name: Check geometry script and homepage JavaScript syntax
+      - name: Check JavaScript syntax
         run: |
           node --check assets/original-grid.js
           python3 - <<'PY'
@@ -58,21 +49,21 @@ jobs:
                   subprocess.run(["node", "--check"], input=block, text=True, check=True)
               print(f"{filename}: {len(blocks)} JavaScript blocks syntactically valid")
           PY
-      - name: Independently test math and teacher-answer assumptions
+      - name: Check the geometry of the original questions
         run: python3 scripts/test_math.py
       - name: Verify transformation identities against an independent complex-plane model
         run: python3 scripts/test_properties.py
-      - name: Check exact source inventory, PDFs and author credits
+      - name: Check links, wording and PDFs
         run: python3 scripts/validate_site.py
-      - name: Install PDF reader for independent documentation consistency check
+      - name: Install the PDF reader
         run: python3 -m pip install --disable-pip-version-check pypdf
-      - name: Enforce the single up-to-date source of truth and real artifact inventory
+      - name: Check the source of truth and the credits
         run: python3 scripts/check_contract.py
       - name: Check every inventory consumer against data/manifest.json
         run: python3 scripts/check_manifest.py
-      - name: Check numerical answers printed for all 33 original question levels
+      - name: Check the printed answers against the worksheet coordinates
         run: python3 scripts/test_answer_keys.py
-      - name: Check all three difficulty levels and the teacher's answer keys
+      - name: Audit the original worksheets and their answer keys
         run: python3 scripts/test_pedagogy.py
-      - name: Prove the PDF publication step against a throwaway Git remote
+      - name: Test the publication step
         run: python3 scripts/test_publish_pdfs.py

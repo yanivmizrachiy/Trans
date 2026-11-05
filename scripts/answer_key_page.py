@@ -11,47 +11,41 @@ import re
 from markdown import markdown
 import manifest as M
 
-FONTS_URL="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Rubik:wght@500;600;700&display=swap"
-HEAD=("<link rel='preconnect' href='https://fonts.googleapis.com'>"
-      "<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>"
-      f"<link rel='stylesheet' href='{FONTS_URL}'>")
-FONTS=("Assistant","Rubik")
+HEAD=""
+FONTS=()
 
 STYLE="""
 *{box-sizing:border-box}
 html{direction:rtl}
-body{margin:0;font-family:Assistant,"Noto Sans Hebrew",Arial,sans-serif;font-size:12.5px;line-height:1.42;color:#101828;
+body{margin:0;font-family:Arial,"Noto Sans Hebrew",sans-serif;font-size:12.5px;line-height:1.42;color:#10202e;
   -webkit-print-color-adjust:exact;print-color-adjust:exact}
-.top{display:flex;align-items:baseline;gap:10px;border-bottom:3px solid #0b3a75;padding-bottom:5px;margin:0 0 9px}
-.top h1{margin:0;font-family:Rubik,Assistant,sans-serif;font-weight:700;font-size:26px;color:#0b3a75;line-height:1.15}
-.top p{margin:0;font-size:14px;font-weight:600;color:#3b4a66}
-.guide{border:1.5px solid #c6d4ea;background:#f3f6fc;border-radius:8px;padding:7px 12px 8px;margin:0 0 11px}
-.guide h2{margin:0 0 3px;font-family:Rubik,Assistant,sans-serif;font-weight:600;font-size:14px;color:#0b3a75}
+.guide{border:1.5px solid #c9d6e2;background:#eef3f9;border-radius:8px;padding:7px 12px 8px;margin:0 0 11px}
+.guide h2{margin:0 0 3px;font-family:Arial,"Noto Sans Hebrew",sans-serif;font-weight:600;font-size:14px;color:#0b3a75}
 .guide .lead-line{margin:0 0 4px;font-weight:600}
 .guide ul{margin:0;padding:0;list-style:none;columns:2;column-gap:9mm}
 .guide li{break-inside:avoid;margin:0 0 3px;padding-right:12px;position:relative}
 .guide li::before{content:"";position:absolute;right:0;top:.55em;width:6px;height:6px;border-radius:50%;background:#0b3a75}
-.guide .eval{margin:5px 0 0;padding-top:5px;border-top:1px solid #c6d4ea}
-.cols{columns:2;column-gap:8mm;column-rule:1px solid #cfd8e6}
+.guide .eval{margin:5px 0 0;padding-top:5px;border-top:1px solid #c9d6e2}
+.cols{columns:2;column-gap:8mm;column-rule:1px solid #c9d6e2}
 .ans{margin:0 0 9px}
 .ans>h2{display:flex;align-items:center;gap:7px;margin:0 0 4px;padding:0 0 3px;border-bottom:2px solid #0b3a75;
-  font-family:Rubik,Assistant,sans-serif;font-weight:600;font-size:14.5px;line-height:1.25;color:#0b3a75;break-after:avoid;break-inside:avoid}
+  font-family:Arial,"Noto Sans Hebrew",sans-serif;font-weight:600;font-size:14.5px;line-height:1.25;color:#0b3a75;break-after:avoid;break-inside:avoid}
 .ans>h2 .pg{flex:none;background:#0b3a75;color:#fff;border-radius:5px;padding:1px 7px 2px;font-size:12px;font-weight:600;letter-spacing:.2px}
-.given{margin:0 0 3px;padding:3px 8px;background:#eef2f8;border-right:3px solid #7d98c4;border-radius:0 4px 4px 0;font-size:12px;break-inside:avoid}
-.sub{margin:5px 0 1px;font-family:Rubik,Assistant,sans-serif;font-weight:600;font-size:12.5px;color:#0b3a75;break-after:avoid}
-.row{display:flex;align-items:flex-start;gap:6px;padding:3px 0 3.5px;border-bottom:1px solid #e1e7f0;break-inside:avoid}
+.given{margin:0 0 3px;padding:3px 8px;background:#eef3f9;border-right:3px solid #0b3a75;border-radius:0 4px 4px 0;font-size:12px;break-inside:avoid}
+.sub{margin:5px 0 1px;font-family:Arial,"Noto Sans Hebrew",sans-serif;font-weight:600;font-size:12.5px;color:#0b3a75;break-after:avoid}
+.row{display:flex;align-items:flex-start;gap:6px;padding:3px 0 3.5px;border-bottom:1px solid #c9d6e2;break-inside:avoid}
 .row:last-child{border-bottom:0}
-.q{flex:none;min-width:19px;height:19px;margin-top:1px;padding:0 4px;border-radius:10px;background:#dde7f5;color:#0b3a75;
-  font-family:Rubik,Assistant,sans-serif;font-weight:700;font-size:11px;line-height:19px;text-align:center}
+.q{flex:none;min-width:19px;height:19px;margin-top:1px;padding:0 4px;border-radius:10px;background:#eef3f9;color:#0b3a75;
+  font-family:Arial,"Noto Sans Hebrew",sans-serif;font-weight:700;font-size:11px;line-height:19px;text-align:center}
 .a{flex:1;min-width:0}
 .lead{font-weight:700;color:#0b3a75}
 .v{display:inline-block;margin-left:5px;padding:0 6px;border-radius:4px;font-weight:800;font-size:11.5px;line-height:1.5}
 .v.ok{background:#dcf2e3;color:#14632f}
 .v.no{background:#fbe1e1;color:#9b1c1c}
-.m{direction:ltr;unicode-bidi:isolate;white-space:nowrap;font-weight:600;color:#0d2b55}
+.m{direction:ltr;unicode-bidi:isolate;white-space:nowrap;font-weight:600;color:#0b3a75}
 strong{font-weight:700}
 @media screen{body{max-width:1040px;margin:0 auto;padding:26px 22px}}
-@media screen and (max-width:800px){.cols,.guide ul{columns:1}body{padding:16px 14px}.top{flex-wrap:wrap}}
+@media screen and (max-width:800px){.cols,.guide ul{columns:1}body{padding:16px 14px}}
 """
 
 SHEET=re.compile(r"^#{2,3} (?P<title>.+?) — `(?P<id>[a-z0-9-]+)`\s*$")
@@ -179,10 +173,7 @@ def page_body(content):
                         f"<span>{inline(name)}</span></h2>{body_html(lines,extra)}</section>")
     lead=[l.strip() for l in guide if l.strip() and not l.strip().startswith("- ")]
     items=[l.strip()[2:] for l in guide if l.strip().startswith("- ")]
-    main,_,sub=title.partition(" — ")
-    first=min(p[0] for p in pages.values()); last=max(p[1] for p in pages.values())
-    return (f"<header class='top'><h1>{H.escape(main)}</h1><p>{H.escape(sub)} · דפי העבודה בעמודים {first}–{last}</p></header>"
-            "<section class='guide'><h2>קריטריונים לתשובה טובה</h2>"
+    return ("<section class='guide'><h2>קריטריונים לתשובה טובה</h2>"
             +"".join(f"<p class='lead-line'>{inline(l)}</p>" for l in lead)
             +"<ul>"+"".join(f"<li>{inline(i)}</li>" for i in items)+"</ul>"+"".join(extra)+"</section>"
             "<main class='cols'>"+"".join(sections)+"</main>")

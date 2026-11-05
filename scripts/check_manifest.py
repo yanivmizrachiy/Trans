@@ -41,9 +41,7 @@ def demand(test, reason):
 def check_files():
     M.validate()
     html_ids = {p.stem for p in (ROOT / "worksheets").glob("*.html")}
-    pdf_ids = {p.stem for p in (ROOT / "pdf").glob("*.pdf")}
     demand(html_ids == set(M.WORKSHEETS), f"worksheets/ differs from manifest: {html_ids ^ set(M.WORKSHEETS)}")
-    demand(pdf_ids == set(M.WORKSHEETS), f"pdf/ differs from manifest: {pdf_ids ^ set(M.WORKSHEETS)}")
     scans = {p.name for p in (ROOT / M.DATA["ministry"]["source_dir"]).glob("*.webp")}
     expected = {M.ministry_file(n).name for n in M.MINISTRY_PAGES}
     demand(scans == expected, f"sources/ministry differs from manifest: {scans ^ expected}")
@@ -61,7 +59,8 @@ def check_continuous_book():
     html = read(M.BOOK_HTML)
     pdf_name = Path(M.BOOK_FILE).name
     demand(f'const PDF="{pdf_name}";' in html, f"{M.BOOK_HTML} must render {M.BOOK_FILE}")
-    demand("background:#c2185b" in html, f"{M.BOOK_HTML} pages must sit back to back with a dark-pink divider")
+    demand("background:#c2185b" in html, f"{M.BOOK_HTML} pages must sit back to back with a burgundy divider")
+    demand("100vw" not in html, f"{M.BOOK_HTML}: the divider is only as wide as the page")
     for tag in ("<h1", "<h2", "<header", "<footer", "<nav", "<figcaption"):
         demand(tag not in html, f"{M.BOOK_HTML} must not add captions or headings ({tag})")
 

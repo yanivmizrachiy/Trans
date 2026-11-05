@@ -61,31 +61,31 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install playwright pypdf pillow reportlab markdown pymupdf
           python -m playwright install --with-deps chromium
-      - name: Check all original geometry questions and solutions
+      - name: Check the geometry of the original questions
         run: python scripts/test_math.py
       - name: Verify transformation identities against an independent complex-plane model
         run: python3 scripts/test_properties.py
-      - name: Independently audit all 33 graded original prompts and teacher keys
+      - name: Audit the original worksheets and their answer keys
         run: python scripts/test_pedagogy.py
-      - name: Verify all 33 actual printed numerical answer-key levels against worksheet coordinates
+      - name: Check the printed answers against the worksheet coordinates
         run: python scripts/test_answer_keys.py
       - name: Render real worksheets to PDF
         run: python scripts/build_pdfs.py
-      - name: Render and strictly validate fourteen teacher summary pages
+      - name: Render the teacher summaries
         run: python scripts/build_teacher.py
-      - name: Verify and render the unchanged ministry curriculum pages listed in the manifest
+      - name: Render the curriculum pages
         run: python scripts/build_official.py
-      - name: Build full multi-part transformation book with bookmarks and teacher answers
+      - name: Build the booklet
         run: python scripts/build_complete.py
-      - name: Independently raster-audit every booklet page including the landscape source pages
+      - name: Audit every booklet page
         run: python scripts/visual_audit.py
-      - name: Check paths, authorship, file counts and valid PDFs
+      - name: Check links, wording and PDFs
         run: python scripts/validate_site.py
       - name: Check every inventory consumer against data/manifest.json
         run: python scripts/check_manifest.py
-      - name: Prove the publication step publishes new PDFs and survives concurrent pushes
+      - name: Test the publication step
         run: python scripts/test_publish_pdfs.py
-      - name: Publish PDFs only when sources are still current
+      - name: Publish the booklet only when sources are still current
         if: github.event_name != 'pull_request'
         env:
           PUBLISH_CONFIRM: "1"

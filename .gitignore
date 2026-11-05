@@ -7,8 +7,15 @@ venv/
 .mypy_cache/
 .ruff_cache/
 
-# Local browser-test output (CI uploads it as an artifact; qa/previews/ stays tracked)
-qa/public-browser/
+# Build outputs: the repository keeps only book/transformations-complete.pdf
+pdf/
+qa/
+book/*.pdf
+!book/transformations-complete.pdf
+book/workshop.html
+book/answers.html
+
+# Local browser-test output
 playwright-report/
 test-results/
 
@@ -34,3 +41,6 @@ node_modules/
 *.log
 *.tmp
 *.bak
+
+# Local session settings
+.claude/

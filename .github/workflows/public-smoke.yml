@@ -5,10 +5,8 @@ on:
     branches: [main]
     paths:
       - 'index.html'
-      - 'assets/original.css'
-      - 'pdf/**'
-      - 'book/*.pdf'
-      - 'book/*.html'
+      - 'assets/**'
+      - 'book/**'
       - 'scripts/test_public_http.py'
       - '.github/workflows/public-smoke.yml'
   workflow_run:

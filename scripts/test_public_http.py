@@ -25,7 +25,6 @@ ROUTES = (
     *ROOT_HTML,
     *discover("book",("*.html","*.pdf")),
     *discover("worksheets",("*.html",)),
-    *discover("pdf",("*.pdf",)),
     *discover("assets",("*.css","*.js","*.svg")),
     *discover("sources/ministry",("*.webp",)),
 )

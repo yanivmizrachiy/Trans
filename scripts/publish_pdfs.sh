@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Publish freshly built PDFs, rendered HTML and preview sheets to the
-# publication branch, but only while the sources they were built from are
+# Publish the freshly built booklet PDF to the publication branch, but only while the sources they were built from are
 # still the current ones on that branch.
 #
 # Called by .github/workflows/build-pdfs.yml after every build step passed.
@@ -34,14 +33,8 @@ SOURCES=(
   book/sadna.html book/krispin-video.html scripts/build_complete.py scripts/visual_audit.py
   docs/ANSWER_KEY.md docs/TEACHER_WORKSHOP.md
 )
-# Everything the build produces. Directories are copied whole, so a worksheet
-# or preview sheet that did not exist before the build is published too.
-OUTPUT_DIRS=(pdf qa/previews)
-OUTPUT_FILES=(
-  book/teacher.pdf book/official.pdf book/workshop.pdf
-  book/sadna.pdf book/krispin-video.pdf book/answers.pdf book/transformations-complete.pdf
-  book/workshop.html book/answers.html
-)
+# The one file the build publishes. Every other build output stays out of Git.
+OUTPUT_FILES=(book/transformations-complete.pdf)
 
 if [ -z "$(git config user.name)" ]; then
   git config user.name "github-actions[bot]"
@@ -53,20 +46,11 @@ fi
 # committed would otherwise disappear from the tree together with its commit.
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
-for dir in "${OUTPUT_DIRS[@]}"; do
-  mkdir -p "$STAGE/$dir"
-  cp -R "$dir"/. "$STAGE/$dir/"
-done
 for file in "${OUTPUT_FILES[@]}"; do
   mkdir -p "$STAGE/$(dirname "$file")"
   cp "$file" "$STAGE/$file"
 done
-built_pdfs=$(find "$STAGE/pdf" -name '*.pdf' | wc -l)
-if [ "$built_pdfs" -lt 1 ]; then
-  echo "No worksheet PDFs were built; refusing to publish an empty set." >&2
-  exit 1
-fi
-echo "Staged $built_pdfs worksheet PDFs, ${#OUTPUT_FILES[@]} booklet files and $(find "$STAGE/qa/previews" -type f | wc -l) preview sheets built from $BASE"
+echo "Staged the booklet built from $BASE"
 
 for attempt in $(seq 1 "$ATTEMPTS"); do
   git fetch "$REMOTE" "$BRANCH"
@@ -74,22 +58,15 @@ for attempt in $(seq 1 "$ATTEMPTS"); do
     echo "A newer commit on $BRANCH changed PDF source files. This build is superseded; publishing nothing."
     exit 0
   fi
-  if ! git diff --quiet "$BASE" "$REMOTE/$BRANCH" -- "${OUTPUT_DIRS[@]}" "${OUTPUT_FILES[@]}"; then
+  if ! git diff --quiet "$BASE" "$REMOTE/$BRANCH" -- "${OUTPUT_FILES[@]}"; then
     echo "Another run has already published outputs for this source revision. Avoiding binary conflicts."
     exit 0
   fi
   git reset --hard "$REMOTE/$BRANCH"
-  # Restore every staged output. Files that are tracked on the branch but were
-  # not rebuilt (for example a renamed worksheet's old PDF) are left in place,
-  # so published URLs never disappear through this script.
-  for dir in "${OUTPUT_DIRS[@]}"; do
-    mkdir -p "$dir"
-    cp -R "$STAGE/$dir"/. "$dir/"
-  done
   for file in "${OUTPUT_FILES[@]}"; do
     cp "$STAGE/$file" "$file"
   done
-  git add -- "${OUTPUT_DIRS[@]}" "${OUTPUT_FILES[@]}"
+  git add -- "${OUTPUT_FILES[@]}"
   if git diff --cached --quiet; then
     echo "All published outputs already match the generated files."
     exit 0
