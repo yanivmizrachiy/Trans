@@ -1,0 +1,141 @@
+/* The book's one look. Change a token or a rule here and every printed page follows.
+   Load it last on every page. `html body` makes it win over the older per-page styles. */
+:root {
+  --book-ink: #0b3a75;      /* titles, rule, page number, footer line */
+  --book-accent: #087971;   /* series line and question numbers */
+  --book-text: #10202e;
+  --book-muted: #536f79;
+  --book-cell: #cfdbe6;     /* 5 mm answer squares */
+  --book-tint: #eef3f9;     /* every box and table head */
+  --book-rule: #c9d6e2;     /* every thin line */
+}
+
+/* ---------- One page header: title high on the page, subtitle under it, one rule ---------- */
+@media print, screen and (min-width: 821px) {
+  html body article.sheet { padding-top: 8mm; padding-left: 15mm; padding-right: 15mm; }
+  html body article.sheet > .page-foot { margin-left: -15mm; margin-right: -15mm; }
+  html body .a4-page { padding-top: 8mm; }
+}
+
+html body .head,
+html body .header,
+html body .header-container {
+  display: block; box-sizing: border-box; min-height: 13.5mm; margin: 0 0 3.5mm; padding: 0 0 1.6mm; background: none; border: 0;
+  border-radius: 0; border-bottom: 2px solid var(--book-ink);
+}
+html body .head > div {
+  display: grid; grid-template-columns: 1fr auto; column-gap: 4mm; align-items: baseline;
+}
+html body .head h1,
+html body .header h1,
+html body .header-container .page-title,
+html body article.sheet > h1 {
+  margin: 0; font-size: 23px; line-height: 1.22; font-weight: 800; color: var(--book-ink);
+}
+html body .head h1 { grid-column: 1; grid-row: 1; }
+
+/* The series line stays beside the title and clear of the page number in the corner. */
+html body .head .series,
+html body .head .label {
+  grid-column: 2; grid-row: 1; margin: 0; padding: 0 0 0 11.5mm; background: none; border: 0;
+  font-size: 15.5px; line-height: 1.22; font-weight: 800; color: var(--book-accent); white-space: nowrap;
+}
+html body .head .sub,
+html body .header p,
+html body .header-container .page-subtitle,
+html body article.sheet > .sub {
+  grid-column: 1 / -1; grid-row: 2; margin: .6mm 0 0; font-size: 12.5px; line-height: 1.3;
+  font-weight: 400; color: var(--book-muted);
+}
+html body .title-wrap { display: block; }
+
+/* ---------- Teacher pages: one palette, one type size, one kind of box ---------- */
+html body main.content { font-family: Arial, "Noto Sans Hebrew", sans-serif; color: var(--book-text); }
+html body main.content p, html body main.content li, html body main.content dd { font-size: 14px; line-height: 1.55; }
+html body main.content h3, html body main.content h3.band { margin: 3.2mm 0 1.4mm; padding: 0 0 .8mm; background: none; border-radius: 0;
+  border-bottom: 1px solid var(--book-rule); font-size: 16px; font-weight: 800; color: var(--book-ink); }
+html body main.content h2 { margin: 3.2mm 0 1.4mm; padding: 0 0 .8mm; border-bottom: 1px solid var(--book-rule); font-size: 16px; font-weight: 800; color: var(--book-ink); }
+html body main.content .case { background: var(--book-tint); border: 0; border-right: 1mm solid var(--book-ink); border-radius: 1mm; padding: 2mm 3mm; margin: 2mm 0; }
+html body main.content h4 { margin: 1.5mm 0 .5mm; font-size: 14.5px; font-weight: 800; color: var(--book-accent); }
+html body main.content strong, html body main.content b { color: inherit; }
+html body main.content table { font-size: 13.5px; line-height: 1.45; margin: 2mm 0; }
+html body main.content th { background: var(--book-tint); color: var(--book-ink); font-weight: 800; }
+html body main.content td, html body main.content th { border-color: var(--book-rule); padding: 1.6mm 2.2mm; }
+html body main.content .hint, html body main.content .note, html body main.content .hero-card, html body main.content .box, html body main.content .box.ask,
+html body main.content .cols div, html body main.content .closing { background: var(--book-tint); color: var(--book-text); border: 0;
+  border-right: 1mm solid var(--book-ink); border-radius: 1mm; padding: 2mm 3mm; margin: 2mm 0; box-shadow: none; }
+html body main.content .cols div { margin: 0; }
+html body main.content .note h3, html body main.content .box h3, html body main.content .closing h3 { margin: 0 0 1mm; padding: 0; border: 0; font-size: 15px; color: var(--book-ink); }
+html body main.content .hero-card strong { font-size: inherit; color: var(--book-ink); }
+html body main.content .hero-card p, html body main.content .note p, html body main.content .closing p, html body main.content .box li { font-size: 14px; line-height: 1.5; color: var(--book-text); margin: .6mm 0; }
+html body main.content .micro-teach { border-top: 1px solid var(--book-rule); color: var(--book-text); font-size: 13px; }
+html body main.content .micro-teach strong { color: var(--book-ink); }
+html body main.content .byline { margin: 0 0 1.5mm; color: var(--book-muted); font-size: 12.5px; }
+html body main.content .tag, html body main.content .chip { background: none; color: var(--book-accent); font-size: 12px; font-weight: 800; padding: 0; margin-inline-end: 1.5mm; }
+html body main.content .pr { border-color: var(--book-rule); border-radius: 1.2mm; }
+html body main.content .pr .pb { background: none; padding: 1.4mm 2.6mm 1.6mm; }
+html body main.content .pr h4 { font-size: 15px; color: var(--book-ink); margin: 0 0 .8mm; }
+html body main.content .pr .pg { font-size: 13px; line-height: 1.42; }
+html body main.content .pr .say { background: var(--book-tint); }
+html body main.content .pr .avoid { background: none; border: 1px solid var(--book-rule); }
+html body main.content .pr .avoid b, html body main.content .pr .say b { color: var(--book-ink); }
+html body main.content .pr .pn { font-size: 20px; }
+html body main.content .st, html body main.content .mi { border-color: var(--book-rule); border-radius: 1.2mm; font-size: 13px; line-height: 1.42; }
+html body main.content .st .q, html body main.content .mi .w { background: var(--book-tint); }
+html body main.content .mi .w { border-right: 1mm solid var(--book-ink); }
+html body main.content .mi .r b, html body main.content .st b { color: var(--book-ink); }
+html body main.content .ex { border: 1px solid var(--book-rule); border-radius: 1.2mm; font-size: 13px; }
+html body main.content .ex .n { background: var(--book-ink); }
+html body main.content .ex .ans { color: var(--book-ink); font-size: 12.5px; }
+html body main.content .ex .chk { color: var(--book-muted); font-size: 12px; }
+html body main.content .diff .box, html body main.content .diff .box.up { border-top: 0; }
+html body main.content figure { border: 1px solid var(--book-rule); border-radius: 1.2mm; }
+html body main.content figcaption { font-size: 12px; color: var(--book-muted); }
+html body main.content .duo + .duo { border-top: 1px solid var(--book-rule); }
+
+/* Bars inside imported pages follow the same colours */
+html body .chapter-bar { border-right-color: var(--book-ink); }
+html body .chapter-bar .chapter-name { color: var(--book-ink); }
+
+/* ---------- Pages of questions from the curriculum ---------- */
+.qpage { display: flex; flex-direction: column; height: 297mm; width: 210mm; margin: 10px auto 25px; padding: 8mm 15mm 0; background: #fff;
+  color: var(--book-text); font: 16px/1.5 Arial, "Noto Sans Hebrew", sans-serif; break-after: page; overflow: hidden; }
+.qpage:last-of-type { break-after: auto; }
+.qpage .page-foot { margin: auto -15mm 0; }
+.qpage .qbody { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 2.4mm; padding-bottom: 3mm; }
+.qpage .qbody p { margin: 0; }
+.qpage .kicker { font-weight: 800; color: var(--book-ink); font-size: 16px; }
+.qpage .lead { font-weight: 700; color: var(--book-ink); }
+.qpage .subhead { font-weight: 800; font-size: 15.5px; color: var(--book-accent); margin: 0; }
+.qpage .coords { text-align: center; direction: ltr; font-weight: 700; color: var(--book-ink); }
+.qpage .qtitle { display: flex; gap: 2.5mm; align-items: baseline; font-weight: 800; color: var(--book-ink); font-size: 16.5px; margin: 0; }
+.qpage .qnum { flex: none; display: inline-grid; place-items: center; min-width: 7mm; height: 7mm; padding: 0 1.4mm; border-radius: 2mm; background: var(--book-ink); color: #fff; font-size: 14px; font-weight: 800; }
+.qpage .qline { display: flex; gap: 2.5mm; align-items: flex-start; }
+.qpage .qline > .qnum { margin-top: .3mm; }
+.qpage .qline > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.6mm; }
+.qpage .part { display: flex; gap: 1.8mm; }
+.qpage .part > b:first-child { flex: none; min-width: 5mm; color: var(--book-accent); font-weight: 800; }
+.qpage .part > span { flex: 1; min-width: 0; }
+.qpage .side { display: grid; grid-template-columns: 1fr auto; gap: 5mm; align-items: start; }
+.qpage .side > svg { display: block; }
+.qpage .fig { display: flex; justify-content: center; }
+.qpage .fig svg, .qpage .choice svg { display: block; }
+.qpage .ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; font-weight: 600; }
+.qpage .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 6mm; justify-items: center; }
+.qpage .choice { display: flex; gap: 2mm; align-items: flex-start; }
+.qpage .choice .mark, .qpage .opt .mark { flex: none; display: inline-grid; place-items: center; width: 6.2mm; height: 6.2mm; border-radius: 50%; border: .35mm solid var(--book-ink); color: var(--book-ink); font-size: 13px; font-weight: 800; }
+.qpage .ivs { display: flex; flex-wrap: wrap; gap: 1mm 7mm; padding-inline-start: 6.8mm; }
+.qpage .ivs b { color: var(--book-accent); direction: ltr; unicode-bidi: isolate; }
+.qpage .opts { display: flex; flex-direction: column; gap: 2mm; }
+.qpage .opt { display: flex; gap: 2.5mm; align-items: center; }
+.qpage .frac { display: inline-grid; direction: ltr; justify-items: center; line-height: 1.05; font-size: .85em; vertical-align: middle; margin: 0 .6mm; }
+.qpage .frac > :first-child { border-bottom: 1px solid currentColor; padding: 0 .6mm; }
+.qpage .caption { text-align: center; font-weight: 700; font-size: 13.5px; color: var(--book-ink); margin: 0 0 1mm; }
+.qpage .figs { display: flex; justify-content: center; gap: 8mm; align-items: flex-end; }
+.qpage .figs figure { margin: 0; text-align: center; }
+.qpage .figs figcaption { font-size: 13.5px; font-weight: 700; color: var(--book-ink); margin-top: 1mm; }
+.qpage .icon { display: inline-block; width: 6mm; height: 6mm; vertical-align: -1.6mm; margin: 0; }
+.qpage .work { flex: 1 1 18mm; min-height: 15mm; border: .3mm solid #9fb3c6; border-radius: 1.2mm;
+  background-image: linear-gradient(var(--book-cell) .2mm, transparent .2mm), linear-gradient(90deg, var(--book-cell) .2mm, transparent .2mm);
+  background-size: 5mm 5mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+@media print { .qpage { margin: 0; } }

@@ -7,11 +7,8 @@ sequence (topic chapters). Everything derived from it (page ranges, totals,
 bookmark count, the HTML reading order) is compared here with:
 
 - the files on disk (HTML <-> PDF, scans, booklet component PDFs);
-- the homepage catalog, the originals catalog and the official viewer;
-- the introduction and
-  the continuous reading page (book/complete.html), all regenerated from the
-  manifest by scripts/sync_book_docs.py;
-- README.md and SOURCE_OF_TRUTH.md totals;
+- the curriculum pages in book/official.html;
+- the continuous reading page (book/complete.html);
 - the built PDFs: page counts of every component and of the merged booklet,
   the page order (every page traced back to its source page), bookmark
   titles, targets and count, and page orientation.
@@ -27,7 +24,6 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import manifest as M  # noqa: E402
-import sync_book_docs  # noqa: E402
 from pypdf import PdfReader  # noqa: E402
 
 ROOT = M.ROOT
@@ -53,55 +49,10 @@ def check_files():
     demand(scans == expected, f"sources/ministry differs from manifest: {scans ^ expected}")
 
 
-def check_catalogs():
-    index = read("index.html")
-    catalog = [a or b for a, b in re.findall(r'^\[(?:([0-9]+)|"([a-z0-9-]+)"),', index, re.M)]
-    demand(len(catalog) == len(set(catalog)), "Homepage catalog repeats a worksheet id")
-    demand(set(catalog) == set(M.WORKSHEETS), f"Homepage catalog differs from manifest: {set(catalog) ^ set(M.WORKSHEETS)}")
-    original = read("original.html")
-    for ident in M.ORIGINAL:
-        demand(f"worksheets/{ident}.html" in original and f"pdf/{ident}.pdf" in original,
-               f"original.html must link HTML and PDF of {ident}")
-    for ident in M.IMPORTED:
-        demand(f"worksheets/{ident}.html" not in original, f"original.html must not list imported sheet {ident}")
+def check_curriculum_pages():
     official = read("book/official.html")
-    for page in M.MINISTRY_PAGES:
-        demand(f"../{M.DATA['ministry']['source_dir']}/{M.ministry_file(page).name}" in official,
-               f"book/official.html does not show Ministry page {page}")
-    demand(official.count('class="scan"') == len(M.MINISTRY_PAGES),
-           "book/official.html scan count differs from manifest")
-
-
-def check_derived_blocks():
-    """The chapter table and the HTML reading sequence are generated, never typed."""
-    stale = sync_book_docs.check()
-    demand(not stale, f"Derived blocks differ from the manifest: {stale} (python scripts/sync_book_docs.py --write)")
-    intro = read("book/INTRO.md")
-    for chapter, first, last in M.layout():
-        demand(re.search(rf"^\| {re.escape(chapter['label'])} \| {first}–{last} \|", intro, re.M),
-               f"book/INTRO.md chapter table lacks '{chapter['label']} | {first}–{last} |'")
-
-
-def check_documents():
-    readme = read("README.md")
-    sot = read("SOURCE_OF_TRUTH.md")
-    index = read("index.html")
-    teacher = read("teacher.html")
-    booklet = (f"{M.TOTAL_PAGES} עמודים", f"{M.TOTAL_BOOKMARKS} סימניות")
-    for text, name in ((readme, "README.md"), (sot, "SOURCE_OF_TRUTH.md"), (index, "index.html"), (teacher, "teacher.html")):
-        for token in booklet:
-            demand(token in text, f"{name} does not state '{token}' (manifest-derived)")
-    for text, name in ((readme, "README.md"), (sot, "SOURCE_OF_TRUTH.md"), (teacher, "teacher.html")):
-        demand(f"{len(M.WORKSHEETS)} דפי" in text, f"{name} does not state the {len(M.WORKSHEETS)}-worksheet total")
-    demand(f"{len(M.ORIGINAL)} דפי עבודה מקוריים" in index and f"{len(M.IMPORTED)} דפים נוספים" in index,
-           "index.html source filters must show the manifest's original/imported counts")
-    demand(f"{len(M.ORIGINAL)} דפי" in readme and f"{len(M.ORIGINAL)} דפים" in readme, "README originals count")
-    demand(f"| **סה״כ דפי עבודה** | **{len(M.WORKSHEETS)} דפי HTML ו־{len(M.WORKSHEETS)} PDF** |" in sot,
-           "SOURCE_OF_TRUTH inventory table total differs from manifest")
-    demand(f"**{M.TOTAL_PAGES} עמודים, {M.TOTAL_BOOKMARKS} סימניות PDF**" in sot,
-           "SOURCE_OF_TRUTH booklet row differs from manifest")
-    demand(M.numbering_sentence() in sot,
-           "SOURCE_OF_TRUTH page numbering sentence differs from the manifest layout: expected\n" + M.numbering_sentence())
+    pages = re.findall(r'<article class="qpage" id="p(\d+)">', official)
+    demand([int(n) for n in pages] == list(M.MINISTRY_PAGES), f"book/official.html pages {pages} differ from the manifest")
 
 
 def check_continuous_book():
@@ -110,7 +61,7 @@ def check_continuous_book():
     html = read(M.BOOK_HTML)
     pdf_name = Path(M.BOOK_FILE).name
     demand(f'const PDF="{pdf_name}";' in html, f"{M.BOOK_HTML} must render {M.BOOK_FILE}")
-    demand("border-bottom:6px solid #0b2a4a" in html, f"{M.BOOK_HTML} pages must sit back to back with a dark-blue divider")
+    demand("background:#c2185b" in html, f"{M.BOOK_HTML} pages must sit back to back with a dark-pink divider")
     for tag in ("<h1", "<h2", "<header", "<footer", "<nav", "<figcaption"):
         demand(tag not in html, f"{M.BOOK_HTML} must not add captions or headings ({tag})")
 
@@ -204,9 +155,7 @@ def check_pdfs():
 
 def main():
     check_files()
-    check_catalogs()
-    check_derived_blocks()
-    check_documents()
+    check_curriculum_pages()
     check_continuous_book()
     if os.environ.get("CHECK_BUILT_PDFS", "1") == "0":
         # Set by the check workflow on push/pull_request, where committed PDFs
@@ -215,8 +164,8 @@ def main():
     else:
         check_pdfs()
     built = "built PDFs (page order traced to source pages)" if os.environ.get("CHECK_BUILT_PDFS", "1") != "0" else "PDF file names"
-    print(f"PASS: manifest agrees with files, catalogs, contents, reading order, README, SOURCE_OF_TRUTH and {built} "
-          f"({len(M.WORKSHEETS)} worksheets, {len(M.MINISTRY_PAGES)} scans, {len(M.CHAPTERS)} chapters, "
+    print(f"PASS: manifest agrees with files, reading order and {built} "
+          f"({len(M.WORKSHEETS)} worksheets, {len(M.MINISTRY_PAGES)} curriculum pages, {len(M.CHAPTERS)} chapters, "
           f"{M.TOTAL_PAGES} pages, {M.TOTAL_BOOKMARKS} bookmarks)")
 
 

@@ -45,7 +45,7 @@ def main():
                             raise RuntimeError(f"JavaScript errors in original worksheet {stem}: {page_errors}")
                         # Lay out at the printed A4 width (794px matches max-width rules a wider viewport
                         # misses): the footer must close the sheet and every question keeps at least one
-                        # writing line (SOURCE_OF_TRUTH §כג.11), on every sheet of a two-page worksheet (§כג.15).
+                        # writing line, on every sheet of a two-page worksheet.
                         page.set_viewport_size({"width": 794, "height": 1123})
                         page.emulate_media(media="print")
                         bad = page.evaluate("""() => {

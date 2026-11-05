@@ -1,5 +1,5 @@
 @import url('./geometry7.css');
-/* The icon story beside one computed figure of all four shapes, and the base shape beside question 3 (SOURCE_OF_TRUTH §כג.19).
+/* The icon story beside one computed figure of all four shapes, and the base shape beside question 3.
    Each figure floats on the left; the text flows around it and runs the full width below it, so the sheet stays one A4 page
    with wider fonts too (the build server's Liberation Sans sets Hebrew about 8% wider than Arial). */
 .page-385 .story { display: flow-root; padding: 7px 12px; }

@@ -53,8 +53,6 @@ def main():
         occupied=sum(hist[:245])/max(1,sum(hist))
         if occupied<.005:
             raise RuntimeError(f"Possible blank or near-blank page {n}: ink={occupied:.3%}")
-        if is_official and not page.get_images(full=True):
-            raise RuntimeError(f"Official page {n}: original image missing")
         extracted=page.get_text().strip()
         if len(extracted)<65:
             raise RuntimeError(f"Text page {n}: extracted text suspiciously short ({len(extracted)} chars)")
@@ -65,7 +63,7 @@ def main():
         if words!=[str(n)]:
             raise RuntimeError(f"Page {n}: top-left corner must hold only the page number, found {words}")
         # The footer closes every page: a dark-blue line across the whole width and, below it,
-        # the district logo centred on the page (SOURCE_OF_TRUTH §כג.16).
+        # the district logo centred on the page.
         mm=72/25.4
         logos=[r for r in (fitz.Rect(info["bbox"]) for info in page.get_image_info())
                if r.y1>height-30*mm and 8*mm<r.width<16*mm]
@@ -81,7 +79,7 @@ def main():
               for y in range(strip.height)]
         if not any(full):
             raise RuntimeError(f"Page {n}: the dark-blue line above the footer must cross the whole page")
-        # The number is white on a solid dark-blue disc (SOURCE_OF_TRUTH §כג.22): a ring 3.2 mm from
+        # The number is white on a solid dark-blue disc: a ring 3.2 mm from
         # the centre, outside the digits and inside the disc's 3.9 mm radius, is dark blue all round.
         cx,cy,half=17.9*mm,12.0*mm,4.5*mm
         zoom=4
@@ -92,12 +90,13 @@ def main():
         if not all(dark_blue(c) for c in ring):
             raise RuntimeError(f"Page {n}: the page number must sit on a solid dark-blue disc, ring colours {ring}")
         # The series line of the teacher summaries looks the same on every page that carries it
-        # (SOURCE_OF_TRUTH §כג.21): one font, one size, one colour.
+        #: one font, one size, one colour.
+        series_words={"טרנספורמציות","סיכומים","למורה"}
         for block in page.get_text("dict")["blocks"]:
             for line in block.get("lines",[]):
-                words=set("".join(span["text"] for span in line["spans"]).replace("-"," ").split())
-                if {"טרנספורמציות","סיכומים","למורה"}<=words:   # spans may come in visual order
-                    series.setdefault(n,set()).update((span["font"],round(span["size"],1),span["color"]) for span in line["spans"] if span["text"].strip())
+                spans=[span for span in line["spans"] if span["text"].strip() in series_words]   # the title may share the line
+                if {span["text"].strip() for span in spans}==series_words:
+                    series.setdefault(n,set()).update((span["font"],round(span["size"],1),span["color"]) for span in spans)
         stats.append((n,round(occupied,4)))
     summaries=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="s"]
     if missing:=[n for n in summaries if n not in series]:

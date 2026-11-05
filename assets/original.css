@@ -29,13 +29,13 @@
 .ws-footline{height:2px;width:100%;border-radius:999px;background:linear-gradient(to left,var(--wsgoldline) 0%,var(--wsgold) 50%,var(--wsgoldline) 100%)}
 @media print{.ws-footline{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 
-/* footer: thin dark-blue line across the whole page, logo and credits centred below it (SOURCE_OF_TRUTH §כג.9) */
+/* footer: thin dark-blue line across the whole page, logo and credits centred below it */
 .sheet{display:flex;flex-direction:column}.ws-foot{margin:auto -15mm -10mm;padding-top:12px}
 .ws-footline{height:1.3px;width:100%;border-radius:0;background:#0b2a4a}
 .ws-brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:4mm 15mm}.ws-brand .ws-logo{width:44px;height:44px}
 .ws-brand .ws-credit{margin:0}
 @media screen and (max-width:800px){.ws-foot{margin:18px -14px -18px}.ws-brand{padding:12px 14px}}
-/* printed sheet: one type scale, real writing lines that fill the free height, larger drawing grid where students draw several images (SOURCE_OF_TRUTH §כג.11) */
+/* printed sheet: one type scale, real writing lines that fill the free height, larger drawing grid where students draw several images */
 .machines{border-collapse:collapse;margin:6px 0 8px}
 .machines th{text-align:right;font-weight:700;color:#0a445c;padding:3px 0 3px 14px;white-space:nowrap}
 .machines{width:auto;align-self:flex-start}.machines td{padding:3px 0;text-align:right}
@@ -52,13 +52,13 @@
 .diagram.wide{grid-template-columns:220px 1fr}.diagram.wide svg{max-width:220px}
 }
 /* squared answer areas instead of writing lines on all original worksheets: whole 5 mm squares drawn as a vector grid
-   by original-grid.js, 36 across the 180 mm text width; in print each box is trimmed to full rows (SOURCE_OF_TRUTH §כג.12, §כג.13) */
+   by original-grid.js, 36 across the 180 mm text width; in print each box is trimmed to full rows */
 .squares{flex:1 0 auto;min-height:10mm;margin-top:6px}
 .squares.tall{min-height:15mm}
 @media screen{.squares{min-height:20mm}.squares.tall{min-height:30mm}}
 .squares svg{display:block;width:100%;height:100%}
 @media print{.sheet>section.level:has(.squares.tall){flex-grow:2}}
-/* two-page sheets: a page break between the sheets; precise coordinate planes beside coordinate tables (SOURCE_OF_TRUTH §כג.15) */
+/* two-page sheets: a page break between the sheets; precise coordinate planes beside coordinate tables */
 @media print{.sheet{break-after:page}.sheet:last-of-type{break-after:auto}}
 .given{font-size:13px;margin:12px 0 2px}
 .work{display:flex;align-items:stretch;gap:6mm;margin-top:6px}
@@ -75,7 +75,7 @@
 .side .squares{margin-top:0}
 @media print{.given{font-size:14px}.coords{font-size:14px}.coords th{font-size:13px}.sheet>section.level>.work{flex:1 0 auto}}
 @media screen and (max-width:800px){.work{flex-direction:column}.plane{width:auto!important;min-height:0!important}.plane>svg{position:static;width:100%;height:auto}}
-/* order-of-operations chains and route table (orig-composition, SOURCE_OF_TRUTH §כג.20) */
+/* order-of-operations chains and route table (orig-composition,) */
 .chains{display:flex;flex-direction:column;gap:8px;margin:7px 0 6px}
 .chain{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:14px}
 .chain .tag{flex:none;min-width:17mm;font-weight:800;color:#0a445c}

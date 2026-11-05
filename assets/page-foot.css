@@ -1,4 +1,4 @@
-/* Printed-page footer shared by every booklet page (SOURCE_OF_TRUTH §כג.9, §כג.14, §כג.16): a dark-blue line across
+/* Printed-page footer shared by every booklet page: a dark-blue line across
    the whole page, then the district logo centred at the foot of the page between the two black credit lines.
    The selectors start at the footer element so they win over the older per-page footer rules. */
 .page-foot{flex:none;text-align:center;break-inside:avoid}

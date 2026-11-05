@@ -1,4 +1,4 @@
-/* Worksheet 385, "שכפול האייקונים": the right trapezoid and its three copies (SOURCE_OF_TRUTH §כג.19).
+/* Worksheet 385, "שכפול האייקונים": the right trapezoid and its three copies.
    Every vertex is computed from the given lengths (bases 3 and 5 cm, the right leg 3 cm) by the
    transformation the text describes, and both figures share one scale, so the copies are exactly congruent. */
 (function () {
