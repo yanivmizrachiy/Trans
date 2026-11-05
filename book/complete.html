@@ -39,7 +39,7 @@ async function show(){
   }
   const drawn=new WeakMap();
   const draw=async(slot,page)=>{
-    const width=slot.clientWidth;const ratio=Math.min(2,window.devicePixelRatio||1);
+    const width=slot.clientWidth;if(!width)return;const ratio=Math.min(2,window.devicePixelRatio||1);
     if(drawn.get(slot)===width)return;drawn.set(slot,width);
     const view=page.getViewport({scale:width*ratio/page.getViewport({scale:1}).width});
     const canvas=document.createElement("canvas");canvas.width=Math.ceil(view.width);canvas.height=Math.ceil(view.height);
@@ -49,6 +49,7 @@ async function show(){
   const pages=new Map(slots);
   const watch=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting)draw(e.target,pages.get(e.target)).catch(()=>{});},{rootMargin:"1600px 0px"});
   slots.forEach(([slot])=>watch.observe(slot));
+  addEventListener("resize",()=>{for(const [slot,page] of slots){const r=slot.getBoundingClientRect();if(r.bottom>-1600&&r.top<innerHeight+1600)draw(slot,page).catch(()=>{});}});
 }
 if(window.pdfjsLib)show().catch(fallback);else fallback();
 </script>
