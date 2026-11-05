@@ -25,10 +25,10 @@ window.FIG_BASES = {
   q5: { pts: [[-2,0],[0,0],[1.2,1],[1.2,-1],[-2,-1]],
         frame: { u: 8, x: [-3.6,2.2], y: [-1.7,1.7], axes: 'dash', arrowheads: false, points: [{ at: [0,0], t: 'T', dx: -2.5, dy: -2.8 }] } },
 
-  m0: { frame: { u: 8, x: [-.3,5.3], y: [-.3,3.3], pad: 1, polys: [mark({ pts: TRAP }, "א'")] } },
-  m1: { frame: { u: 8.5, x: [-5.4,5.4], y: [-.5,3.7], pad: 1, lines: [[[0,-.5],[0,3.7]]],
+  m0: { frame: { u: 10, x: [-.3,5.3], y: [-.3,3.3], pad: 1, polys: [mark({ pts: TRAP }, "א'")] } },
+  m1: { frame: { u: 13, x: [-5.4,5.4], y: [-.5,3.7], pad: 1, lines: [[[0,-.5],[0,3.7]]],
         polys: [mark({ pts: TRAP }, "א'"), mark({ pts: TRAP, ops: ['flipY'], fill: RED }, "ב'")] } },
-  m2: { frame: { u: 7.5, x: [-.3,5.3], y: [-5.2,3.3], pad: 1, arrows: [[[1.5,-.3],[1.5,-1.7]]],
+  m2: { frame: { u: 10, x: [-.3,5.3], y: [-5.2,3.3], pad: 1, arrows: [[[1.5,-.3],[1.5,-1.7]]],
         polys: [mark({ pts: TRAP }, "א'"), mark({ pts: TRAP, shift: [0,-5] }, "ג'")] } },
   m3: { frame: { u: 9, x: [-5.4,3.4], y: [-.7,5.4], pad: 1,
         polys: [mark({ pts: TRAP_P }, "א'"), mark({ pts: TRAP_P, ops: ['rot90cw'], fill: ORANGE }, "ד'", 90)],
@@ -250,7 +250,7 @@ window.FIG_BASES = {
     </div>
     <p><strong>מצב 1 (שיקוף):</strong> המעצבת בחרה ב<strong>שוק</strong> המאונכת לבסיסים של צורה א' כ<strong>ציר סימטריה</strong> .היא שכפלה את הצורה כך שהצורה החדשה (ב') היא תמונת ראי (שיקוף) של צורה א' ביחס לציר זה.</p>
     <p><strong>מצב 2 (הזזה)</strong> :המעצבת שכפלה את צורה א' והזיזה אותה למטה, ללא שינוי כיוון, ליצירת צורה ג'.</p>
-    <div class="figs">
+    <div class="figs stack">
       <figure><p class="caption">מצב 1 (שיקוף)</p><svg data-fig='{"use":"m1"}'></svg></figure>
       <figure><p class="caption">מצב 2: הזזה (אנכית)</p><svg data-fig='{"use":"m2"}'></svg></figure>
     </div>
