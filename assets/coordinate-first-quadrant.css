@@ -8,14 +8,14 @@
     justify-content: flex-start;
     font-size: 12.4px;
     line-height: 1.34;
-    color: #1f2a44;
+    color: var(--book-text);
 }
 
 /* --- כותרת הדף (מבנה קנוני, צפיפות המקור) --- */
 .cfq-page .header-container { margin-bottom: 6px; padding-bottom: 4px; }
 .cfq-page .title-wrap { display: flex; flex-direction: column; gap: 2px; }
 .cfq-page .page-title { font-size: 23px; }
-.cfq-page .page-subtitle { font-size: 12px; color: #5f6b7a; margin: 0; font-weight: 400; }
+.cfq-page .page-subtitle { font-size: 12px; color: var(--book-muted); margin: 0; font-weight: 400; }
 
 /* --- גוף הגיליון --- */
 .cfq-page .sheet-content { padding-bottom: 2mm; }
@@ -25,13 +25,13 @@
 .cfq-page .two-col > .span-2 { display: block; width: 100%; margin-left: 0; }
 
 .cfq-page .q-card {
-    border: 1px solid #cbd3df; border-radius: 8px; padding: 7px 9px; background: #fff;
+    border: 1px solid var(--book-rule); border-radius: 8px; padding: 7px 9px; background: #fff;
     break-inside: avoid; page-break-inside: avoid;
 }
 .cfq-page .q-card h3 {
-    margin: -7px -9px 6px; padding: 5px 8px; background: #f6f8fb;
-    border-bottom: 1px solid #cbd3df; border-radius: 8px 8px 0 0;
-    font-size: 13.5px; color: #1f2a44;
+    margin: -7px -9px 6px; padding: 5px 8px; background: var(--book-tint);
+    border-bottom: 1px solid var(--book-rule); border-radius: 8px 8px 0 0;
+    font-size: 13.5px; color: var(--book-text);
 }
 .cfq-page .q-card p { margin: 5px 0; }
 
@@ -40,7 +40,7 @@
 
 .cfq-page .rule-box,
 .cfq-page .note-box {
-    border-right: 5px solid #1d4ed8; background: #eef4ff; border-radius: 7px;
+    border-right: 5px solid var(--book-ink); background: var(--book-tint); border-radius: 7px;
     padding: 6px 8px; margin: 3px 0 5px;
 }
 .cfq-page .note-box { border-right-color: #8a5a00; background: #fff8e7; }
@@ -49,7 +49,7 @@
 
 .cfq-page .blank {
     display: inline-block; min-width: var(--blank-width, 6ch); height: 1.2em;
-    border-bottom: 1.5px solid #1f2a44; vertical-align: -0.08em;
+    border-bottom: 1.5px solid var(--book-text); vertical-align: -0.08em;
 }
 .cfq-page .answer-line { height: 1.25em; border-bottom: 1px solid #8994a5; margin-top: 4px; }
 .cfq-page .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin-top: 6px; }
@@ -59,7 +59,7 @@
 .cfq-page .work-table th,
 .cfq-page .work-table td,
 .cfq-page .tf-table td { border: 1px solid #adb7c6; padding: 4px 5px; vertical-align: middle; }
-.cfq-page .work-table th { background: #f1f4f8; font-weight: 800; }
+.cfq-page .work-table th { background: var(--book-tint); font-weight: 800; }
 .cfq-page .work-table.center td,
 .cfq-page .work-table.center th { text-align: center; }
 .cfq-page .work-table td:empty { height: 30px; }
@@ -68,7 +68,7 @@
 
 /* --- רשתות צירים (SVG סטטי) --- */
 .cfq-page .coordinate-grid {
-    width: 100%; margin: 4px auto 6px; border: 1px solid #d9e0ea; border-radius: 8px;
+    width: 100%; margin: 4px auto 6px; border: 1px solid var(--book-rule); border-radius: 8px;
     background: #fff; display: block;
 }
 .cfq-page .grid-large { max-width: 580px; height: 190px; }
@@ -93,20 +93,20 @@
 .cfq-page .choice-grid .coordinate-grid { margin-top: 2px; }
 
 .cfq-page .pair { display: inline-flex; align-items: flex-end; gap: 2px; font-weight: 700; }
-.cfq-page .pair-blank { display: inline-block; width: 20px; height: 17px; border-bottom: 1.5px solid #1f2a44; }
+.cfq-page .pair-blank { display: inline-block; width: 20px; height: 17px; border-bottom: 1.5px solid var(--book-text); }
 .cfq-page .match { display: grid; grid-template-columns: 1fr 1fr; gap: 35%; line-height: 2.2; padding: 4px 12%; }
-.cfq-page .mc-stack > div { margin: 5px 0; border-bottom: 1px dashed #d8dee8; padding-bottom: 3px; }
+.cfq-page .mc-stack > div { margin: 5px 0; border-bottom: 1px dashed var(--book-rule); padding-bottom: 3px; }
 
 .cfq-page .error-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.cfq-page .mist-card { border: 1px solid #cbd3df; border-radius: 8px; padding: 7px 9px; break-inside: avoid; }
+.cfq-page .mist-card { border: 1px solid var(--book-rule); border-radius: 8px; padding: 7px 9px; break-inside: avoid; }
 .cfq-page .mist-card p { margin: 5px 0; font-size: 13px; }
-.cfq-page .mist-card small { color: #5f6b7a; }
+.cfq-page .mist-card small { color: var(--book-muted); }
 .cfq-page .mist-head {
-    display: flex; justify-content: space-between; font-weight: 800; background: #f3f5f8;
+    display: flex; justify-content: space-between; font-weight: 800; background: var(--book-tint);
     margin: -7px -9px 5px; padding: 5px 8px; border-radius: 8px 8px 0 0;
 }
 .cfq-page .mist-head span { font-size: 10px; font-weight: 600; }
-.cfq-page .always-row { border-bottom: 1px dashed #d8dee8; padding: 3px 0; font-size: 11px; }
+.cfq-page .always-row { border-bottom: 1px dashed var(--book-rule); padding: 3px 0; font-size: 11px; }
 .cfq-page .always-row .choice-row { display: inline-flex; margin-inline: 7px; }
 .cfq-page .reason-line { display: inline-block; min-width: 110px; border-bottom: 1px solid #8994a5; }
 .cfq-page .rules .rule-box { text-align: center; margin: 0; }
@@ -136,11 +136,11 @@
 .cfq-page .sheet-footer {
     margin-top: auto;
     display: flex; justify-content: space-between; gap: 20px;
-    border-top: 1px solid #cbd3df; padding-top: 2mm; color: #5f6b7a; font-size: 9.5px;
+    border-top: 1px solid var(--book-rule); padding-top: 2mm; color: var(--book-muted); font-size: 9.5px;
 }
 .cfq-page .gz-footer { margin-top: 4px; padding-top: 5px; border-top: 3px double var(--title-blue); text-align: center; }
-.cfq-page .gz-footer .f1 { font-size: 12.5px; font-weight: 500 !important; color: #1f2a44; }
-.cfq-page .gz-footer .f2 { font-size: 11.5px; color: #475569; margin-top: 1px; }
+.cfq-page .gz-footer .f1 { font-size: 12.5px; font-weight: 500 !important; color: var(--book-text); }
+.cfq-page .gz-footer .f2 { font-size: 11.5px; color: var(--book-muted); margin-top: 1px; }
 
 /* --- רוחבי קו מילוי (החלפת style inline מהמקור) --- */
 .cfq-page .bw-3 { --blank-width: 3ch; }

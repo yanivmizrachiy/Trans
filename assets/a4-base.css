@@ -1,10 +1,10 @@
 :root {
     --text-main: #000000;
     --accent-dark: #000000;
-    --title-blue: #1d4ed8;
-    --grid-line: #cbd5e1;
-    --border-light: #e2e8f0;
-    --bg-subtle: #f8fafc;
+    --title-blue: var(--book-ink);
+    --grid-line: var(--book-rule);
+    --border-light: var(--book-rule);
+    --bg-subtle: var(--book-tint);
     --bg-paper: #ffffff;
     --cell-size: 20px;
 }
@@ -17,7 +17,7 @@ html, body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    font-family: 'Rubik', sans-serif;
+    font-family: Arial, "Noto Sans Hebrew", sans-serif;
     color: var(--text-main);
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
@@ -51,12 +51,12 @@ html, body {
 .a4-page > .gz-footer .f1 {
     font-size: 10.5px;
     font-weight: 500;
-    color: #1f2a44;
+    color: var(--book-text);
 }
 
 .a4-page > .gz-footer .f2 {
     font-size: 9.5px;
-    color: #475569;
+    color: var(--book-muted);
 }
 
 .header-container {
@@ -144,7 +144,7 @@ html, body {
 
 .cell { width: var(--cell-size); height: var(--cell-size); border-radius: 2px; box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4); }
 .cell.red { background: linear-gradient(135deg, #ef4444, #991b1b); }
-.cell.blue { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+.cell.blue { background: linear-gradient(135deg, var(--book-ink), var(--book-ink)); }
 
 .showcase-container {
     width: 100%;
@@ -159,8 +159,8 @@ html, body {
     direction: ltr;
 }
 
-.tactile-block { width: 22px; height: 22px; background: linear-gradient(135deg, #fff, #cbd5e1); border: 1px solid #000; border-radius: 2px; }
-.tactile-circle { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #475569, #000); border: 1px solid #000; }
+.tactile-block { width: 22px; height: 22px; background: linear-gradient(135deg, #fff, var(--book-rule)); border: 1px solid #000; border-radius: 2px; }
+.tactile-circle { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, var(--book-muted), #000); border: 1px solid #000; }
 .shape-placeholder { width: 90px; height: 90px; border: 2px dashed #94a3b8; border-radius: 6px; position: relative; }
 
 .coordinate-system {
@@ -331,15 +331,15 @@ hr { border: 0; border-top: 1px solid var(--border-light); margin: 6px 0; }
 
 /* --- Premium Math Visualization Rules --- */
 .graph-label {
-    font-family: 'Assistant', sans-serif;
+    font-family: Arial, "Noto Sans Hebrew", sans-serif;
     font-style: italic;
     font-size: 14px;
-    fill: #2c3e50;
+    fill: var(--book-text);
     dominant-baseline: hanging;
 }
 
 .math-line {
-    stroke: #3498db;
+    stroke: var(--book-ink);
     stroke-width: 2.5;
     fill: none;
 }

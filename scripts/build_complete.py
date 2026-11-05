@@ -28,11 +28,10 @@ BOOK=ROOT/"book"
 PDF=ROOT/"pdf"
 PAGES=M.WORKSHEET_PAGES
 CSS = """
-@page:first{margin-top:8mm}
 *{box-sizing:border-box}
 html{direction:rtl}
 body{font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#10202e;font-size:12.5px;line-height:1.65;margin:0}
-body>h1{min-height:13.5mm;font-size:23px;line-height:1.22;font-weight:800;color:#0b3a75;margin:0 0 3.5mm;border-bottom:2px solid #0b3a75;padding-bottom:1.6mm}
+body>h1{display:none}
 h2{font-size:16px;font-weight:800;color:#0b3a75;margin:14px 0 6px;padding-bottom:3px;border-bottom:1px solid #c9d6e2;break-after:avoid}
 h3{font-size:15px;color:#0b3a75;margin:14px 0 7px;break-after:avoid}
 p,li{margin-bottom:6px;orphans:3;widows:3}
@@ -42,7 +41,7 @@ td,th{padding:6px 8px;border:1px solid #cfdbe6;text-align:right;vertical-align:t
 th{background:#eef3f9;color:#0b3a75}
 tr{break-inside:avoid}
 pre{white-space:pre-wrap;overflow-wrap:anywhere}
-code{direction:ltr;unicode-bidi:isolate;display:inline-block;font-size:.94em;background:#eef3f9;padding:0 3px}
+code{direction:ltr;unicode-bidi:isolate;display:inline-block;font-family:inherit;font-size:.94em;background:#eef3f9;padding:0 3px}
 a{color:#0b3a75;overflow-wrap:anywhere}
 blockquote{border-right:3px solid #0b3a75;padding-right:12px;margin-right:0;color:#536f79}
 """
@@ -115,9 +114,10 @@ def check_pdf_links(target_pdf, page_html, base_url):
     if missing:
         raise RuntimeError(f"{target_pdf.name}: relative links were not published as absolute URLs: {missing}")
 
-# Flowing teacher texts: the top margin keeps clear of the page number, the bottom margin
-# holds the booklet's logo footer, which is laid over every page.
-MD_MARGIN={"top":"20mm","right":"14mm","bottom":"27mm","left":"14mm"}
+# Flowing teacher texts: the top margin holds the booklet's header and the bottom margin its
+# logo footer; both are laid over every page.
+MD_MARGIN={"top":"25mm","right":"15mm","bottom":"27mm","left":"15mm"}
+SERIES="טרנספורמציות - סיכומים למורה"
 FOOT_OVERLAY=None
 def foot_overlay(browser):
     """One transparent A4 page holding only the shared footer, to lay over flowing pages."""
@@ -144,6 +144,22 @@ def foot_overlay(browser):
         tab.close()
         FOOT_OVERLAY=PdfReader(BytesIO(data)).pages[0]
     return FOOT_OVERLAY
+
+def head_overlay(browser, title):
+    """One transparent A4 page holding only the booklet's header, to lay over flowing pages."""
+    html=("<!doctype html><html lang='he' dir='rtl'><head><meta charset='utf-8'>"
+          f"<link rel='stylesheet' href='{(ROOT/'assets'/'book.css').as_uri()}'>"
+          "<style>@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
+          "body{font-family:Arial,'Noto Sans Hebrew',sans-serif;padding:8mm 15mm 0}</style></head><body>"
+          f"<header class='head'><div><h1>{title}</h1><p class='series'>{SERIES}</p></div></header></body></html>")
+    tab=browser.new_page()
+    with tempfile.TemporaryDirectory() as temp:
+        page=Path(temp)/"head.html"
+        page.write_text(html,encoding="utf-8")
+        tab.goto(page.as_uri(),wait_until="load")
+        data=tab.pdf(format="A4",print_background=False,margin={"top":"0","right":"0","bottom":"0","left":"0"})
+    tab.close()
+    return PdfReader(BytesIO(data)).pages[0]
 
 def render_markdown(browser, source, target_html, target_pdf, label, pages, to_html=None, style=CSS, head="", fonts=()):
     """Render a Markdown text onto exactly `pages` A4 pages, at the largest zoom that fits,
@@ -175,7 +191,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
             if missing:
                 raise RuntimeError(f"{label}: web fonts did not load: {missing}")
         def fits(z):
-            tab.evaluate("z => { document.body.style.zoom = z; document.querySelectorAll('body>h1').forEach(h => { h.style.zoom = 1/z; }); }",z)
+            tab.evaluate("z => { document.body.style.zoom = z; }",z)
             data=tab.pdf(format="A4",print_background=True,margin=MD_MARGIN)
             return data if len(PdfReader(BytesIO(data)).pages)<=pages else None
         fitted=None
@@ -196,8 +212,10 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
                     break
     tab.close()
     writer=PdfWriter(clone_from=PdfReader(BytesIO(fitted)))
+    head=head_overlay(browser,label)
     for page in writer.pages:
         page.merge_page(foot_overlay(browser))
+        page.merge_page(head)
     with target_pdf.open("wb") as f:
         writer.write(f)
     print(f"{target_pdf.name}: zoom {scale}")

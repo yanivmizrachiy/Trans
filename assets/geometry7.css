@@ -8,12 +8,12 @@
 
 /* כותרת ראשית + כותרת משנה */
 .geo7-page .title-wrap { display: flex; flex-direction: column; gap: 2px; }
-.geo7-page .page-subtitle { font-size: 14px; color: #475569; font-weight: 400 !important; margin: 0; }
+.geo7-page .page-subtitle { font-size: 14px; color: var(--book-muted); font-weight: 400 !important; margin: 0; }
 
 /* פס כותרת תת־הנושא */
 .geo7-page .chapter-bar { display: flex; align-items: baseline; gap: 10px; background: var(--bg-subtle); border: 1px solid var(--border-light); border-right: 4px solid var(--title-blue); border-radius: 10px; padding: 7px 12px; margin: 0; }
 .geo7-page .chapter-name { font-size: 17px; font-weight: 500 !important; }
-.geo7-page .chapter-sub { margin-inline-start: auto; font-size: 12px; color: #475569; font-weight: 400 !important; }
+.geo7-page .chapter-sub { margin-inline-start: auto; font-size: 12px; color: var(--book-muted); font-weight: 400 !important; }
 
 /* כרטיס ידע/הגדרה (תוכן מקור דידקטי) */
 .geo7-page .defcard { border: 1px solid var(--border-light); border-right: 4px solid var(--title-blue); background: var(--bg-subtle); border-radius: 10px; padding: 6px 12px; font-size: 14px; line-height: 1.45; }
@@ -40,7 +40,7 @@
 /* רב-ברירה */
 .geo7-page .mc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px 14px; margin: 5px 0 0; }
 .geo7-page .opt { display: flex; gap: 8px; align-items: baseline; }
-.geo7-page .ol { width: 21px; height: 21px; border: 1.5px solid var(--grid-line); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500 !important; color: #475569; flex: 0 0 auto; }
+.geo7-page .ol { width: 21px; height: 21px; border: 1.5px solid var(--grid-line); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500 !important; color: var(--book-muted); flex: 0 0 auto; }
 .geo7-page .ot { flex: 1; }
 .geo7-page .mc.mc3 { grid-template-columns: repeat(3, 1fr); }
 .geo7-page .mc.mc2 { grid-template-columns: repeat(2, 1fr); }
@@ -59,7 +59,7 @@
 .geo7-page .ln.ln-tall { height: 30px; }
 
 /* קו מילוי בתוך שורה */
-.geo7-page .wline { display: inline-block; min-width: 64px; height: 15px; border-bottom: 1.5px solid #111827; vertical-align: baseline; }
+.geo7-page .wline { display: inline-block; min-width: 64px; height: 15px; border-bottom: 1.5px solid var(--book-text); vertical-align: baseline; }
 .geo7-page .wline.w40 { min-width: 40px; }
 .geo7-page .wline.w90 { min-width: 90px; }
 .geo7-page .wline.w120 { min-width: 120px; }
@@ -67,12 +67,12 @@
 /* ביטוי מענה מרובה-תיבות: תיבה נפרדת לכל ערך שהתלמיד נדרש לכתוב,
    עם האופרטור מודפס ביניהן. מכל LTR — זהו ביטוי מתמטי (§4.3). */
 .geo7-page .wexpr { display: inline-flex; align-items: baseline; gap: 5px; direction: ltr; vertical-align: baseline; }
-.geo7-page .wexpr .wop { font-weight: 700; color: #1f2a44; line-height: 1; }
+.geo7-page .wexpr .wop { font-weight: 700; color: var(--book-text); line-height: 1; }
 
 /* אזור סרטוט לתלמיד — רקע נקודות עדין */
 .geo7-page .drawrow { display: flex; gap: 10px; margin-top: 5px; }
-.geo7-page .drawbox { flex: 1; border: 1.5px dashed var(--grid-line); border-radius: 8px; background-image: radial-gradient(#d8dee9 1px, transparent 1.2px); background-size: 14px 14px; background-position: 7px 7px; position: relative; }
-.geo7-page .drawbox .boxcap { position: absolute; top: 3px; inset-inline-start: 8px; font-size: 11px; color: #64748b; background: #fff; padding: 0 5px; border-radius: 6px; }
+.geo7-page .drawbox { flex: 1; border: 1.5px dashed var(--grid-line); border-radius: 8px; background-image: radial-gradient(var(--book-rule) 1px, transparent 1.2px); background-size: 14px 14px; background-position: 7px 7px; position: relative; }
+.geo7-page .drawbox .boxcap { position: absolute; top: 3px; inset-inline-start: 8px; font-size: 11px; color: var(--book-muted); background: #fff; padding: 0 5px; border-radius: 6px; }
 .geo7-page .h56 { height: 56px; }
 .geo7-page .h72 { height: 72px; }
 .geo7-page .h88 { height: 88px; }
@@ -85,7 +85,7 @@
 .geo7-page .ansrow { display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap; margin: 5px 0 0; }
 .geo7-page .pair { direction: ltr; unicode-bidi: isolate; display: inline-flex; align-items: baseline; gap: 5px; font-size: 15px; }
 .geo7-page .pl { color: var(--text-main); font-weight: 500 !important; }
-.geo7-page .pblank { display: inline-block; width: 36px; height: 16px; border-bottom: 1.5px solid #111827; }
+.geo7-page .pblank { display: inline-block; width: 36px; height: 16px; border-bottom: 1.5px solid var(--book-text); }
 
 /* טבלת אומדן/מדידה ותוצאות */
 .geo7-page table.gz-table { border-collapse: collapse; margin: 6px auto 0; }
@@ -95,16 +95,16 @@
 /* איורים וקטוריים */
 .geo7-page .figure { margin: 4px auto 0; text-align: center; break-inside: avoid; page-break-inside: avoid; }
 .geo7-page .figrow { display: flex; justify-content: center; align-items: flex-end; gap: 18px; flex-wrap: wrap; margin-top: 4px; }
-.geo7-page .figcap { font-size: 12px; color: #475569; margin-top: 2px; text-align: center; }
+.geo7-page .figcap { font-size: 12px; color: var(--book-muted); margin-top: 2px; text-align: center; }
 .geo7-page svg.chart { display: block; margin: 2px auto; max-width: 100%; height: auto; shape-rendering: geometricPrecision; text-rendering: geometricPrecision; }
 .geo7-page svg.chart line,
 .geo7-page svg.chart path,
 .geo7-page svg.chart circle,
 .geo7-page svg.chart rect,
 .geo7-page svg.chart polygon { vector-effect: non-scaling-stroke; }
-.geo7-page svg.chart text { font-family: 'Rubik', sans-serif; }
+.geo7-page svg.chart text { font-family: Arial, "Noto Sans Hebrew", sans-serif; }
 
 /* כותרת תחתית קבועה — שתי שורות */
 .geo7-page .gz-footer { margin-top: 0; padding-top: 5px; border-top: 3px double var(--title-blue); text-align: center; }
-.geo7-page .gz-footer .f1 { font-size: 12.5px; font-weight: 500 !important; color: #1f2a44; }
-.geo7-page .gz-footer .f2 { font-size: 11.5px; color: #475569; margin-top: 1px; }
+.geo7-page .gz-footer .f1 { font-size: 12.5px; font-weight: 500 !important; color: var(--book-text); }
+.geo7-page .gz-footer .f2 { font-size: 11.5px; color: var(--book-muted); margin-top: 1px; }

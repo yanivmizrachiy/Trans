@@ -6,13 +6,12 @@ inspect the shell text; it runs the script against a throwaway Git remote
 (a bare repository standing in for GitHub) and checks what actually lands on
 the publication branch:
 
-1. a worksheet PDF that did not exist before the build is published;
+1. the rebuilt booklet PDF is published;
 2. a source commit that lands after the build supersedes it (nothing is pushed);
 3. an unrelated commit that lands after the build is kept and the PDFs are
    published on top of it;
 4. outputs already published by another run are not published twice;
-5. previously published PDFs are never deleted, even when a worksheet is
-   renamed (public URLs stay valid);
+5. other build outputs stay out of Git;
 6. a rejected push is retried on the fresh branch tip.
 
 Usage: python scripts/test_publish_pdfs.py [path/to/publish-script]
@@ -26,7 +25,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / "scripts" / "publish_pdfs.sh"
-BOOK_PDFS = ("teacher", "official", "workshop", "sadna", "krispin-video", "answers", "transformations-complete")
+BOOKLET = "book/transformations-complete.pdf"
 ENV = {
     **os.environ,
     "GIT_AUTHOR_NAME": "publish-test", "GIT_AUTHOR_EMAIL": "publish-test@example.invalid",
@@ -56,12 +55,7 @@ def seed_repository(root):
     git(work, "config", "user.name", "publish-test")
     git(work, "config", "user.email", "publish-test@example.invalid")
     write(work, "worksheets/a.html", "<html>a</html>")
-    write(work, "pdf/a.pdf", "%PDF-a-v1")
-    for name in BOOK_PDFS:
-        write(work, f"book/{name}.pdf", f"%PDF-{name}-v1")
-    write(work, "book/workshop.html", "<p>workshop v1</p>")
-    write(work, "book/answers.html", "<p>answers v1</p>")
-    write(work, "qa/previews/sheet.jpg", "jpg-v1")
+    write(work, BOOKLET, "%PDF-booklet-v1")
     write(work, "docs/ANSWER_KEY.md", "# key v1")
     write(work, "README.md", "readme v1")
     git(work, "add", "-A")
@@ -85,15 +79,11 @@ def commit_and_push(repo, relative, content, message):
     git(repo, "push", "-q", "origin", "HEAD:main")
 
 
-def simulate_build(work, version, worksheet_ids):
-    """Pretend scripts/build_*.py ran: every output is rewritten, new worksheets gain a PDF."""
-    for ident in worksheet_ids:
-        write(work, f"pdf/{ident}.pdf", f"%PDF-{ident}-{version}")
-    for name in BOOK_PDFS:
-        write(work, f"book/{name}.pdf", f"%PDF-{name}-{version}")
-    write(work, "book/workshop.html", f"<p>workshop {version}</p>")
-    write(work, "book/answers.html", f"<p>answers {version}</p>")
-    write(work, "qa/previews/sheet.jpg", f"jpg-{version}")
+def simulate_build(work, version):
+    """Pretend scripts/build_*.py ran: the booklet is rewritten and intermediates appear."""
+    write(work, BOOKLET, f"%PDF-booklet-{version}")
+    write(work, "pdf/a.pdf", f"%PDF-a-{version}")
+    write(work, "book/teacher.pdf", f"%PDF-teacher-{version}")
 
 
 def publish(work):
@@ -143,19 +133,13 @@ def bash_executable():
 
 
 @scenario
-def new_worksheet_pdf_is_published(root):
+def rebuilt_booklet_is_published(root):
     origin, work = seed_repository(root)
     commit_and_push(work, "worksheets/new.html", "<html>new</html>", "add new worksheet")
-    simulate_build(work, "v2", ["a", "new"])
+    simulate_build(work, "v2")
     result = publish(work)
     expect(result.returncode == 0, "publish must succeed", result)
-    expect("pdf/new.pdf" in tree(origin), "new worksheet PDF missing from publication branch", result)
-    expect(blob(origin, "pdf/new.pdf") == "%PDF-new-v2", "new PDF has wrong bytes", result)
-    expect(blob(origin, "pdf/a.pdf") == "%PDF-a-v2", "existing PDF was not refreshed", result)
-    expect(blob(origin, "book/transformations-complete.pdf") == "%PDF-transformations-complete-v2",
-           "complete booklet was not refreshed", result)
-    expect(blob(origin, "book/workshop.html") == "<p>workshop v2</p>", "rendered HTML was not refreshed", result)
-    expect(blob(origin, "qa/previews/sheet.jpg") == "jpg-v2", "preview sheet was not refreshed", result)
+    expect(blob(origin, BOOKLET) == "%PDF-booklet-v2", "the booklet was not refreshed", result)
     expect(log(origin)[0].startswith("Generate verified transformation PDFs"), "unexpected publish commit", result)
 
 
@@ -163,13 +147,12 @@ def new_worksheet_pdf_is_published(root):
 def superseded_source_change_publishes_nothing(root):
     origin, work = seed_repository(root)
     commit_and_push(work, "worksheets/new.html", "<html>new</html>", "add new worksheet")
-    simulate_build(work, "v2", ["a", "new"])
+    simulate_build(work, "v2")
     other = clone(root, origin, "other")
     commit_and_push(other, "worksheets/a.html", "<html>a changed after build</html>", "later source edit")
     result = publish(work)
     expect(result.returncode == 0, "a superseded build must exit cleanly", result)
-    expect("pdf/new.pdf" not in tree(origin), "stale build must not publish outputs", result)
-    expect(blob(origin, "pdf/a.pdf") == "%PDF-a-v1", "stale build overwrote a PDF", result)
+    expect(blob(origin, BOOKLET) == "%PDF-booklet-v1", "stale build overwrote the booklet", result)
     expect(log(origin)[0] == "later source edit", "stale build created a commit", result)
 
 
@@ -177,13 +160,13 @@ def superseded_source_change_publishes_nothing(root):
 def unrelated_concurrent_commit_is_preserved(root):
     origin, work = seed_repository(root)
     commit_and_push(work, "worksheets/new.html", "<html>new</html>", "add new worksheet")
-    simulate_build(work, "v2", ["a", "new"])
+    simulate_build(work, "v2")
     other = clone(root, origin, "other")
     commit_and_push(other, "README.md", "readme v2 (docs only)", "docs edit during build")
     result = publish(work)
     expect(result.returncode == 0, "publish after an unrelated commit must succeed", result)
     expect(blob(origin, "README.md") == "readme v2 (docs only)", "concurrent docs commit was lost", result)
-    expect(blob(origin, "pdf/new.pdf") == "%PDF-new-v2", "new PDF missing after unrelated commit", result)
+    expect(blob(origin, BOOKLET) == "%PDF-booklet-v2", "booklet missing after unrelated commit", result)
     expect(log(origin)[1] == "docs edit during build", "publish commit must sit on top of the concurrent commit", result)
 
 
@@ -191,10 +174,10 @@ def unrelated_concurrent_commit_is_preserved(root):
 def already_published_outputs_skip(root):
     origin, work = seed_repository(root)
     commit_and_push(work, "worksheets/new.html", "<html>new</html>", "add new worksheet")
-    simulate_build(work, "v2", ["a", "new"])
+    simulate_build(work, "v2")
     other = clone(root, origin, "other")
-    simulate_build(other, "v2", ["a", "new"])
-    git(other, "add", "-A")
+    simulate_build(other, "v2")
+    git(other, "add", BOOKLET)
     git(other, "commit", "-q", "-m", "Generate verified transformation PDFs [skip ci] (other run)")
     git(other, "push", "-q", "origin", "HEAD:main")
     result = publish(work)
@@ -203,24 +186,21 @@ def already_published_outputs_skip(root):
 
 
 @scenario
-def renamed_worksheet_keeps_old_public_pdf(root):
+def other_build_outputs_stay_out_of_git(root):
     origin, work = seed_repository(root)
-    git(work, "mv", "worksheets/a.html", "worksheets/b.html")
-    git(work, "commit", "-q", "-m", "rename worksheet")
-    git(work, "push", "-q", "origin", "HEAD:main")
-    simulate_build(work, "v2", ["b"])  # the build only produces b.pdf; a.pdf is still tracked
+    commit_and_push(work, "worksheets/new.html", "<html>new</html>", "add new worksheet")
+    simulate_build(work, "v2")
     result = publish(work)
-    expect(result.returncode == 0, "publish after rename must succeed", result)
+    expect(result.returncode == 0, "publish must succeed", result)
     published = tree(origin)
-    expect("pdf/a.pdf" in published, "publication must never delete an existing public PDF", result)
-    expect("pdf/b.pdf" in published, "renamed worksheet PDF missing", result)
+    expect("pdf/a.pdf" not in published and "book/teacher.pdf" not in published, "an intermediate PDF was published", result)
 
 
 @scenario
 def rejected_push_is_retried(root):
     origin, work = seed_repository(root)
     commit_and_push(work, "worksheets/new.html", "<html>new</html>", "add new worksheet")
-    simulate_build(work, "v2", ["a", "new"])
+    simulate_build(work, "v2")
     hook = origin / "hooks" / "pre-receive"
     hook.write_text("#!/bin/sh\nif [ ! -f \"$GIT_DIR/first-push-rejected\" ]; then\n"
                     "  touch \"$GIT_DIR/first-push-rejected\"\n  echo 'simulated concurrent update' >&2\n  exit 1\nfi\nexit 0\n",
@@ -229,7 +209,7 @@ def rejected_push_is_retried(root):
     result = publish(work)
     expect(result.returncode == 0, "publish must retry after a rejected push", result)
     expect((origin / "first-push-rejected").exists(), "hook did not run", result)
-    expect(blob(origin, "pdf/new.pdf") == "%PDF-new-v2", "retry did not publish the new PDF", result)
+    expect(blob(origin, BOOKLET) == "%PDF-booklet-v2", "retry did not publish the booklet", result)
     expect(len(log(origin)) == 3, "retry must produce exactly one publish commit", result)
 
 
