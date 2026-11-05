@@ -128,11 +128,11 @@ def foot_overlay(browser):
               f"<link rel='stylesheet' href='{(ROOT/'assets'/'page-foot.css').as_uri()}'>"
               "<style>@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
               "body{font-family:Arial,'Noto Sans Hebrew',sans-serif}.page-foot{position:fixed;left:0;right:0;bottom:0}"
-              ".page-foot .ws-footline{height:0;background:none;border-top:3px solid #0b3a75}</style></head><body>"
+              ".page-foot .ws-footline{height:0;background:none;border-top:2px solid #14296e}</style></head><body>"
               "<footer class='page-foot'><div class='ws-footline'></div><div class='ws-brand'>"
               f"<img class='ws-logo' src='{logo}' alt='' width='64' height='64'><p class='ws-credit'>"
-              "<strong>הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים</strong>"
-              "<span>הדרכה במחוז ירושלים והעיר ירושלים - מנח״י,<br>בהובלת איילת קריספין</span></p></div></footer></body></html>")
+              '<strong>יניב רז - מדריך מחוזי חט"ב בעיר ירושלים</strong>'
+              '<span>הדרכה במחוז ירושלים והעיר ירושלים - מנח"י, בהובלת איילת קריספין</span></p></div></footer></body></html>')
         tab=browser.new_page()
         with tempfile.TemporaryDirectory() as temp:
             page=Path(temp)/"foot.html"
@@ -140,7 +140,7 @@ def foot_overlay(browser):
             tab.goto(page.as_uri(),wait_until="load")
             if not tab.evaluate("() => document.querySelector('img').naturalWidth > 0"):
                 raise RuntimeError("Footer logo did not load")
-            data=tab.pdf(format="A4",print_background=False,margin={"top":"0","right":"0","bottom":"0","left":"0"})
+            data=tab.pdf(format="A4",print_background=False,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
         tab.close()
         FOOT_OVERLAY=PdfReader(BytesIO(data)).pages[0]
     return FOOT_OVERLAY
@@ -157,7 +157,7 @@ def head_overlay(browser, title):
         page=Path(temp)/"head.html"
         page.write_text(html,encoding="utf-8")
         tab.goto(page.as_uri(),wait_until="load")
-        data=tab.pdf(format="A4",print_background=False,margin={"top":"0","right":"0","bottom":"0","left":"0"})
+        data=tab.pdf(format="A4",print_background=False,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
     tab.close()
     return PdfReader(BytesIO(data)).pages[0]
 
@@ -171,7 +171,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
         raise RuntimeError(f"Cannot render unstructured {source}")
     body=to_html(content) if to_html else markdown(content,extensions=["tables","fenced_code","sane_lists"])
     html=rewrite_book_links(body,target_html)
-    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title>"+head+"<style>"+style+"</style></head><body>"+html+"</body></html>"
+    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title>"+head+"<style>@page{size:A4}"+style+"</style></head><body>"+html+"</body></html>"
     target_html.write_text(page_html,encoding="utf-8",newline="\n")
     public_url=M.BASE_URL.rstrip("/")+"/book/"+target_html.name
     tab=browser.new_page(viewport={"width":1100,"height":1500})
@@ -192,7 +192,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
                 raise RuntimeError(f"{label}: web fonts did not load: {missing}")
         def fits(z):
             tab.evaluate("z => { document.body.style.zoom = z; }",z)
-            data=tab.pdf(format="A4",print_background=True,margin=MD_MARGIN)
+            data=tab.pdf(format="A4",print_background=True,prefer_css_page_size=True,margin=MD_MARGIN)
             return data if len(PdfReader(BytesIO(data)).pages)<=pages else None
         fitted=None
         for step in range(19):

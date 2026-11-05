@@ -44,7 +44,7 @@ class MathQuality(unittest.TestCase):
                 self.assertGreater(area2(points),0)
                 self.assertTrue(all(abs(x)<=7 and abs(y)<=7 for x,y in points))
                 self.assertEqual(len(set(points)),len(points))
-                self.assertIn("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים",doc)
+                self.assertIn('יניב רז - מדריך מחוזי חט"ב בעיר ירושלים',doc)
                 self.assertIn("../assets/logo.png",doc)
                 self.assertEqual(doc.count('class="level"')+doc.count("class='level'"),3)
 
@@ -159,7 +159,7 @@ class AdditionalOriginalSheets(unittest.TestCase):
                 self.assertNotIn("נכתב לחוברת",doc)
                 # the booklet's logo footer on every printed page
                 self.assertEqual(doc.count("assets/logo.png"),M.WORKSHEET_PAGES[name])
-                self.assertNotIn("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים",doc)
+                self.assertNotIn("הדף נערך",doc)
 
     def test_community_hall_rectangle(self):
         doc=(ROOT/"worksheets"/"rectangles.html").read_text(encoding="utf-8")

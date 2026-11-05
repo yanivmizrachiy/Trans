@@ -44,7 +44,7 @@ def main():
         chapter,item=PAGE_MAP[n]
         is_official=item[0]=="m"
         width,height=page.rect.width,page.rect.height
-        if not (height>width and abs(width-595.28)<5 and abs(height-841.89)<5):
+        if not (height>width and abs(width-595.28)<.5 and abs(height-841.89)<.5):
             raise RuntimeError(f"Book page {n}: A4 portrait page size missing")
         pic=page.get_pixmap(matrix=fitz.Matrix(.38,.38),alpha=False)
         image=Image.frombytes("RGB",(pic.width,pic.height),pic.samples)
@@ -63,15 +63,18 @@ def main():
         if words!=[str(n)]:
             raise RuntimeError(f"Page {n}: top-left corner must hold only the page number, found {words}")
         # The footer closes every page: a dark-blue line across the whole width and, below it,
-        # the district logo centred on the page.
+        # the district logo with the text beside it, centred together on the page.
         mm=72/25.4
         logos=[r for r in (fitz.Rect(info["bbox"]) for info in page.get_image_info())
                if r.y1>height-30*mm and 8*mm<r.width<16*mm]
         if not logos:
             raise RuntimeError(f"Page {n}: the logo footer is missing")
         logo=max(logos,key=lambda r:r.y1)
-        if abs((logo.x0+logo.x1)/2-width/2)>1.5*mm:
-            raise RuntimeError(f"Page {n}: the footer logo must be centred on the page")
+        beside=page.get_text("words",clip=fitz.Rect(0,logo.y0,logo.x0,logo.y1))
+        if not beside:
+            raise RuntimeError(f"Page {n}: the footer text must sit to the left of the logo")
+        if abs((min(w[0] for w in beside)+logo.x1)/2-width/2)>1.5*mm:
+            raise RuntimeError(f"Page {n}: the footer logo and text must be centred together on the page")
         band=page.get_pixmap(matrix=fitz.Matrix(2,2),clip=fitz.Rect(0,logo.y0-9*mm,width,logo.y0),alpha=False)
         strip=Image.frombytes("RGB",(band.width,band.height),band.samples)
         dark_blue=lambda c:c[2]>=80 and c[2]-c[0]>=45 and c[0]<=80 and c[1]<=110
