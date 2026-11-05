@@ -177,3 +177,13 @@ html body .a4-page .q, html body .a4-page .q-card { background: none; border: 0;
 html body .a4-page .q:last-child, html body .a4-page .q-card:last-child { border-bottom: 0; }
 html body .q-card h3 { color: var(--book-ink); }
 html body .rule-box { background: var(--book-tint); border: 0; border-right: 1mm solid var(--book-ink); border-radius: 1mm; color: var(--book-text); }
+
+/* Teacher summaries: a worked example with its drawing beside it */
+html body main.content .solved { display: flex; gap: 4mm; align-items: flex-start; margin: 1.5mm 0 2.5mm; }
+html body main.content .solved-text { flex: 1 1 0; min-width: 0; }
+html body main.content .solved-fig { flex: none; }
+html body main.content .solved-fig svg { display: block; }
+html body main.content .solved-wide { display: flex; justify-content: center; margin: 1.5mm 0; }
+html body main.content .sym { display: flex; justify-content: space-between; gap: 3mm; text-align: center; }
+html body main.content .sym svg { display: block; margin: 0 auto; }
+html body main.content .sym p { margin: 1mm 0 0; font-size: 13px; font-weight: 700; color: var(--book-ink); }
