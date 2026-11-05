@@ -11,6 +11,7 @@ body{overflow-x:clip}
 .bar{position:sticky;top:0;z-index:2;display:flex;justify-content:center;padding:8px 16px;background:#fff;border-bottom:4px solid #c2185b}
 .get{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;background:#0b3a75;color:#fff;font:700 16px/1 Arial,"Noto Sans Hebrew",sans-serif;text-decoration:none;white-space:nowrap}
 .get:active{background:#082a56}
+.load{position:absolute;right:0;bottom:-4px;height:4px;width:0;background:#0b3a75;transition:width .3s}
 @media print{.bar{display:none}}
 .book{max-width:980px;margin:0 auto;background:#fff}
 .page{position:relative;width:100%;background:#fff}
@@ -22,7 +23,7 @@ body{overflow-x:clip}
 </style>
 </head>
 <body>
-<div class="bar"><a class="get" href="transformations-complete.pdf" download="transformations-complete.pdf">הורדת החוברת להדפסה (PDF, A4)</a></div>
+<div class="bar"><div class="load" id="load"></div><a class="get" href="transformations-complete.pdf" download="transformations-complete.pdf">הורדת החוברת להדפסה (PDF, A4)</a></div>
 <main class="book" id="book" aria-label="חוברת טרנספורמציות וחפיפת צורות"></main>
 <noscript><iframe class="fallback" src="transformations-complete.pdf" title="חוברת טרנספורמציות וחפיפת צורות"></iframe></noscript>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -34,7 +35,9 @@ const BOOK=document.getElementById("book");
 function fallback(){BOOK.innerHTML="";const f=document.createElement("iframe");f.className="fallback";f.src=PDF;f.title="חוברת טרנספורמציות וחפיפת צורות";BOOK.appendChild(f);}
 async function show(){
   pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  const doc=await pdfjsLib.getDocument({url:PDF,disableAutoFetch:true}).promise;
+  const task=pdfjsLib.getDocument({url:PDF,disableAutoFetch:true}),load=document.getElementById("load");
+  task.onProgress=p=>{if(p.total)load.style.width=Math.min(100,100*p.loaded/p.total)+"%";};
+  const doc=await task.promise;
   const slots=[];
   for(let n=1;n<=doc.numPages;n++){
     const page=await doc.getPage(n);
@@ -54,6 +57,7 @@ async function show(){
     slot.replaceChildren(canvas);
   };
   const pages=new Map(slots);
+  load.remove();
   const watch=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting)draw(e.target,pages.get(e.target)).catch(()=>{});},{rootMargin:"1600px 0px"});
   slots.forEach(([slot])=>watch.observe(slot));
   addEventListener("resize",()=>{for(const [slot,page] of slots){const r=slot.getBoundingClientRect();if(r.bottom>-1600&&r.top<innerHeight+1600)draw(slot,page).catch(()=>{});}});
