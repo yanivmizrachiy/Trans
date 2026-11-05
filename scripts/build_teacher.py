@@ -7,7 +7,7 @@ from pypdf import PdfReader
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "book" / "teacher.html"
 OUTPUT = ROOT / "book" / "teacher.pdf"
-EXPECTED = 12
+EXPECTED = 8
 
 def main():
     if not SOURCE.exists():

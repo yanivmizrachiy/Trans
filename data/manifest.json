@@ -141,7 +141,7 @@
  },
  "teacher": {
   "html": "book/teacher.html",
-  "summaries": 12
+  "summaries": 8
  },
  "book": {
   "file": "book/transformations-complete.pdf",
@@ -151,7 +151,7 @@
     "label": "סיכומים למורה",
     "file": "book/teacher.pdf",
     "html": "book/teacher.html",
-    "pages": 12
+    "pages": 8
    },
    "official": {
     "label": "שאלות מתוך תוכנית הלימודים",
@@ -189,16 +189,6 @@
   },
   "chapters": [
    {
-    "key": "video",
-    "label": "סיכום סרטון ההמחשה — איילת קריספין",
-    "items": [
-     [
-      "c",
-      "krispin-video"
-     ]
-    ]
-   },
-   {
     "key": "congruence",
     "label": "מושג החפיפה",
     "items": [
@@ -209,10 +199,6 @@
      [
       "s",
       2
-     ],
-     [
-      "s",
-      3
      ]
     ]
    },
@@ -222,7 +208,7 @@
     "items": [
      [
       "s",
-      4
+      3
      ]
     ]
    },
@@ -232,7 +218,7 @@
     "items": [
      [
       "s",
-      5
+      4
      ]
     ]
    },
@@ -242,13 +228,23 @@
     "items": [
      [
       "s",
-      6
+      5
      ]
     ]
    },
    {
     "key": "symmetry",
-    "label": "סימטרייה",
+    "label": "סימטריה",
+    "items": [
+     [
+      "s",
+      6
+     ]
+    ]
+   },
+   {
+    "key": "summative",
+    "label": "שלוש הפעולות על צורה אחת",
     "items": [
      [
       "s",
@@ -257,8 +253,8 @@
     ]
    },
    {
-    "key": "composition",
-    "label": "הרכבת טרנספורמציות",
+    "key": "program",
+    "label": "חפיפה בתוכנית הלימודים",
     "items": [
      [
       "s",
@@ -267,31 +263,19 @@
     ]
    },
    {
-    "key": "summative",
-    "label": "ניסוחי השאלות",
+    "key": "video",
+    "label": "סיכום סרטון ההמחשה — איילת קריספין",
     "items": [
      [
-      "s",
-      9
+      "c",
+      "krispin-video"
      ]
     ]
    },
    {
     "key": "teaching",
-    "label": "מערכי הוראה ומעבדת המורה",
+    "label": "מעבדת המורה וסדנה",
     "items": [
-     [
-      "s",
-      10
-     ],
-     [
-      "s",
-      11
-     ],
-     [
-      "s",
-      12
-     ],
      [
       "c",
       "sadna"
