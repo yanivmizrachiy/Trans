@@ -91,11 +91,13 @@ def main():
             raise RuntimeError(f"Page {n}: the page number must sit on a solid dark-blue disc, ring colours {ring}")
         # The series line of the teacher summaries looks the same on every page that carries it
         #: one font, one size, one colour.
-        series_words={"טרנספורמציות","סיכומים","למורה"}
+        # The words may come as one span or one span per word, depending on the fonts installed.
+        series_words=("טרנספורמציות","סיכומים","למורה")
         for block in page.get_text("dict")["blocks"]:
             for line in block.get("lines",[]):
-                spans=[span for span in line["spans"] if span["text"].strip() in series_words]   # the title may share the line
-                if {span["text"].strip() for span in spans}==series_words:
+                spans=[span for span in line["spans"] if any(w in span["text"] for w in series_words)]   # the title may share the line
+                joined="".join(span["text"] for span in spans)
+                if all(w in joined for w in series_words):
                     series.setdefault(n,set()).update((span["font"],round(span["size"],1),span["color"]) for span in spans)
         stats.append((n,round(occupied,4)))
     summaries=[n for n,(_,item) in PAGE_MAP.items() if item[0]=="s"]
