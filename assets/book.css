@@ -132,6 +132,7 @@ html body .chapter-bar .chapter-name { color: var(--book-ink); }
 .qpage .frac > :first-child { border-bottom: 1px solid currentColor; padding: 0 .6mm; }
 .qpage .caption { text-align: center; font-weight: 700; font-size: 13.5px; color: var(--book-ink); margin: 0 0 1mm; }
 .qpage .figs { display: flex; justify-content: center; gap: 8mm; align-items: flex-end; }
+.qpage .figs.stack { flex-direction: column; align-items: center; gap: 4mm; }
 .qpage .figs figure { margin: 0; text-align: center; }
 .qpage .figs figcaption { font-size: 13.5px; font-weight: 700; color: var(--book-ink); margin-top: 1mm; }
 .qpage .icon { display: inline-block; width: 6mm; height: 6mm; vertical-align: -1.6mm; margin: 0; }
