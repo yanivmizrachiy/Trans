@@ -41,7 +41,7 @@ td,th{padding:6px 8px;border:1px solid #cfdbe6;text-align:right;vertical-align:t
 th{background:#eef3f9;color:#0b3a75}
 tr{break-inside:avoid}
 pre{white-space:pre-wrap;overflow-wrap:anywhere}
-code{direction:ltr;unicode-bidi:isolate;display:inline-block;font-size:.94em;background:#eef3f9;padding:0 3px}
+code{direction:ltr;unicode-bidi:isolate;display:inline-block;font-family:inherit;font-size:.94em;background:#eef3f9;padding:0 3px}
 a{color:#0b3a75;overflow-wrap:anywhere}
 blockquote{border-right:3px solid #0b3a75;padding-right:12px;margin-right:0;color:#536f79}
 """
