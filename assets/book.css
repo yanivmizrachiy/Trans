@@ -187,3 +187,7 @@ html body main.content .solved-wide { display: flex; justify-content: center; ma
 html body main.content .sym { display: flex; justify-content: space-between; gap: 3mm; text-align: center; }
 html body main.content .sym svg { display: block; margin: 0 auto; }
 html body main.content .sym p { margin: 1mm 0 0; font-size: 13px; font-weight: 700; color: var(--book-ink); }
+/* Tables beside a drawing in a worked example: tight, with coordinates centred in their columns. */
+html body main.content .solved-text table { margin: 1.5mm 0 2mm; }
+html body main.content .solved-text td, html body main.content .solved-text th { padding: 1mm 1.8mm; }
+html body main.content .solved-text td .math { display: block; text-align: center; }
