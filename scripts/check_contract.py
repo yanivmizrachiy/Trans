@@ -6,7 +6,8 @@ import manifest as M
 ROOT = M.ROOT
 SOT = (ROOT / "SOURCE_OF_TRUTH.md").read_text(encoding="utf-8")
 README = (ROOT / "README.md").read_text(encoding="utf-8")
-CREDIT = "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים"
+CREDIT = 'יניב רז - מדריך מחוזי חט"ב בעיר ירושלים'
+RETIRED = "הדף נערך"
 
 
 def demand(test, reason):
@@ -30,10 +31,10 @@ def main():
         demand(CREDIT in html and "../assets/logo.png" in html, f"Original worksheet lost its credit: {ident}")
     for ident in M.IMPORTED:
         html = (ROOT / "worksheets" / f"{ident}.html").read_text(encoding="utf-8")
-        demand("הדף נערך ע״י יניב רז" not in html and html.count("assets/logo.png") == M.WORKSHEET_PAGES[ident],
-               f"Imported worksheet keeps its own credit and one logo footer per page: {ident}")
+        demand(RETIRED not in html and html.count(CREDIT) == M.WORKSHEET_PAGES[ident] and html.count("assets/logo.png") == M.WORKSHEET_PAGES[ident],
+               f"Imported worksheet has one shared footer per page: {ident}")
     official = (ROOT / "book" / "official.html").read_text(encoding="utf-8")
-    demand("הדף נערך ע״י יניב רז" not in official, "Curriculum pages carry no personal credit")
+    demand(RETIRED not in official and CREDIT in official, "Curriculum pages carry the shared footer and no editing credit")
     sadna = (ROOT / "book" / "sadna.html").read_text(encoding="utf-8")
     demand(sadna.count(M.SADNA_CREDIT) == M.component_pages("sadna"), "Every teacher-lab page carries its author credit")
     print("PASS: source of truth, teacher pages and attribution agree")

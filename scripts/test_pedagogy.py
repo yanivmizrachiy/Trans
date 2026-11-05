@@ -55,7 +55,7 @@ def main():
         answers=re.findall(r"^- \*\*[^\n]+",content,re.M)
         if len(answers)<3:raise AssertionError(f"{ident}: all three questions must have answers")
         pages=M.WORKSHEET_PAGES[ident]
-        if sheet.count("הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים")!=pages or sheet.count("../assets/logo.png")!=pages:
+        if sheet.count('יניב רז - מדריך מחוזי חט"ב בעיר ירושלים')!=pages or sheet.count("../assets/logo.png")!=pages:
             raise AssertionError(f"{ident}: one district credit and logo footer on each of its {pages} printed page(s)")
         if re.search(r"רמה [אבג]׳|רמה מקבילה|שלוש רמות|מדורג",sheet):
             raise AssertionError(f"{ident}: level labels are not shown to students")
@@ -72,10 +72,10 @@ def main():
     other=M.IMPORTED
     for ident in other:
         raw=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
-        if "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" in raw:
+        if "הדף נערך" in raw:
             raise AssertionError(f"{ident}: other creators' content was falsely credited")
         # Every printed page carries the booklet's logo footer,
-        # with the page's own credit wording, not the project's editing credit.
+        # with the shared wording, not an editing credit.
         if raw.count('class="ws-footline"')!=M.WORKSHEET_PAGES[ident] or raw.count("assets/logo.png")!=M.WORKSHEET_PAGES[ident]:
             raise AssertionError(f"{ident}: every printed page needs exactly one logo footer")
         if "תאריך:" in raw or "שם התלמיד" in raw:
@@ -109,6 +109,6 @@ def main():
     for path in sorted((ROOT/"book").glob("*.html")):
         if "בגודל מלא" in path.read_text(encoding="utf-8"):
             raise AssertionError(f"book/{path.name}: full-size link in the print booklet")
-    print(f"PASS: {len(ORIGINAL)} original worksheets, {len(seen)} problems, 11 complete answer-key sections, no near-duplicates, district branding only on originals")
+    print(f"PASS: {len(ORIGINAL)} original worksheets, {len(seen)} problems, 11 complete answer-key sections, no near-duplicates")
 
 if __name__=="__main__":main()
