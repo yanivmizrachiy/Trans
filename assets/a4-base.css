@@ -17,7 +17,7 @@ html, body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    font-family: 'Rubik', sans-serif;
+    font-family: Arial, "Noto Sans Hebrew", sans-serif;
     color: var(--text-main);
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
@@ -331,7 +331,7 @@ hr { border: 0; border-top: 1px solid var(--border-light); margin: 6px 0; }
 
 /* --- Premium Math Visualization Rules --- */
 .graph-label {
-    font-family: 'Assistant', sans-serif;
+    font-family: Arial, "Noto Sans Hebrew", sans-serif;
     font-style: italic;
     font-size: 14px;
     fill: var(--book-text);
