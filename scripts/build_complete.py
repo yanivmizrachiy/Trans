@@ -161,8 +161,11 @@ def head_overlay(browser, title):
     tab.close()
     return PdfReader(BytesIO(data)).pages[0]
 
+# Keeps the Markdown pages at the size of the rest of the book: 12.5 px x 1.08 = 13.5 px.
+MAX_DOC_ZOOM=1.08
+
 def render_markdown(browser, source, target_html, target_pdf, label, pages, to_html=None, style=CSS, head="", fonts=()):
-    """Render a Markdown text onto exactly `pages` A4 pages, at the largest zoom that fits,
+    """Render a Markdown text onto exactly `pages` A4 pages, at the largest zoom up to MAX_DOC_ZOOM that fits,
     so the pages are filled rather than left half empty. (CSS zoom lays the right-to-left text
     out again; Chromium's print scale would cut it off at the right edge.) `to_html` replaces the
     plain Markdown conversion with a dedicated layout; `fonts` are web fonts that must load."""
@@ -196,7 +199,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
             return data if len(PdfReader(BytesIO(data)).pages)<=pages else None
         fitted=None
         for step in range(19):
-            scale=round(1.30-0.025*step,3)
+            scale=round(MAX_DOC_ZOOM-0.025*step,3)
             fitted=fits(scale)
             if fitted:
                 break
@@ -205,7 +208,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
         # then in finer steps up to the next coarse step, so the last page is filled too
         for fine in (0.02,0.015,0.01,0.005):
             bigger=round(scale+fine,3)
-            if bigger<=1.30:
+            if bigger<=MAX_DOC_ZOOM:
                 data=fits(bigger)
                 if data:
                     fitted,scale=data,bigger

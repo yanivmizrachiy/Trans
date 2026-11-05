@@ -15,26 +15,26 @@ var BLUE = '#4a90e2', RED = '#e74c3c', ORANGE = '#f5a623', EDGE = '#34495e';
 var mark = function (poly, t, rot) { return Object.assign({ fill: BLUE, line: EDGE, label: { t: t, rot: rot } }, poly); };
 window.FIG_BASES = {
   q2: { pts: [[0,1],[0,4],[4,2.7]],
-        frame: { u: 5, x: [-5,5], y: [-5,5], axes: 'dash', points: [{ at: [0,0], t: 'O', dx: -2.6, dy: 2.6 }] } },
+        frame: { u: 4, x: [-5,5], y: [-5,5], axes: 'dash', points: [{ at: [0,0], t: 'O', dx: -2.6, dy: 2.6 }] } },
   q3: { pts: [[0,0],[0,3],[4.4,0]], inner: [[[2.7,0],[2.7,1.159]]],
         frame: { u: 11, x: [-.2,4.6], y: [-.2,3.2], pad: 2 } },
   q4: { pts: [[-2,0],[2,0],[2,1]],
-        frame: { u: 7, x: [-3,3], y: [-2,2], axes: 'dash', arrowheads: false, points: [{ at: [0,0], t: 'P', dx: -2.4, dy: 2.8 }] } },
+        frame: { u: 6.4, x: [-3,3], y: [-2,2], axes: 'dash', arrowheads: false, points: [{ at: [0,0], t: 'P', dx: -2.4, dy: 2.8 }] } },
   q4e: { pts: [[-4,0],[-4,-1],[0,0]],
-        frame: { u: 7, x: [-5,1], y: [-2,2], axes: 'dash', arrowheads: false, points: [{ at: [0,0], t: 'P', dx: 2.4, dy: -2.8 }] } },
+        frame: { u: 6.4, x: [-5,1], y: [-2,2], axes: 'dash', arrowheads: false, points: [{ at: [0,0], t: 'P', dx: 2.4, dy: -2.8 }] } },
   q5: { pts: [[-2,0],[0,0],[1.2,1],[1.2,-1],[-2,-1]],
-        frame: { u: 8, x: [-3.6,2.2], y: [-1.7,1.7], axes: 'dash', arrowheads: false, points: [{ at: [0,0], t: 'T', dx: -2.5, dy: -2.8 }] } },
+        frame: { u: 7, x: [-3.6,2.2], y: [-1.7,1.7], axes: 'dash', arrowheads: false, points: [{ at: [0,0], t: 'T', dx: -2.5, dy: -2.8 }] } },
 
   m0: { frame: { u: 10, x: [-.3,5.3], y: [-.3,3.3], pad: 1, polys: [mark({ pts: TRAP }, "א'")] } },
   m1: { frame: { u: 13, x: [-5.4,5.4], y: [-.5,3.7], pad: 1, lines: [[[0,-.5],[0,3.7]]],
         polys: [mark({ pts: TRAP }, "א'"), mark({ pts: TRAP, ops: ['flipY'], fill: RED }, "ב'")] } },
-  m2: { frame: { u: 10, x: [-.3,5.3], y: [-5.2,3.3], pad: 1, arrows: [[[1.5,-.3],[1.5,-1.7]]],
+  m2: { frame: { u: 11, x: [-.3,5.3], y: [-5.2,3.3], pad: 1, arrows: [[[1.5,-.3],[1.5,-1.7]]],
         polys: [mark({ pts: TRAP }, "א'"), mark({ pts: TRAP, shift: [0,-5] }, "ג'")] } },
-  m3: { frame: { u: 9, x: [-5.4,3.4], y: [-.7,5.4], pad: 1,
+  m3: { frame: { u: 7.6, x: [-5.4,3.4], y: [-.7,5.4], pad: 1,
         polys: [mark({ pts: TRAP_P }, "א'"), mark({ pts: TRAP_P, ops: ['rot90cw'], fill: ORANGE }, "ד'", 90)],
         arcs: [{ c: [0,0], r: 1.8, from: 150, to: 55, head: false }], points: [{ at: [0,0], t: 'P', dx: 2.6, dy: 2.4, color: RED }] } },
 
-  e1: { frame: { u: 5.6, x: [0,12], y: [0,12], grid: true, axes: 'solid', numbers: true, axisNames: true, pad: 6,
+  e1: { frame: { u: 5.2, x: [0,12], y: [0,12], grid: true, axes: 'solid', numbers: true, axisNames: true, pad: 6,
         polys: [{ pts: [[1,2],[1,7],[4,7],[4,5]], fill: 'none', line: '#1f6f8b', width: .6 },
                 { pts: [[6,6],[11,6],[11,3]], open: true, line: '#1f6f8b', width: .6 }],
         points: [{ at: [0,0], t: '0', dot: false, dx: -2.3, dy: 2.5, size: 2.5, color: '#27384a' }, { at: [1,2], t: 'A', dx: -.2, dy: 3.2 }, { at: [1,7], t: 'B', dx: -.4, dy: -2.8 }, { at: [4,7], t: 'C', dx: .4, dy: -2.8 }, { at: [4,5], t: 'D', dx: 2.8, dy: 1.2 },
@@ -65,15 +65,22 @@ window.FIG_BASES = {
     <div class="qline"><span class="qnum">1</span><div>
       <p>לפניכם מלבן ABCD.</p>
       <p>אם נזיז את המלבן ונסרטט מלבן GHKL כך ש-A מוזז ל-G, B ל-H, C ל-K ו-D ל-L יהיה שיעור הנקודה G <span class="ltr">(-3,-5)</span>.</p>
-      <div class="part"><b>א.</b><span>מה יהיו שיעורי הנקודות H,&rlm; K,&rlm; L? נמקו.</span></div>
-      <div class="part"><b>ב.</b><span>סרטטו מלבן חופף למלבן הנתון שאחד מקודקודיו הוא בנקודה <span class="ltr">(2,-1)</span> נמקו מדוע המלבנים חופפים.</span></div>
-      <div class="part"><b>ג.</b><span>חשבו את היקף ושטח המלבן ABCD.</span></div>
-      <div class="part"><b>ד.</b><span>סרטטו מלבן חופף למלבן הנתון שאחד מקודקודיו הוא בנקודה <span class="ltr">(-2,1)</span> נמקו מדוע המלבנים חופפים.</span></div>
     </div></div>
-    <div class="fig"><svg data-fig='{"u":8.6,"x":[-6,6],"y":[-6,7],"grid":true,"axes":"solid","numbers":{"x":[-5,5],"y":[-5,6]},"axisNames":true,"pad":6,
+    <div class="side">
+      <div class="stack">
+        <div class="part"><b>א.</b><span>מה יהיו שיעורי הנקודות H,&rlm; K,&rlm; L? נמקו.</span></div>
+        <div class="work"></div>
+        <div class="part"><b>ב.</b><span>סרטטו מלבן חופף למלבן הנתון שאחד מקודקודיו הוא בנקודה <span class="ltr">(2,-1)</span> נמקו מדוע המלבנים חופפים.</span></div>
+        <div class="work"></div>
+      </div>
+      <svg data-fig='{"u":7.6,"x":[-6,6],"y":[-6,7],"grid":true,"axes":"solid","numbers":{"x":[-5,5],"y":[-5,6]},"axisNames":true,"pad":6,
       "polys":[{"pts":[[-3,-1],[-3,3],[2,3],[2,-1]],"fill":"#dbe9f7","line":"#0b3a75","width":0.7}],
-      "points":[{"at":[-3,-1],"t":"A","dx":-2.8,"dy":3},{"at":[-3,3],"t":"B","dx":-2.8,"dy":-2.8},{"at":[2,3],"t":"C","dx":2.8,"dy":-2.8},{"at":[2,-1],"t":"D","dx":2.8,"dy":3}]}'></svg></div>
-    <div class="work"></div>
+      "points":[{"at":[-3,-1],"t":"A","dx":-2.8,"dy":3},{"at":[-3,3],"t":"B","dx":-2.8,"dy":-2.8},{"at":[2,3],"t":"C","dx":2.8,"dy":-2.8},{"at":[2,-1],"t":"D","dx":2.8,"dy":3}]}'></svg>
+    </div>
+    <div class="pair">
+      <div class="stack"><div class="part"><b>ג.</b><span>חשבו את היקף ושטח המלבן ABCD.</span></div><div class="work"></div></div>
+      <div class="stack"><div class="part"><b>ד.</b><span>סרטטו מלבן חופף למלבן הנתון שאחד מקודקודיו הוא בנקודה <span class="ltr">(-2,1)</span> נמקו מדוע המלבנים חופפים.</span></div><div class="work"></div></div>
+    </div>
   </div>
 </article>
 
@@ -127,7 +134,7 @@ window.FIG_BASES = {
       <div class="fig"><svg data-fig='{"use":"q4"}'></svg></div>
       <p>איזה מן הציורים מראה את התוצאה של חצי סיבוב זה?</p>
     </div></div>
-    <div class="choices">
+    <div class="choices three">
       <div class="choice"><span class="mark">א</span><svg data-fig='{"use":"q4","ops":["flipY"]}'></svg></div>
       <div class="choice"><span class="mark">ב</span><svg data-fig='{"use":"q4","ops":["flipX"],"pointAt":[-2.4,-2.8]}'></svg></div>
       <div class="choice"><span class="mark">ג</span><svg data-fig='{"use":"q4"}'></svg></div>
@@ -148,7 +155,7 @@ window.FIG_BASES = {
       </div>
       <p>איזה מהצורות הבאות היא התוצאה של חצי סבוב?</p>
     </div></div>
-    <div class="choices" dir="ltr">
+    <div class="choices three" dir="ltr">
       <div class="choice"><span class="mark">A</span><svg data-fig='{"use":"q5","ops":["flipY"],"x":[-2.2,3.6],"pointAt":[2.5,-2.8]}'></svg></div>
       <div class="choice"><span class="mark">B</span><svg data-fig='{"use":"q5","ops":["flipX"],"pointAt":[-2.5,2.8]}'></svg></div>
       <div class="choice"><span class="mark">C</span><svg data-fig='{"use":"q5"}'></svg></div>
@@ -163,23 +170,30 @@ window.FIG_BASES = {
 <article class="qpage" id="p48">
   <header class="head"><div><h1>שאלות מתוך תוכנית הלימודים</h1><p class="sub">משרד החינוך · עדכון גאומטריה ז׳ · עמוד 48</p></div></header>
   <div class="qbody">
-    <div class="qline"><span class="qnum">13</span><div>
-      <p>נעמה עומדת להזיז את המשולש במערכת הצירים הנתונה.</p>
-      <p>היא מזיזה אותו 3 יחידות ימינה ו- 4 יחידות למטה.</p>
-      <div class="part"><b>א.</b><span>סרטטו את המשולש שנעמה תקבל.</span></div>
-      <div class="part"><b>ב.</b><span>נעמה טענה " שטח המשולש החדש שמתקבל שווה לשטח המשולש הנתון". האם נעמה צודקת? נמקו.</span></div>
-    </div></div>
-    <div class="fig"><svg data-fig='{"u":6.6,"x":[-7,7],"y":[-7,7],"grid":true,"axes":"solid","numbers":{"x":[-6,6],"y":[-6,6]},"axisNames":true,"pad":6,
-      "polys":[{"pts":[[-6,4],[-6,1],[-1,1]],"fill":"#dbe9f7","line":"#0b3a75","width":0.7}],
-      "points":[{"at":[0,0],"t":"O","dot":false,"dx":-2.4,"dy":2.6,"size":3}]}'></svg></div>
-    <div class="qline"><span class="qnum">14</span><div>
+    <div class="qline"><span class="qnum">13</span><div class="grow-col">
       <div class="side">
-        <div style="display:flex;flex-direction:column;gap:1.6mm">
+        <div class="stack">
+          <p>נעמה עומדת להזיז את המשולש במערכת הצירים הנתונה.</p>
+          <p>היא מזיזה אותו 3 יחידות ימינה ו- 4 יחידות למטה.</p>
+          <div class="part"><b>א.</b><span>סרטטו את המשולש שנעמה תקבל.</span></div>
+          <div class="part"><b>ב.</b><span>נעמה טענה " שטח המשולש החדש שמתקבל שווה לשטח המשולש הנתון". האם נעמה צודקת? נמקו.</span></div>
+          <div class="work"></div>
+        </div>
+        <svg data-fig='{"u":5.4,"x":[-7,7],"y":[-7,7],"grid":true,"axes":"solid","numbers":{"x":[-6,6],"y":[-6,6]},"axisNames":true,"pad":6,
+      "polys":[{"pts":[[-6,4],[-6,1],[-1,1]],"fill":"#dbe9f7","line":"#0b3a75","width":0.7}],
+      "points":[{"at":[0,0],"t":"O","dot":false,"dx":-2.4,"dy":2.6,"size":3}]}'></svg>
+      </div>
+    </div></div>
+    <div class="qline"><span class="qnum">14</span><div class="grow-col">
+      <div class="side">
+        <div class="stack">
           <p>KLMN הוא ריבוע ששטחו 16 סמ"ר. P היא נקודה על המשך הצלע NM ו-Q היא נקודה על הצלע MN.</p>
           <p>נתון: 1 ס"מ = <span class="ltr">QM = MP</span></p>
           <div class="part"><b>א.</b><span>חשבו את שטח משולש LQP.</span></div>
           <div class="ivs"><span><b>i.</b> 2 סמ"ר</span><span><b>ii.</b> 4 סמ"ר</span><span><b>iii.</b> 6 סמ"ר</span><span><b>iv.</b> 10 סמ"ר</span></div>
+          <div class="work"></div>
           <div class="part"><b>ב.</b><span>חשבו את שטחי המרובעים KLQN,&rlm; KLPN.</span></div>
+          <div class="work"></div>
         </div>
         <svg data-fig='{"u":8.5,"x":[-0.5,5.5],"y":[-0.6,4.5],"pad":3,
           "polys":[{"pts":[[0,0],[0,4],[4,4],[4,0]],"fill":"#eef4fb","line":"#0b3a75","width":0.6}],
@@ -187,7 +201,7 @@ window.FIG_BASES = {
           "points":[{"at":[0,4],"t":"K","dx":-2.6,"dy":-2.2},{"at":[4,4],"t":"L","dx":2.2,"dy":-2.6},{"at":[0,0],"t":"N","dx":-2.6,"dy":2.6},{"at":[4,0],"t":"M","dx":0,"dy":3.2},{"at":[3,0],"t":"Q","dx":0,"dy":3.2},{"at":[5,0],"t":"P","dx":2.2,"dy":2.8}]}'></svg>
       </div>
     </div></div>
-    <div class="work"></div>
+    
   </div>
 </article>
 
@@ -207,30 +221,39 @@ window.FIG_BASES = {
       <p class="coords">A(2, 1), B(5, 1), C(2, 4)</p>
       <p>בשל תקלה בקוד ("באג"), החללית קפצה פתאום למיקום חדש המוגדר על ידי הנקודות:</p>
       <p class="coords">D(2, -1), E(5, -1), F(2, -4)</p>
-      <div class="part"><b>1.</b><span>התבוננו בשיעורים של החללית המקורית ABC ושל החללית במיקום החדש DEF. איזה קשר אתם רואים בין השיעורים של הנקודות המתאימות (בין A ל-D , בין B ל- E, ובין C ל- F)?</span></div>
-      <div class="part"><b>2.</b><span>האם השינוי שעברה החללית מבחינה הגאומטרית הוא הזזה/סיבוב/שיקוף ? נמקו את תשובתכם.</span></div>
     </div></div>
-    <div class="fig"><svg data-fig='{"u":6.4,"x":[-7,7],"y":[-6,6],"grid":true,"axes":"solid","numbers":true,"axisNames":true,"pad":6}'></svg></div>
-    <div class="work"></div>
+    <div class="side">
+      <div class="stack">
+        <div class="part"><b>1.</b><span>התבוננו בשיעורים של החללית המקורית ABC ושל החללית במיקום החדש DEF. איזה קשר אתם רואים בין השיעורים של הנקודות המתאימות (בין A ל-D , בין B ל- E, ובין C ל- F)?</span></div>
+        <div class="work"></div>
+        <div class="part"><b>2.</b><span>האם השינוי שעברה החללית מבחינה הגאומטרית הוא הזזה/סיבוב/שיקוף ? נמקו את תשובתכם.</span></div>
+        <div class="work"></div>
+      </div>
+      <svg data-fig='{"u":5.2,"x":[-7,7],"y":[-6,6],"grid":true,"axes":"solid","numbers":true,"axisNames":true,"pad":6}'></svg>
+    </div>
   </div>
 </article>
 
 <article class="qpage" id="p51">
   <header class="head"><div><h1>שאלות מתוך תוכנית הלימודים</h1><p class="sub">משרד החינוך · עדכון גאומטריה ז׳ · עמוד 51</p></div></header>
   <div class="qbody">
-    <div class="part"><b>3.</b><span>חשבו את שטח החללית המקורית ABC ואת שטח החללית החדשה DEF? האם ה"באג" (התקלה) שינה את שטח החללית?</span></div>
-    <div class="part"><b>4.</b><span>אם היינו רוצים לשקף את החללית המקורית ABC ביחס <strong>לציר ה-Y</strong> (כך שהיא תופיע ברביע השני), מה היו השיעורים החדשים של הקודקודים שלה?</span></div>
-    <div class="part"><b>5.</b><span><strong>שאלת אתגר:</strong> נסו לנסח כללים: מה קורה לנקודה <span class="ltr">(x,y)</span> בשיקוף ביחס לציר ה-x? מה קורה לנקודה <span class="ltr">(x,y)</span> בשיקוף ביחס לציר ה-y?</span></div>
+    <div class="part"><b>3.</b><span>חשבו את שטח החללית המקורית ABC ואת שטח החללית החדשה DEF? האם ה"באג" (התקלה) שינה את שטח החללית?</span></div><div class="work r4"></div>
+    <div class="part"><b>4.</b><span>אם היינו רוצים לשקף את החללית המקורית ABC ביחס <strong>לציר ה-Y</strong> (כך שהיא תופיע ברביע השני), מה היו השיעורים החדשים של הקודקודים שלה?</span></div><div class="work r4"></div>
+    <div class="part"><b>5.</b><span><strong>שאלת אתגר:</strong> נסו לנסח כללים: מה קורה לנקודה <span class="ltr">(x,y)</span> בשיקוף ביחס לציר ה-x? מה קורה לנקודה <span class="ltr">(x,y)</span> בשיקוף ביחס לציר ה-y?</span></div><div class="work r4"></div>
     <p class="subhead">ב. ניווט אל יעד המטרה</p>
     <p>לאחר תיקון התקלה, עליכם לתכנת את תנועת החללית אל עבר תחנת העגינה.</p>
     <p>החללית נמצאת כרגע במיקום המוגדר על ידי הקודקודים: <span class="ltr">K(-4, 2), L(-1, 2), M(-2, 5)</span></p>
     <p>ההוראה שהתקבלה במחשב הטיסה היא לבצע הזזה לפי הכלל הבא:</p>
     <p class="lead">"הזז את החללית 6 יחידות ימינה (לכיוון חיובי של ציר ה - x) ו-3 יחידות למטה (לכיוון שלילי של ציר ה-y).</p>
-    <div class="part"><b>1.</b><span>קודקודי החללית החדשים לאחר ההזזה הם T ,P ,N (הקודקוד N התקבל מהזזת הקודקוד K, הקודקוד P התקבל מהזזת הקודקוד L, הקודקוד T התקבלת מהזזת הקודקוד M). חשבו את השיעורים של קודקודי החללית החדשים. הראו והסבירו את דרך החישוב.</span></div>
-    <div class="part"><b>2.</b><span>חשבו את אורך הצלע KL ואת הגובה לצלע זו במשולש KLM. חשבו את שטח החללית.</span></div>
-    <div class="part"><b>3.</b><span>האם לאחר ההזזה שטח החללית השתנה? נמקו ללא חישוב נוסף, על סמך תכונות ההזזה.</span></div>
+    <div class="side">
+      <div class="stack">
+        <div class="part"><b>1.</b><span>קודקודי החללית החדשים לאחר ההזזה הם T ,P ,N (הקודקוד N התקבל מהזזת הקודקוד K, הקודקוד P התקבל מהזזת הקודקוד L, הקודקוד T התקבלת מהזזת הקודקוד M). חשבו את השיעורים של קודקודי החללית החדשים. הראו והסבירו את דרך החישוב.</span></div><div class="work"></div>
+        <div class="part"><b>2.</b><span>חשבו את אורך הצלע KL ואת הגובה לצלע זו במשולש KLM. חשבו את שטח החללית.</span></div><div class="work"></div>
+        <div class="part"><b>3.</b><span>האם לאחר ההזזה שטח החללית השתנה? נמקו ללא חישוב נוסף, על סמך תכונות ההזזה.</span></div><div class="work"></div>
+      </div>
+      <svg data-fig='{"u":4.8,"x":[-7,7],"y":[-6,6],"grid":true,"axes":"solid","numbers":true,"axisNames":true,"pad":6}'></svg>
+    </div>
     <p class="lead">שאלה לדיון: מה ההבדל בין הזזה לשיקוף מבחינת ההתמצאות של הצורה? (האם החללית "מסתכלת" לאותו כיוון?)</p>
-    <div class="fig"><svg data-fig='{"u":6,"x":[-7,7],"y":[-6,6],"grid":true,"axes":"solid","numbers":true,"axisNames":true,"pad":6}'></svg></div>
     <div class="work"></div>
   </div>
 </article>
@@ -260,19 +283,24 @@ window.FIG_BASES = {
 <article class="qpage" id="p89">
   <header class="head"><div><h1>שאלות מתוך תוכנית הלימודים</h1><p class="sub">משרד החינוך · עדכון גאומטריה ז׳ · עמוד 89</p></div></header>
   <div class="qbody">
-    <p><strong>מצב 3 (סיבוב)</strong> :המעצבת סימנה את הקודקוד הימני התחתון של צורה א' בנקודה P היא סובבה את הצורה ב- 90° <strong>בכיוון השעון</strong> סביב הנקודה P ליצירת צורה ד.'</p>
-    <div class="figs"><figure><p class="caption">מצב 3: סיבוב (90 מעלות סביב נקודה P)</p><svg data-fig='{"use":"m3"}'></svg></figure></div>
-    <p class="lead">בכל אחת מהשאלות הבאות נמקו את תשובתכם.</p>
-    <div class="part"><b>1.</b><span>מה הקשר בין הצורות א', ב', ג', ד'?</span></div>
-    <div class="part"><b>2.</b><span>איזו צורה גאומטרית חדשה נוצרה מצורות א' ו- ב' במצב 1?</span></div>
+    <div class="side tight">
+      <div class="stack">
+        <p><strong>מצב 3 (סיבוב)</strong> :המעצבת סימנה את הקודקוד הימני התחתון של צורה א' בנקודה P היא סובבה את הצורה ב- 90° <strong>בכיוון השעון</strong> סביב הנקודה P ליצירת צורה ד.'</p>
+        <p class="lead">בכל אחת מהשאלות הבאות נמקו את תשובתכם.</p>
+        <div class="part"><b>1.</b><span>מה הקשר בין הצורות א', ב', ג', ד'?</span></div><div class="work r3"></div>
+        <div class="part"><b>2.</b><span>איזו צורה גאומטרית חדשה נוצרה מצורות א' ו- ב' במצב 1?</span></div><div class="work r3"></div>
+      </div>
+      <figure class="beside"><p class="caption">מצב 3: סיבוב (90 מעלות סביב נקודה P)</p><svg data-fig='{"use":"m3"}'></svg></figure>
+    </div>
     <div class="part"><b>3.</b><span>אורכי הבסיסים של צורה א' הם 3 ס"מ ו- 5 ס"מ, והגובה (השוק הישרה) הוא 3 ס"מ.</span></div>
-    <div class="part" style="padding-inline-start:7mm"><b>א.</b><span>חשבו את השטח של צורה א'.</span></div>
-    <div class="part" style="padding-inline-start:7mm"><b>ב.</b><span>רשמו את השטח של כל אחת מן הצורות ג' ו- ד'.</span></div>
-    <div class="part" style="padding-inline-start:7mm"><b>ג.</b><span>חשבו את שטח הצורה שנוצרה במצב 1.</span></div>
-    <div class="part" style="padding-inline-start:7mm"><b>ד.</b><span>חשבו את אורך הבסיס התחתון הגדול של הצורה שנוצרה במצב 1.</span></div>
-    <div class="part"><b>4.</b><span>תלמיד טען: "במצב 1, ציר הסימטריה הוא הקו המפריד (הקו המקווקו באיור) בין שתי הצורות". האם הוא צודק? נמקו.</span></div>
-    <div class="part"><b>5.</b><span>מה גודל הזווית בין השוק הגדולה של טרפז א' לבין השוק הגדולה של טרפז ד'?</span></div>
-    <div class="work"></div>
+    <div class="pair tight">
+      <div class="stack"><div class="part"><b>א.</b><span>חשבו את השטח של צורה א'.</span></div><div class="work r3"></div></div>
+      <div class="stack"><div class="part"><b>ב.</b><span>רשמו את השטח של כל אחת מן הצורות ג' ו- ד'.</span></div><div class="work r3"></div></div>
+      <div class="stack"><div class="part"><b>ג.</b><span>חשבו את שטח הצורה שנוצרה במצב 1.</span></div><div class="work r3"></div></div>
+      <div class="stack"><div class="part"><b>ד.</b><span>חשבו את אורך הבסיס התחתון הגדול של הצורה שנוצרה במצב 1.</span></div><div class="work r3"></div></div>
+    </div>
+    <div class="part"><b>4.</b><span>תלמיד טען: "במצב 1, ציר הסימטריה הוא הקו המפריד (הקו המקווקו באיור) בין שתי הצורות". האם הוא צודק? נמקו.</span></div><div class="work"></div>
+    <div class="part"><b>5.</b><span>מה גודל הזווית בין השוק הגדולה של טרפז א' לבין השוק הגדולה של טרפז ד'?</span></div><div class="work"></div>
   </div>
 </article>
 
@@ -283,20 +311,23 @@ window.FIG_BASES = {
       <p>אייל סרטט טרפז ABCD במערכת צירים ולאחר מכן החל לסרטט טרפז נוסף KLMP.</p>
       <p>קודקוד P נמחק לאייל מהסרטוט שלו.</p>
       <div class="side">
-        <div class="part"><b>א1.</b><span>עזרו לאייל למצוא את קודקוד P אם ידוע ששטחי הטרפזים שווים. רשמו את שיעורי הקודקוד P.</span></div>
+        <div class="stack"><div class="part"><b>א1.</b><span>עזרו לאייל למצוא את קודקוד P אם ידוע ששטחי הטרפזים שווים. רשמו את שיעורי הקודקוד P.</span></div><div class="work"></div></div>
         <svg data-fig='{"use":"e1"}'></svg>
       </div>
       <div class="side">
-        <div style="display:flex;flex-direction:column;gap:1.6mm">
+        <div class="stack">
           <div class="part"><b>א2.</b><span>האם הטרפזים ABCD ו KLMN הם חופפים? נמקו.</span></div>
+          <div class="work"></div>
           <div class="part"><b>א3.</b><span>האם ישנה אפשרות נוספת לשיעורי קודקוד N ? נמקו.</span></div>
+          <div class="work"></div>
         </div>
         <svg data-fig='{"use":"e2"}'></svg>
       </div>
-      <div class="part"><b>ב.</b><span>הציעו לאייל 4 קודקודים אחרים כך שיתקבל טרפז השווה בשטחו לטרפז ABCD. רשמו את שיעורי הקודקודים. פרטו חישוביכם.</span></div>
-      <div class="part"><b>ג.</b><span>מהו היקף של הטרפזים? פרטו חישוביכם.</span></div>
-    </div></div>
-    <div class="work"></div>
+      </div></div>
+    <div class="pair">
+      <div class="stack"><div class="part"><b>ב.</b><span>הציעו לאייל 4 קודקודים אחרים כך שיתקבל טרפז השווה בשטחו לטרפז ABCD. רשמו את שיעורי הקודקודים. פרטו חישוביכם.</span></div><div class="work"></div></div>
+      <div class="stack"><div class="part"><b>ג.</b><span>מהו היקף של הטרפזים? פרטו חישוביכם.</span></div><div class="work"></div></div>
+    </div>
   </div>
 </article>
 
@@ -306,5 +337,16 @@ document.querySelectorAll('.qpage').forEach(function (page) {
 });
 </script>
 <script src="../assets/figures.js"></script>
+<script>
+/* Answer squares end on a whole row: each block keeps its share of the page, trimmed to 5 mm steps. */
+addEventListener('load', function () {
+  var cell = 96 / 25.4 * 5, blocks = [].slice.call(document.querySelectorAll('.qpage .work:not(.r3):not(.r4)'));
+  var sizes = blocks.map(function (w) { return w.getBoundingClientRect().height; });
+  blocks.forEach(function (w, i) {
+    w.style.flex = 'none';
+    w.style.height = Math.max(2, Math.floor(sizes[i] / cell)) * cell + 1 + 'px';
+  });
+});
+</script>
 </body>
 </html>
