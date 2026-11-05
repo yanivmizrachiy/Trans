@@ -4,15 +4,10 @@ on:
     branches: [main]
     paths:
       - 'index.html'
-      - 'original.html'
-      - 'curriculum.html'
-      - 'teacher.html'
-      - 'explore.html'
       - 'worksheets/**'
       - 'data/manifest.json'
       - 'scripts/manifest.py'
       - 'scripts/check_manifest.py'
-      - 'scripts/sync_book_docs.py'
       - 'assets/**'
       - 'pdf/**'
       - 'scripts/validate_site.py'
@@ -20,11 +15,9 @@ on:
       - 'scripts/test_properties.py'
       - 'scripts/test_pedagogy.py'
       - 'scripts/test_answer_keys.py'
-      - 'scripts/sync_teacher_answers.py'
       - 'scripts/check_contract.py'
       - 'SOURCE_OF_TRUTH.md'
       - 'README.md'
-      - 'book/INTRO.md'
       - 'book/complete.html'
       - 'book/transformations-complete.pdf'
       - 'book/teacher.pdf'
@@ -57,7 +50,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re, subprocess
-          for filename in ("index.html", "explore.html", "book/complete.html"):
+          for filename in ("index.html", "book/complete.html"):
               html = Path(filename).read_text(encoding="utf-8")
               blocks = re.findall(r"<script[^>]*>([\s\S]*?)</script>", html)
               assert blocks, f"Missing JavaScript in {filename}"
@@ -79,8 +72,6 @@ jobs:
         run: python3 scripts/check_manifest.py
       - name: Check numerical answers printed for all 33 original question levels
         run: python3 scripts/test_answer_keys.py
-      - name: Prevent teacher website solutions from drifting from the canonical answer key
-        run: python scripts/sync_teacher_answers.py --check
       - name: Check all three difficulty levels and the teacher's answer keys
         run: python3 scripts/test_pedagogy.py
       - name: Prove the PDF publication step against a throwaway Git remote

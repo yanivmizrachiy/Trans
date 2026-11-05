@@ -132,7 +132,7 @@ def item_bookmarks(chapter):
 CHAPTER_RANGES = {chapter["key"]: (first, last) for chapter, first, last in layout()}
 TOTAL_PAGES = sum(chapter_pages(c) for c in CHAPTERS)
 TOTAL_BOOKMARKS = sum(1 + len(item_bookmarks(c)) for c in CHAPTERS)
-# Chapters carry no part letters; the booklet has no cover page (SOURCE_OF_TRUTH §כג.9).
+# Chapters carry no part letters; the booklet has no cover page.
 CONTENT_CHAPTERS = list(CHAPTERS)
 
 
@@ -167,10 +167,7 @@ def item_title(item, summaries=None):
     return COMPONENTS[ident]["label"]
 
 
-def numbering_sentence():
-    """The page-numbering sentence that SOURCE_OF_TRUTH.md must state, derived from the layout."""
-    parts = [f"{first}–{last} {chapter_title(chapter)}" for chapter, first, last in layout()]
-    return f"**מספור מאומת בחוברת {TOTAL_PAGES} עמודים:** " + "; ".join(parts) + "."
+
 
 
 def validate():
@@ -210,7 +207,7 @@ def validate():
             raise AssertionError(f"Reading sequence lists {kind!r} items {sorted(map(str, listed))}, "
                                  f"manifest inventory is {sorted(map(str, wanted))}")
     if sequence[-1] != ["c", "answers"]:
-        raise AssertionError("Teacher solutions must close the booklet (SOURCE_OF_TRUTH §כ.1.6)")
+        raise AssertionError("Teacher solutions must close the booklet")
     if component_pages("teacher") != SUMMARY_COUNT:
         raise AssertionError("teacher component pages differ from the summary count")
     return True

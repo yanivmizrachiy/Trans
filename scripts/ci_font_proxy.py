@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Print worksheets with the text widths of the build server (SOURCE_OF_TRUTH §כג.23).
+"""Print worksheets with the text widths of the build server.
 
 The runner sets Arial as Liberation Sans, whose Hebrew is about 6-8% wider than Windows Arial, so a
-sheet that fits one page locally can run onto a second page on CI (worksheet 385 did, §כג.19).
+sheet that fits one page locally can run onto a second page on CI (worksheet 385 did).
 Google Fonts Arimo stands in for it: its word widths match the runner within about 0.4%, and it is
 slightly pessimistic for a line that sits right at the limit.
 

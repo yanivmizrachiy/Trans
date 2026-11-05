@@ -74,16 +74,16 @@ def main():
         raw=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
         if "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים" in raw:
             raise AssertionError(f"{ident}: other creators' content was falsely credited")
-        # Every printed page carries the booklet's logo footer (SOURCE_OF_TRUTH §כג.14),
+        # Every printed page carries the booklet's logo footer,
         # with the page's own credit wording, not the project's editing credit.
         if raw.count('class="ws-footline"')!=M.WORKSHEET_PAGES[ident] or raw.count("assets/logo.png")!=M.WORKSHEET_PAGES[ident]:
             raise AssertionError(f"{ident}: every printed page needs exactly one logo footer")
         if "תאריך:" in raw or "שם התלמיד" in raw:
             raise AssertionError(f"{ident}: worksheets carry no name or date line")
-    # Material once derived from an external slide deck was rewritten (SOURCE_OF_TRUTH §כ.8);
+    # Material once derived from an external slide deck was rewritten;
     # the deck's file name, date and editors must not creep back into public files.
     public=["worksheets/rectangles.html","worksheets/true-false.html","worksheets/triangle.html",
-            "docs/TEACHER_WORKSHOP.md","teacher.html","index.html","book/INTRO.md",
+            "docs/TEACHER_WORKSHOP.md","index.html","book/teacher.html","book/krispin-video.html","book/sadna.html","book/official.html",
             "book/complete.html","README.md","data/manifest.json"]
     remnants=("PRESENTATION_2026","21.10.2026","מצגת ההשתלמות","מצגת קהילת","סיכום מצגת","סיכום השתלמות")
     for rel in public:
@@ -92,7 +92,7 @@ def main():
             if token in text:raise AssertionError(f"{rel}: remnant of the replaced slide deck: {token!r}")
     if "עידן אחוון" in (ROOT/"docs"/"TEACHER_WORKSHOP.md").read_text(encoding="utf-8"):
         raise AssertionError("docs/TEACHER_WORKSHOP.md must be original, not a deck summary")
-    # The printed booklet carries no meta notes about itself or its sources (SOURCE_OF_TRUTH §כג.5).
+    # The printed booklet carries no meta notes about itself or its sources.
     booklet=["book/teacher.html","book/sadna.html","book/krispin-video.html",
              "docs/TEACHER_WORKSHOP.md","docs/ANSWER_KEY.md",*(f"worksheets/{i}.html" for i in M.WORKSHEETS)]
     meta=("חוברת הוראה אחת","חוברת מאוחדת","העמודים הרשמיים","נכתב לחוברת","נכתבו עבור החוברת","נכתב במיוחד",
@@ -105,7 +105,7 @@ def main():
     video=(ROOT/"book"/"krispin-video.html").read_text(encoding="utf-8")
     if "איילת קריספין, מתכללת את תחום המתמטיקה במחוז ירושלים והעיר ירושלים - מנח״י" not in video:
         raise AssertionError("book/krispin-video.html: Ayelet Krispin's title must be stated exactly")
-    # A4 print booklet, not online pages: no "open full size" links (SOURCE_OF_TRUTH §כג.6).
+    # A4 print booklet, not online pages: no "open full size" links.
     for path in sorted((ROOT/"book").glob("*.html")):
         if "בגודל מלא" in path.read_text(encoding="utf-8"):
             raise AssertionError(f"book/{path.name}: full-size link in the print booklet")

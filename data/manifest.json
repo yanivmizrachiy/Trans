@@ -3,11 +3,7 @@
  "site": {
   "base_url": "https://transformations-math.vercel.app",
   "root_pages": [
-   "index.html",
-   "original.html",
-   "curriculum.html",
-   "teacher.html",
-   "explore.html"
+   "index.html"
   ]
  },
  "worksheets": {
@@ -145,7 +141,7 @@
  },
  "teacher": {
   "html": "book/teacher.html",
-  "summaries": 14
+  "summaries": 12
  },
  "book": {
   "file": "book/transformations-complete.pdf",
@@ -155,10 +151,10 @@
     "label": "סיכומים למורה",
     "file": "book/teacher.pdf",
     "html": "book/teacher.html",
-    "pages": 14
+    "pages": 12
    },
    "official": {
-    "label": "שאלות מתוך תוכנית הלימודים (מקור ללא שינוי)",
+    "label": "שאלות מתוך תוכנית הלימודים",
     "file": "book/official.pdf",
     "html": "book/official.html",
     "pages": "ministry"
@@ -167,7 +163,7 @@
     "label": "סיכום מורה לסרטון ההמחשה — איילת קריספין",
     "file": "book/krispin-video.pdf",
     "html": "book/krispin-video.html",
-    "pages": 12
+    "pages": 8
    },
    "sadna": {
     "label": "מעבדת המורה — שלושה חקרי טרנספורמציות",
@@ -177,7 +173,7 @@
     "credit": "הדף נערך ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים"
    },
    "workshop": {
-    "label": "סדנת מורים — ניבוי, בדיקה והנמקה",
+    "label": "סדנת מורים",
     "file": "book/workshop.pdf",
     "html": "book/workshop.html",
     "pages": 2,
@@ -217,18 +213,6 @@
      [
       "s",
       3
-     ],
-     [
-      "s",
-      4
-     ],
-     [
-      "m",
-      34
-     ],
-     [
-      "m",
-      91
      ]
     ]
    },
@@ -238,11 +222,7 @@
     "items": [
      [
       "s",
-      5
-     ],
-     [
-      "m",
-      48
+      4
      ]
     ]
    },
@@ -252,15 +232,7 @@
     "items": [
      [
       "s",
-      6
-     ],
-     [
-      "m",
-      35
-     ],
-     [
-      "m",
-      38
+      5
      ]
     ]
    },
@@ -270,15 +242,7 @@
     "items": [
      [
       "s",
-      7
-     ],
-     [
-      "m",
-      36
-     ],
-     [
-      "m",
-      37
+      6
      ]
     ]
    },
@@ -288,37 +252,17 @@
     "items": [
      [
       "s",
-      8
-     ],
-     [
-      "m",
-      88
-     ],
-     [
-      "m",
-      89
+      7
      ]
     ]
    },
    {
     "key": "composition",
-    "label": "שפת השאלות, אוריינות ורצפי פעולות",
+    "label": "הרכבת טרנספורמציות",
     "items": [
      [
       "s",
-      9
-     ],
-     [
-      "m",
-      50
-     ],
-     [
-      "m",
-      51
-     ],
-     [
-      "s",
-      10
+      8
      ]
     ]
    },
@@ -328,7 +272,7 @@
     "items": [
      [
       "s",
-      11
+      9
      ]
     ]
    },
@@ -338,15 +282,15 @@
     "items": [
      [
       "s",
+      10
+     ],
+     [
+      "s",
+      11
+     ],
+     [
+      "s",
       12
-     ],
-     [
-      "s",
-      13
-     ],
-     [
-      "s",
-      14
      ],
      [
       "c",
@@ -441,6 +385,56 @@
      [
       "w",
       "triangle"
+     ]
+    ]
+   },
+   {
+    "key": "curriculum",
+    "label": "שאלות מתוך תוכנית הלימודים",
+    "items": [
+     [
+      "m",
+      34
+     ],
+     [
+      "m",
+      35
+     ],
+     [
+      "m",
+      36
+     ],
+     [
+      "m",
+      37
+     ],
+     [
+      "m",
+      38
+     ],
+     [
+      "m",
+      48
+     ],
+     [
+      "m",
+      50
+     ],
+     [
+      "m",
+      51
+     ],
+     [
+      "m",
+      88
+     ],
+     [
+      "m",
+      89
+     ],
+     [
+      "m",
+      91
      ]
     ]
    },

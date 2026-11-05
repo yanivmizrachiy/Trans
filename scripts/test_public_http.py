@@ -14,7 +14,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://transformations-math.vercel.app"
-ROOT_HTML = ("index.html", "original.html", "curriculum.html", "teacher.html", "explore.html")
+ROOT_HTML = ("index.html",)
 # Discover the complete public HTML/PDF/assets inventory from the checked-out
 # repository. This prevents silently skipping new booklet parts or assets.
 def discover(directory,patterns):

@@ -47,7 +47,7 @@ for(const node of nodes){
 }
 })();
 // Precise coordinate planes on the two-page sheets: drawn at true printed size (one unit = data-unit mm), every unit
-// gridded and numbered. A plane in a stretching frame fills the frame's height with whole units (SOURCE_OF_TRUTH §כג.15).
+// gridded and numbered. A plane in a stretching frame fills the frame's height with whole units.
 (function(){
   const NS="http://www.w3.org/2000/svg", mm=96/25.4;
   const add=(p,tag,a,text)=>{const el=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(a))el.setAttribute(k,String(v));if(text!==undefined)el.textContent=String(text);p.appendChild(el);return el;};
@@ -105,7 +105,7 @@ for(const node of nodes){
   });
 })();
 // Squared answer areas: whole 5 mm squares only, drawn as a crisp vector grid. In print each box is first
-// trimmed to full rows, so no row is cut at the frame (SOURCE_OF_TRUTH §כג.12). The PDF build calls window.snapSquares().
+// trimmed to full rows, so no row is cut at the frame. The PDF build calls window.snapSquares().
 (function(){
   const row=5*96/25.4, NS="http://www.w3.org/2000/svg";
   function draw(box){

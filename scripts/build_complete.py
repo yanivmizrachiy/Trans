@@ -28,22 +28,23 @@ BOOK=ROOT/"book"
 PDF=ROOT/"pdf"
 PAGES=M.WORKSHEET_PAGES
 CSS = """
+@page:first{margin-top:8mm}
 *{box-sizing:border-box}
 html{direction:rtl}
-body{font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#183e4c;font-size:12.5px;line-height:1.65;margin:0}
-h1{font-size:24px;color:#0b3546;margin:0 0 16px;border-bottom:2px solid #087970;padding-bottom:8px}
-h2{font-size:18px;color:#076b69;margin:17px 0 8px;break-after:avoid}
-h3{font-size:15px;color:#164e59;margin:14px 0 7px;break-after:avoid}
+body{font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#10202e;font-size:12.5px;line-height:1.65;margin:0}
+body>h1{min-height:13.5mm;font-size:23px;line-height:1.22;font-weight:800;color:#0b3a75;margin:0 0 3.5mm;border-bottom:2px solid #0b3a75;padding-bottom:1.6mm}
+h2{font-size:16px;font-weight:800;color:#0b3a75;margin:14px 0 6px;padding-bottom:3px;border-bottom:1px solid #c9d6e2;break-after:avoid}
+h3{font-size:15px;color:#0b3a75;margin:14px 0 7px;break-after:avoid}
 p,li{margin-bottom:6px;orphans:3;widows:3}
 ol,ul{padding-right:24px}
 table{border-collapse:collapse;width:100%;margin:12px 0;font-size:11.5px}
-td,th{padding:6px 8px;border:1px solid #c9dcdf;text-align:right;vertical-align:top}
-th{background:#e7f3f1}
+td,th{padding:6px 8px;border:1px solid #cfdbe6;text-align:right;vertical-align:top}
+th{background:#eef3f9;color:#0b3a75}
 tr{break-inside:avoid}
 pre{white-space:pre-wrap;overflow-wrap:anywhere}
-code{direction:ltr;unicode-bidi:isolate;display:inline-block;font-size:.94em;background:#f3f7f6;padding:0 3px}
-a{color:#006e69;overflow-wrap:anywhere}
-blockquote{border-right:3px solid #078276;padding-right:12px;margin-right:0;color:#435e69}
+code{direction:ltr;unicode-bidi:isolate;display:inline-block;font-size:.94em;background:#eef3f9;padding:0 3px}
+a{color:#0b3a75;overflow-wrap:anywhere}
+blockquote{border-right:3px solid #0b3a75;padding-right:12px;margin-right:0;color:#536f79}
 """
 def validate_pdf(path, expected=None):
     path=Path(path)
@@ -115,7 +116,7 @@ def check_pdf_links(target_pdf, page_html, base_url):
         raise RuntimeError(f"{target_pdf.name}: relative links were not published as absolute URLs: {missing}")
 
 # Flowing teacher texts: the top margin keeps clear of the page number, the bottom margin
-# holds the booklet's logo footer, which is laid over every page (SOURCE_OF_TRUTH §כג.14).
+# holds the booklet's logo footer, which is laid over every page.
 MD_MARGIN={"top":"20mm","right":"14mm","bottom":"27mm","left":"14mm"}
 FOOT_OVERLAY=None
 def foot_overlay(browser):
@@ -174,7 +175,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
             if missing:
                 raise RuntimeError(f"{label}: web fonts did not load: {missing}")
         def fits(z):
-            tab.evaluate("z => { document.body.style.zoom = z; }",z)
+            tab.evaluate("z => { document.body.style.zoom = z; document.querySelectorAll('body>h1').forEach(h => { h.style.zoom = 1/z; }); }",z)
             data=tab.pdf(format="A4",print_background=True,margin=MD_MARGIN)
             return data if len(PdfReader(BytesIO(data)).pages)<=pages else None
         fitted=None
@@ -238,7 +239,7 @@ def render_sadna(browser):
     return validate_pdf(dest,expected)
 
 def render_video(browser):
-    """Six A4 teacher pages summarising the watched transformations video."""
+    """A4 teacher pages summarising the watched transformations video."""
     path=BOOK/"krispin-video.html"
     dest=BOOK/"krispin-video.pdf"
     expected=M.component_pages("krispin-video")
@@ -278,7 +279,7 @@ def source_pages(item):
 
 # The page number: white on a solid disc in the dark blue of the footer line. The disc's left
 # edge sits on the 14 mm text margin and its centre is 12 mm below the top edge, inside every
-# printer's printable area (SOURCE_OF_TRUTH §כג.9, §כג.10, §כג.14, §כג.22). FOLIO_ZONE (mm from
+# printer's printable area. FOLIO_ZONE (mm from
 # the top-left corner) is the disc plus 1.5 mm, and must be blank on every page before it is stamped.
 FOLIO_X,FOLIO_Y,FOLIO_R=17.9,12.0,3.9
 FOLIO_ZONE=(FOLIO_X-FOLIO_R-1.5,FOLIO_Y-FOLIO_R-1.5,FOLIO_X+FOLIO_R+1.5,FOLIO_Y+FOLIO_R+1.5)
@@ -319,10 +320,6 @@ def flatten(outline):
 
 def build():
     M.validate()
-    import sync_book_docs
-    stale=sync_book_docs.check()
-    if stale:
-        raise RuntimeError("Derived booklet blocks are stale: "+", ".join(stale)+" (run python scripts/sync_book_docs.py --write)")
     validate_pdf(BOOK/"teacher.pdf",M.component_pages("teacher"))
     validate_pdf(BOOK/"official.pdf",M.component_pages("official"))
     for ident in M.WORKSHEETS:

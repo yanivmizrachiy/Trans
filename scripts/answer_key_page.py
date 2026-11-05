@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Printed layout of the teacher answer key (SOURCE_OF_TRUTH §כג.18).
+"""Printed layout of the teacher answer key.
 
 docs/ANSWER_KEY.md stays the one source of the answers, and the answer tests read it.
 For print, its worksheet sections follow the booklet pages, each opens with a header
