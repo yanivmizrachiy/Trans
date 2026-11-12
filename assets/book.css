@@ -209,3 +209,8 @@ html body .a4-page p, html body .a4-page li, html body .a4-page td, html body .a
 html body .a4-page .sym-item, html body article.sheet > p, html body .level p, html body .level ol, html body .machines { font-size: 13.5px; line-height: 1.45; }
 html body .a4-page .page-title { font-size: 20px; }
 html body .q-card h3, html body .level h2 { font-size: 14.5px; }
+
+/* ---------- Bold only where it is needed: the page title and the section headings ---------- */
+/* weights:start */
+html body :not(h1, h1 *, h2, h2 *) { font-weight: 400 !important; }
+/* weights:end */
