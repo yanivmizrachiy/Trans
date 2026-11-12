@@ -1,18 +1,25 @@
-/* Exact figures for the printed pages. A figure is declared in the HTML and drawn here to scale:
+/* The one figure engine of the booklet. Every drawing on every page is declared in its HTML and drawn
+   here to scale, in the book's colours:
      <svg data-fig='{"x":[-5,5],"y":[-5,5],"grid":true,"polys":[{"pts":[[0,1],[0,4],[4,2.7]]}]}'></svg>
    Answer choices name a shared base from window.FIG_BASES and the operation applied to it, so every
    image is computed, never redrawn by eye: {"use":"q2","ops":["rot180"]}. A base holds pts, inner and
    a frame (the keys below); a base with only a frame is a whole figure used as it is.
 
-   Keys: u (mm per unit), x, y (ranges), grid, numbers, axes ("solid" or "dash"), origin (label),
-   axisNames, polys, segs, points, arrows, arcs, lines. numbers may be {x:[a,b],y:[c,d]}: the numbered
-   part of a longer axis. pointAt: [dx,dy] moves the label of a shared base's point in one choice.
+   Keys: u (mm per unit), pad (mm), x, y (ranges), grid, numbers, axes ("solid" or "dash"),
+   axisNames, polys, segs, points, arrows, arcs, lines, vlines, hlines, grow. numbers may be {x:[a,b],y:[c,d],step:n}:
+   the numbered part of a longer axis, every n-th unit. pointAt: [dx,dy] moves the label of a shared
+   base's point in one choice. grow: inside a .plane frame, add whole units above and below until the
+   plane fills the frame's height (the frame first takes the plane's own size).
+   vlines / hlines: [{at, label}] dashed lines x=at / y=at across the whole plane (mirror lines).
    Arc keys: c, r, from, to, head (false = no arrowhead).
    Poly keys: pts or base, ops, about, shift, fill, line, width, open, inner (segments moved with it),
-   label ({at, t, rot}). */
+   names (vertex labels, set outside the shape with a dot on each vertex), label ({at, t, rot}).
+   Point keys: at, t, dx, dy, dot (false = label only), color, size.
+   style: "original" (blue) or "image" (orange) gives a poly the book's colours; fill, line and width
+   still override it. Without a style a poly is grey, as the curriculum pages need. */
 (function () {
   var NS = 'http://www.w3.org/2000/svg';
-  var INK = '#0b3a75', GRID = '#c9d6e2';
+  var INK = '#0b3a75', GRID = '#c9d6e2', MM = 96 / 25.4;
   var OPS = {
     same: function (p) { return p; },
     rot90cw: function (p) { return [p[1], -p[0]]; },
@@ -20,6 +27,11 @@
     rot180: function (p) { return [-p[0], -p[1]]; },
     flipX: function (p) { return [p[0], -p[1]]; },
     flipY: function (p) { return [-p[0], p[1]]; }
+  };
+
+  var STYLES = {
+    original: { fill: '#dbe9f7', line: INK, width: .6 },
+    image: { fill: '#fde8d3', line: '#b45f06', width: .6 }
   };
 
   function move(points, poly) {
@@ -31,7 +43,16 @@
     });
   }
 
+  function grow(svg, f) {
+    var frame = svg.parentElement, u = f.u || 6, pad = f.pad === undefined ? 5 : f.pad;
+    if (!f.grow || !frame || !frame.classList.contains('plane') || !frame.dataset.sized) return f;
+    var room = Math.floor((frame.getBoundingClientRect().height / MM - 2 * pad) / u + 1e-6);
+    var extra = Math.max(0, room - (f.y[1] - f.y[0]));
+    return Object.assign({}, f, { y: [f.y[0] - Math.ceil(extra / 2), f.y[1] + Math.floor(extra / 2)] });
+  }
+
   function draw(svg, f, bases) {
+    f = grow(svg, f);
     var u = f.u || 6, pad = f.pad === undefined ? 5 : f.pad;
     var X = function (x) { return (x - f.x[0]) * u + pad; };
     var Y = function (y) { return (f.y[1] - y) * u + pad; };
@@ -40,6 +61,7 @@
     svg.setAttribute('width', w + 'mm');
     svg.setAttribute('height', h + 'mm');
     svg.setAttribute('direction', 'ltr');
+    if (svg.dataset.caption) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', svg.dataset.caption); }
 
     function add(tag, attrs, text) {
       var e = document.createElementNS(NS, tag);
@@ -73,7 +95,16 @@
     (f.lines || []).forEach(function (l) {
       line(l[0], l[1], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': .45, stroke: '#27384a' });
     });
+    (f.vlines || []).forEach(function (v) {
+      line([v.at, f.y[0]], [v.at, f.y[1]], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': .5, stroke: '#27384a' });
+      if (v.label) text([v.at, f.y[1]], v.label, { dx: 1.2 + v.label.length * 1.1, dy: 2.2, size: 3.2 });
+    });
+    (f.hlines || []).forEach(function (v) {
+      line([f.x[0], v.at], [f.x[1], v.at], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': .5, stroke: '#27384a' });
+      if (v.label) text([f.x[0], v.at], v.label, { dx: 1.2 + v.label.length * 1.1, dy: -2.2, size: 3.2 });
+    });
     (f.polys || []).forEach(function (poly) {
+      poly = Object.assign({}, STYLES[poly.style], poly);
       var pts = move(poly.pts || bases[poly.base].pts, poly);
       add(poly.open ? 'polyline' : 'polygon', {
         points: pts.map(function (p) { return X(p[0]) + ',' + Y(p[1]); }).join(' '),
@@ -85,6 +116,14 @@
       if (poly.label) {
         var cx = poly.label.at || pts.reduce(function (a, p) { return [a[0] + p[0] / pts.length, a[1] + p[1] / pts.length]; }, [0, 0]);
         text(cx, poly.label.t, { rot: poly.label.rot, size: 4.2, halo: 0, color: '#10202e', rtl: true });
+      }
+      if (poly.names) {
+        var mid = pts.reduce(function (a, p) { return [a[0] + p[0] / pts.length, a[1] + p[1] / pts.length]; }, [0, 0]);
+        pts.forEach(function (p, i) {
+          var dx = p[0] - mid[0], dy = p[1] - mid[1], l = Math.hypot(dx, dy) || 1;
+          add('circle', { cx: X(p[0]), cy: Y(p[1]), r: .75, fill: poly.line || INK });
+          text(p, poly.names[i] || '', { dx: 2.8 * dx / l, dy: -2.8 * dy / l, color: poly.line || INK });
+        });
       }
     });
     if (f.axes) {
@@ -98,9 +137,9 @@
         head([X(ox), Y(f.y[1]) - 2], [X(ox), Y(f.y[1])], ax.stroke);
       }
       if (f.numbers) {
-        var nx = f.numbers.x || f.x, ny = f.numbers.y || f.y;
-        for (var n = Math.ceil(nx[0]); n <= nx[1]; n++) if (n) text([n, oy], String(n).replace('-', '−'), { dy: 2.6, size: 2.5, weight: 400, color: '#27384a' });
-        for (var m = Math.ceil(ny[0]); m <= ny[1]; m++) if (m) text([ox, m], String(m).replace('-', '−'), { dx: -2.6, size: 2.5, weight: 400, color: '#27384a' });
+        var nx = f.numbers.x || f.x, ny = f.numbers.y || f.y, step = f.numbers.step || 1;
+        for (var n = Math.ceil(nx[0] / step) * step; n <= nx[1]; n += step) if (n) text([n, oy], String(n).replace('-', '−'), { dy: 2.6, size: 2.5, weight: 400, color: '#27384a' });
+        for (var m = Math.ceil(ny[0] / step) * step; m <= ny[1]; m += step) if (m) text([ox, m], String(m).replace('-', '−'), { dx: -2.6, size: 2.5, weight: 400, color: '#27384a' });
       }
       if (f.axisNames) {
         text([f.x[1], oy], 'x', { dx: 3.2, dy: -2.2, size: 3.2 });
@@ -126,10 +165,11 @@
     });
   }
 
-  /* Answer squares: whole 5 mm cells only, so no cell is cut at the edge. */
+  /* Answer squares: whole 5 mm cells only, so no cell is cut at the edge. An empty .work is an answer
+     box; a .work that holds a plane and a table is a layout row of the original worksheets. */
   function snap() {
-    var cell = 5 * 96 / 25.4;
-    document.querySelectorAll('.work').forEach(function (b) {
+    var cell = 5 * MM;
+    document.querySelectorAll('.work:empty').forEach(function (b) {
       b.style.height = ''; b.style.flex = '';
       var h = b.getBoundingClientRect().height;
       b.style.flex = 'none';
@@ -148,10 +188,16 @@
         if (f.pointAt) f.points = f.points.map(function (q) { return Object.assign({}, q, { dx: f.pointAt[0], dy: f.pointAt[1] }); });
       }
       draw(svg, f, bases);
+      var frame = svg.parentElement;
+      if (f.grow && frame && frame.classList.contains('plane') && !frame.dataset.sized) {
+        frame.style.width = svg.getAttribute('width'); frame.style.minHeight = svg.getAttribute('height');
+        frame.dataset.sized = '1';
+      }
     });
     snap();
   }
   window.drawFigures = run;
+  window.drawPlanes = run;
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
   window.addEventListener('load', snap);
   window.addEventListener('beforeprint', snap);

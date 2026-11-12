@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 """Exact mathematical checks for Yaniv Raz's original transformation worksheets."""
+from html import unescape
+import json
 import re
 import unittest
 import manifest as M
 
 ROOT=M.ROOT
+
+
+def figure_points(doc, index=0):
+    """Vertices of the first polygon of the index-th drawing (assets/figures.js spec) in a page."""
+    specs=[json.loads(unescape(s)) for s in re.findall(r"data-fig='([^']+)'",doc)]
+    return [tuple(p) for p in specs[index]["polys"][0]["pts"]]
 SOURCE={
     "orig-rectangles":[(-4,0),(0,0),(0,3),(-4,3)],
     "orig-translation":[(-4,-1),(-1,-1),(-4,2)],
@@ -35,10 +43,7 @@ class MathQuality(unittest.TestCase):
         for name,points in SOURCE.items():
             with self.subTest(name=name):
                 doc=(ROOT/"worksheets"/(name+".html")).read_text(encoding="utf-8")
-                found=re.search(r'data-shape=[\x22\x27]([^\x22\x27]+)[\x22\x27]',doc)
-                self.assertIsNotNone(found)
-                raw=[tuple(map(int,p.split(","))) for p in found.group(1).split(";")]
-                self.assertEqual(raw,points)
+                self.assertEqual(figure_points(doc),points)
                 self.assertGreater(area2(points),0)
                 self.assertTrue(all(abs(x)<=7 and abs(y)<=7 for x,y in points))
                 self.assertEqual(len(set(points)),len(points))
@@ -157,7 +162,7 @@ class AdditionalOriginalSheets(unittest.TestCase):
     def test_community_hall_rectangle(self):
         doc=(ROOT/"worksheets"/"rectangles.html").read_text(encoding="utf-8")
         pts=ADDITIONAL["rectangles"]
-        self.assertIn('data-shape="-2,-1;4,-1;4,1;-2,1"',doc)
+        self.assertEqual(figure_points(doc),[(-2,-1),(4,-1),(4,1),(-2,1)])
         self.assertEqual(area2(pts),2*12)
         self.assertEqual(squared(pts[0],pts[1]),36);self.assertEqual(squared(pts[1],pts[2]),4)
         e,f,g,h=pts

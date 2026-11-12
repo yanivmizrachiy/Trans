@@ -56,7 +56,7 @@ def main():
                     page.goto((ROOT / "worksheets" / f"{stem}.html").as_uri(), wait_until="load", timeout=60000)
                     page.evaluate("async () => { await document.fonts.load('400 15px Arimo', 'א'); await document.fonts.load('700 15px Arimo', 'א'); }")
                     if stem.startswith("orig-"):
-                        page.wait_for_function('() => Array.from(document.querySelectorAll("svg[data-shape]")).every(s => !!s.querySelector("polygon"))', timeout=15000)
+                        page.wait_for_function('() => Array.from(document.querySelectorAll("svg[data-fig]")).every(s => !!s.querySelector("polygon"))', timeout=15000)
                     page.set_viewport_size({"width": 794, "height": 1123})  # the printed A4 width, as in build_pdfs.py
                     page.emulate_media(media="print")
                     room = page.evaluate(ROOM)
