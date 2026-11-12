@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Build numbered, sourced A4 teacher summaries with strict overflow and PDF checks."""
-from pathlib import Path
+"""Print book/teacher.html, the sourced teacher summaries, to book/teacher.pdf with strict overflow checks."""
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader
+import manifest as M
 
-ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "book" / "teacher.html"
-OUTPUT = ROOT / "book" / "teacher.pdf"
-EXPECTED = 8
+SOURCE = M.ROOT / M.TEACHER_HTML
+OUTPUT = M.ROOT / M.COMPONENTS["teacher"]["file"]
+EXPECTED = M.SUMMARY_COUNT
 
 def main():
     if not SOURCE.exists():
@@ -47,12 +46,12 @@ def main():
             browser.close()
     reader = PdfReader(str(OUTPUT))
     if len(reader.pages) != EXPECTED:
-        raise RuntimeError(f"Expected {EXPECTED} numbered A4 teacher pages, got {len(reader.pages)}")
+        raise RuntimeError(f"Expected {EXPECTED} A4 teacher pages (data/manifest.json), got {len(reader.pages)}")
     sizes = [(float(pg.mediabox.width), float(pg.mediabox.height)) for pg in reader.pages]
     if any(not (588<=w<=604 and 834<=h<=850) for w,h in sizes):
         raise RuntimeError(f"Teacher pages are not A4 portrait: {sizes}")
     if OUTPUT.stat().st_size < 20000:
         raise RuntimeError("Unexpectedly empty teacher summary PDF")
-    print(f"PASS: {EXPECTED} numbered RTL A4 summary pages, no overflow, each with source footer; {OUTPUT.stat().st_size} bytes")
+    print(f"PASS: {EXPECTED} RTL A4 summary pages, no overflow, each with source footer; {OUTPUT.stat().st_size} bytes")
 
 if __name__=="__main__":main()

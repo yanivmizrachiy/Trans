@@ -1,42 +1,25 @@
 name: Build printable transformation PDFs
+# Push and pull_request watch the same sources: everything the booklet is built from.
 on:
   push:
     branches: [main]
     paths:
       - 'worksheets/**'
-      - 'data/manifest.json'
-      - 'scripts/manifest.py'
-      - 'scripts/check_manifest.py'
+      - 'data/**'
       - 'assets/**'
-      - 'scripts/build_pdfs.py'
-      - 'book/teacher.html'
-      - 'scripts/build_teacher.py'
-      - 'book/official.html'
+      - 'book/*.html'
       - 'sources/ministry/**'
-      - 'scripts/build_official.py'
-      - 'book/complete.html'
-      - 'book/sadna.html'
-      - 'book/krispin-video.html'
-      - 'scripts/build_complete.py'
-      - 'scripts/visual_audit.py'
-      - 'docs/ANSWER_KEY.md'
-      - 'docs/TEACHER_WORKSHOP.md'
-      - 'scripts/test_math.py'
-      - 'scripts/test_properties.py'
-      - 'scripts/test_pedagogy.py'
-      - 'scripts/test_answer_keys.py'
-      - 'scripts/validate_site.py'
-      - 'scripts/publish_pdfs.sh'
+      - 'docs/**'
+      - 'scripts/**'
       - '.github/workflows/build-pdfs.yml'
   pull_request:
     paths:
       - 'worksheets/**'
-      - 'data/manifest.json'
+      - 'data/**'
       - 'assets/**'
       - 'book/*.html'
       - 'sources/ministry/**'
-      - 'docs/ANSWER_KEY.md'
-      - 'docs/TEACHER_WORKSHOP.md'
+      - 'docs/**'
       - 'scripts/**'
       - '.github/workflows/build-pdfs.yml'
   workflow_dispatch:

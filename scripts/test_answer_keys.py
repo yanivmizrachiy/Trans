@@ -3,13 +3,12 @@
 
 Unlike generic isometry unit tests, this check reads the 33 answer bullets
 in docs/ANSWER_KEY.md and requires each computed answer to appear in the
-correct source worksheet and correct difficulty tier. It detects answer-key
+correct source worksheet and question. It detects answer-key
 regressions even when the transformation utilities remain mathematically valid.
 """
-from pathlib import Path
 import re
 import unittest
-from test_math import ROOT, SOURCE, move, flip_v, flip_h, half, quarter, area2, squared, plain
+from test_math import ROOT, SOURCE, move, flip_v, flip_h, half, quarter, area2, plain
 
 ANSWER=(ROOT/"docs"/"ANSWER_KEY.md").read_text(encoding="utf-8")
 

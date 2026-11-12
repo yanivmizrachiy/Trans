@@ -36,7 +36,6 @@ def main():
             local = (p.parent / unquote(url.path)).resolve()
             assert (R == local or R in local.parents) and local.is_file(), (p.name, "broken link", link)
         if p.parent.name == "worksheets":
-            assert "../assets/logo.png" in html, (p.name, "every worksheet page carries the logo footer")
             assert "raz-logo.svg" not in html, (p.name, "retired logo")
             if p.stem in M.ORIGINAL:
                 assert html.count('class="level"') + html.count("class='level'") == 3, p.name

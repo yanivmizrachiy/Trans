@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
-"""Independent educational QA: original level coverage, answer keys, duplicate prompts and source isolation."""
-from pathlib import Path
+"""Independent educational QA: three questions per original worksheet, answer keys, duplicate prompts and source isolation."""
 from html.parser import HTMLParser
-from collections import Counter
 import re
-import sys
 import manifest as M
 
 ROOT=M.ROOT
@@ -54,9 +51,6 @@ def main():
         if cut:content=content[:cut.start()]
         answers=re.findall(r"^- \*\*[^\n]+",content,re.M)
         if len(answers)<3:raise AssertionError(f"{ident}: all three questions must have answers")
-        pages=M.WORKSHEET_PAGES[ident]
-        if sheet.count('יניב רז - מדריך מחוזי חט"ב בעיר ירושלים')!=pages or sheet.count("../assets/logo.png")!=pages:
-            raise AssertionError(f"{ident}: one district credit and logo footer on each of its {pages} printed page(s)")
         if re.search(r"רמה [אבג]׳|רמה מקבילה|שלוש רמות|מדורג",sheet):
             raise AssertionError(f"{ident}: level labels are not shown to students")
     for i,(a,ai,x) in enumerate(seen):

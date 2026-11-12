@@ -26,12 +26,10 @@ fi
 
 # Everything that feeds the PDF build. A newer commit touching any of these
 # makes this build stale; it must then publish nothing.
+# Keep in line with the paths that trigger .github/workflows/build-pdfs.yml.
 SOURCES=(
-  worksheets/ assets/ scripts/build_pdfs.py
-  book/teacher.html scripts/build_teacher.py
-  book/official.html sources/ministry/ scripts/build_official.py
-  book/sadna.html book/krispin-video.html scripts/build_complete.py scripts/visual_audit.py
-  docs/ANSWER_KEY.md docs/TEACHER_WORKSHOP.md
+  worksheets/ data/ assets/ sources/ministry/ docs/ scripts/
+  book/teacher.html book/official.html book/sadna.html book/krispin-video.html
 )
 # The one file the build publishes. Every other build output stays out of Git.
 OUTPUT_FILES=(book/transformations-complete.pdf)

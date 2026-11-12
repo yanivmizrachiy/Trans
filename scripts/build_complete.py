@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Build the complete transformation booklet from verified printed source files.
 
-The booklet follows the reading sequence of data/manifest.json (book.chapters):
-one continuous order by mathematical topic, identical to book/complete.html.
-Pages are taken one by one from the already verified part PDFs (teacher
-summaries, Ministry scans, worksheets, teacher lab, workshop and answer key),
-so the public part files stay exactly what they are and only their order in
-the merged booklet is decided here.
+The booklet follows the reading sequence of data/manifest.json (book.chapters);
+book/complete.html shows this PDF itself. Pages are taken one by one from the
+already verified part PDFs (teacher summaries, video summary, teacher lab,
+workshop, worksheets, curriculum pages and answer key), so each part keeps its
+own layout and only its place in the merged booklet is decided here.
 """
 from io import BytesIO
 import fitz
@@ -131,8 +130,7 @@ def foot_overlay(browser):
               ".page-foot .ws-footline{height:0;background:none;border-top:2px solid #14296e}</style></head><body>"
               "<footer class='page-foot'><div class='ws-footline'></div><div class='ws-brand'>"
               f"<img class='ws-logo' src='{logo}' alt='' width='64' height='64'><p class='ws-credit'>"
-              '<strong>יניב רז - מדריך מחוזי חט"ב בעיר ירושלים</strong>'
-              '<span>הדרכה במחוז ירושלים והעיר ירושלים - מנח"י, בהובלת איילת קריספין</span></p></div></footer></body></html>')
+              f"<strong>{M.FOOTER_CREDIT}</strong><span>{M.FOOTER_DISTRICT}</span></p></div></footer></body></html>")
         tab=browser.new_page()
         with tempfile.TemporaryDirectory() as temp:
             page=Path(temp)/"foot.html"
@@ -227,7 +225,6 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
     check_pdf_links(target_pdf,page_html,public_url)
     return validate_pdf(target_pdf)
 
-SADNA_CREDIT=M.SADNA_CREDIT
 def render_sadna(browser):
     """Three independent, originally authored teacher investigations."""
     path=BOOK/"sadna.html"
@@ -252,7 +249,7 @@ def render_sadna(browser):
         if(Math.abs(z.bottom-b.bottom)>2)e.push([i+1,'footer must close the page']);
         return e;
       })};
-    }""",SADNA_CREDIT)
+    }""",M.FOOTER_CREDIT)
     if check["count"]!=expected or check["fail"] or errors:
         raise RuntimeError(f"Original teacher-lab pages invalid: {check}, errors: {errors}")
     tab.pdf(path=str(dest),format="A4",print_background=True,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
@@ -287,18 +284,7 @@ def render_video(browser):
     tab.close()
     return validate_pdf(dest,expected)
 
-def source_pages(item):
-    """(pdf path, zero-based page indices) that one sequence item takes from a part PDF."""
-    kind,ident=item
-    if kind=="s":
-        return BOOK/"teacher.pdf",[ident-1]
-    if kind=="m":
-        return BOOK/"official.pdf",[M.MINISTRY_PAGES.index(ident)]
-    if kind=="w":
-        return PDF/f"{ident}.pdf",list(range(PAGES[ident]))
-    return ROOT/M.COMPONENTS[ident]["file"],list(range(M.component_pages(ident)))
-
-# The page number: white on a solid disc in the dark blue of the footer line. The disc's left
+# The page number: white on a solid dark-blue (#0b3a75) disc. The disc's left
 # edge sits on the 14 mm text margin and its centre is 12 mm below the top edge, inside every
 # printer's printable area. FOLIO_ZONE (mm from
 # the top-left corner) is the disc plus 1.5 mm, and must be blank on every page before it is stamped.
@@ -331,13 +317,6 @@ def number_stamps(numbers):
     canvas.save()
     buffer.seek(0)
     return PdfReader(buffer)
-
-def flatten(outline):
-    for item in outline:
-        if isinstance(item,list):
-            yield from flatten(item)
-        else:
-            yield item
 
 def build():
     M.validate()
@@ -374,7 +353,8 @@ def build():
         chapter_first=len(writer.pages)
         item_first={}
         for item in chapter["items"]:
-            path,indices=source_pages(item)
+            rel,indices=M.item_source(item)
+            path=ROOT/rel
             item_first[tuple(item)]=len(writer.pages)
             for index in indices:
                 page=reader(path).pages[index]
@@ -387,7 +367,7 @@ def build():
                 placed.append((len(writer.pages),list(item)))
         if (chapter_first+1,len(writer.pages))!=(first,last):
             raise RuntimeError(f"Chapter {chapter['key']} occupies {(chapter_first+1,len(writer.pages))}, manifest derives {(first,last)}")
-        parent=writer.add_outline_item(M.chapter_title(chapter),chapter_first)
+        parent=writer.add_outline_item(chapter["label"],chapter_first)
         for item in M.item_bookmarks(chapter):
             writer.add_outline_item(M.item_title(item,summaries),item_first[tuple(item)],parent=parent)
     # One running page number on every page, the Ministry pages included: it sits in the
@@ -397,7 +377,7 @@ def build():
     for k,n in enumerate(numbered):
         writer.pages[n-1].merge_page(stamps.pages[k])
     writer.add_metadata({"/Title":"טרנספורמציות — חוברת הוראה מלאה",
-                         "/Subject":"חפיפת צורות, הזזה, סיבוב ושיקוף — סיכומים למורה, שאלות מתוך תוכנית הלימודים, דפי עבודה ומפתח תשובות, לפי נושא",
+                         "/Subject":"חפיפת צורות, הזזה, סיבוב ושיקוף — סיכומים למורה, דפי עבודה, שאלות מתוך תוכנית הלימודים ומפתח תשובות",
                          "/Author":"מאגר הוראה במתמטיקה — Trans"})
     dest=ROOT/M.BOOK_FILE
     with dest.open("wb") as f:writer.write(f)
@@ -411,38 +391,18 @@ def build():
     verify=PdfReader(str(dest))
     if len(verify.pages)!=M.TOTAL_PAGES:
         raise RuntimeError(f"Book missing pages: {len(verify.pages)} expected {M.TOTAL_PAGES} (data/manifest.json)")
-    bookmarks=list(flatten(verify.outline))
-    if len(bookmarks)!=M.TOTAL_BOOKMARKS:
-        raise RuntimeError(f"Book PDF has {len(bookmarks)} bookmarks, manifest derives {M.TOTAL_BOOKMARKS}")
-    expected_titles=[]
-    for chapter in M.CHAPTERS:
-        expected_titles.append(M.chapter_title(chapter))
-        expected_titles.extend(M.item_title(i,summaries) for i in M.item_bookmarks(chapter))
-    if [b.title for b in bookmarks]!=expected_titles:
-        raise RuntimeError("Bookmark titles or order differ from the manifest sequence")
-    for bookmark,(chapter_or_item,first) in zip(bookmarks,_expected_targets()):
-        if verify.get_destination_page_number(bookmark)!=first-1:
-            raise RuntimeError(f"Bookmark {bookmark.title!r} points at page {verify.get_destination_page_number(bookmark)+1}, expected {first}")
+    bookmarks=list(M.flatten(verify.outline))
+    actual=[(b.title,verify.get_destination_page_number(b)+1) for b in bookmarks]
+    if actual!=M.bookmarks():
+        raise RuntimeError(f"Bookmarks (titles, order or target pages) differ from the manifest sequence: {actual}")
     expected_map=[(n,item) for n,_,item,_ in M.page_map()]
     if placed!=expected_map:
         raise RuntimeError("Placed pages differ from manifest page map")
     if dest.stat().st_size<1_000_000:
         raise RuntimeError("Merged booklet too small for the manifest scans and worksheets")
     for chapter,first,last in M.layout():
-        print(f"Pages {first:02d}–{last:02d}: {M.chapter_title(chapter)}")
+        print(f"Pages {first:02d}–{last:02d}: {chapter['label']}")
     print(f"PASS: complete single PDF {len(verify.pages)} pages, {len(M.CHAPTERS)} chapters, {len(bookmarks)} bookmarks, "
           f"{len(numbered)} numbered pages, {dest.stat().st_size} bytes")
-
-def _expected_targets():
-    """(label owner, first page) for every bookmark in manifest order."""
-    out=[]
-    for chapter,first,_ in M.layout():
-        out.append((chapter,first))
-        page=first
-        for item in chapter["items"]:
-            if len(chapter["items"])>1:
-                out.append((item,page))
-            page+=M.item_pages(item)
-    return out
 
 if __name__=="__main__":build()

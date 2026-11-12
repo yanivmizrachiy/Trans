@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
 """Build and validate printable A4 PDFs for actual transformation worksheets."""
-from pathlib import Path
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader
-from manifest import WORKSHEETS, WORKSHEET_PAGES
+from manifest import ROOT, WORKSHEETS, WORKSHEET_PAGES
 
-ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "worksheets"
 DEST = ROOT / "pdf"
-IDS = WORKSHEETS  # data/manifest.json is the only inventory of worksheet ids
 
 def main():
     DEST.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
         try:
-            for stem in IDS:
+            for stem in WORKSHEETS:
                 source = SOURCE / (stem + ".html")
                 if not source.exists():
                     raise FileNotFoundError(str(source))
@@ -29,7 +26,6 @@ def main():
                             '() => Array.from(document.querySelectorAll("svg[data-shape]")).every(s => !!s.querySelector("polygon"))',
                             timeout=15000
                         )
-                    if stem.startswith("orig-"):
                         ok = page.evaluate("""() => {
                           const img = document.querySelector('img.ws-logo[alt="יחידת מתמטיקה — מחוז ירושלים והעיר ירושלים"]');
                           const credit = document.querySelector('.ws-foot .ws-credit strong');

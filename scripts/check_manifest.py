@@ -17,32 +17,25 @@ A new worksheet that is added to only one of these places, a duplicate id,
 a wrong order or a stale page number stops the build here.
 """
 from pathlib import Path
-import json
 import os
 import re
-import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import manifest as M  # noqa: E402
-from pypdf import PdfReader  # noqa: E402
+from pypdf import PdfReader
+import manifest as M
 
 ROOT = M.ROOT
+demand = M.demand
 
 
 def read(rel):
     return (ROOT / rel).read_text(encoding="utf-8")
 
 
-def demand(test, reason):
-    if not test:
-        raise AssertionError(reason)
-
-
 def check_files():
     M.validate()
     html_ids = {p.stem for p in (ROOT / "worksheets").glob("*.html")}
     demand(html_ids == set(M.WORKSHEETS), f"worksheets/ differs from manifest: {html_ids ^ set(M.WORKSHEETS)}")
-    scans = {p.name for p in (ROOT / M.DATA["ministry"]["source_dir"]).glob("*.webp")}
+    scans = {p.name for p in M.MINISTRY_DIR.glob("*.webp")}
     expected = {M.ministry_file(n).name for n in M.MINISTRY_PAGES}
     demand(scans == expected, f"sources/ministry differs from manifest: {scans ^ expected}")
 
@@ -63,14 +56,6 @@ def check_continuous_book():
     demand("100vw" not in html, f"{M.BOOK_HTML}: the divider is only as wide as the page")
     for tag in ("<h1", "<h2", "<header", "<footer", "<nav", "<figcaption"):
         demand(tag not in html, f"{M.BOOK_HTML} must not add captions or headings ({tag})")
-
-def flatten(items):
-    for item in items:
-        if isinstance(item, list):
-            yield from flatten(item)
-        else:
-            yield item
-
 
 def page_fingerprint(page):
     """Something cheap that identifies a page's content: the set of image object
@@ -109,33 +94,17 @@ def check_pdfs():
         demand(count == M.WORKSHEET_PAGES[ident], f"pdf/{ident}.pdf has {count} pages, manifest says {M.WORKSHEET_PAGES[ident]}")
     book = PdfReader(str(ROOT / M.BOOK_FILE))
     demand(len(book.pages) == M.TOTAL_PAGES, f"{M.BOOK_FILE} has {len(book.pages)} pages, manifest derives {M.TOTAL_PAGES}")
-    bookmarks = list(flatten(book.outline))
+    bookmarks = list(M.flatten(book.outline))
     demand(len(bookmarks) == M.TOTAL_BOOKMARKS, f"{M.BOOK_FILE} has {len(bookmarks)} bookmarks, manifest derives {M.TOTAL_BOOKMARKS}")
-    summaries = M.summary_titles()
-    expected = []
-    for chapter, first, _ in M.layout():
-        expected.append((M.chapter_title(chapter), first))
-        page = first
-        for item in chapter["items"]:
-            if len(chapter["items"]) > 1:
-                expected.append((M.item_title(item, summaries), page))
-            page += M.item_pages(item)
     actual = [(b.title, book.get_destination_page_number(b) + 1) for b in bookmarks]
-    demand(actual == expected, "Booklet bookmarks (titles, order or target pages) differ from the manifest sequence")
+    demand(actual == M.bookmarks(), "Booklet bookmarks (titles, order or target pages) differ from the manifest sequence")
     for ident in M.WORKSHEETS:
         demand(any(M.TITLES[ident] in t for t, _ in actual), f"Booklet bookmark missing for {ident} ({M.TITLES[ident]})")
     # Every booklet page must be the page the manifest says, taken from its source PDF.
     readers = {}
     for number, chapter, item, offset in M.page_map():
-        kind, ident = item
-        if kind == "s":
-            source, index = "book/teacher.pdf", ident - 1
-        elif kind == "m":
-            source, index = "book/official.pdf", M.MINISTRY_PAGES.index(ident)
-        elif kind == "w":
-            source, index = f"pdf/{ident}.pdf", offset
-        else:
-            source, index = M.COMPONENTS[ident]["file"], offset
+        source, indices = M.item_source(item)
+        index = indices[offset]
         readers.setdefault(source, PdfReader(str(ROOT / source)))
         got = book.pages[number - 1]
         want = readers[source].pages[index]
@@ -156,14 +125,15 @@ def main():
     check_files()
     check_curriculum_pages()
     check_continuous_book()
+    # The check workflow sets CHECK_BUILT_PDFS=0: build outputs are not in Git,
+    # and the build workflow runs this script again after building them.
     if os.environ.get("CHECK_BUILT_PDFS", "1") == "0":
-        # Set by the check workflow on push/pull_request, where committed PDFs
-        # may lag behind the sources until the build workflow republishes them.
         print("SKIPPED built-PDF checks (CHECK_BUILT_PDFS=0); the build workflow checks fresh PDFs")
+        built = "the sources"
     else:
         check_pdfs()
-    built = "built PDFs (page order traced to source pages)" if os.environ.get("CHECK_BUILT_PDFS", "1") != "0" else "PDF file names"
-    print(f"PASS: manifest agrees with files, reading order and {built} "
+        built = "the built PDFs (page order traced to source pages)"
+    print(f"PASS: manifest agrees with {built} "
           f"({len(M.WORKSHEETS)} worksheets, {len(M.MINISTRY_PAGES)} curriculum pages, {len(M.CHAPTERS)} chapters, "
           f"{M.TOTAL_PAGES} pages, {M.TOTAL_BOOKMARKS} bookmarks)")
 
