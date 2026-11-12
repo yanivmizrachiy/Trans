@@ -6,15 +6,11 @@ Only prints PASS if the public endpoint serves the exact published bytes.
 """
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from hashlib import sha256
-from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
-import os
 import time
 
-ROOT = Path(__file__).resolve().parents[1]
-BASE = "https://transformations-math.vercel.app"
-ROOT_HTML = ("index.html",)
+from manifest import BASE_URL as BASE, ROOT, ROOT_PAGES
 # Discover the complete public HTML/PDF/assets inventory from the checked-out
 # repository. This prevents silently skipping new booklet parts or assets.
 def discover(directory,patterns):
@@ -22,7 +18,7 @@ def discover(directory,patterns):
     return tuple(f"{directory}/{f.name}" for pattern in patterns
                  for f in sorted(root.glob(pattern)) if f.is_file())
 ROUTES = (
-    *ROOT_HTML,
+    *ROOT_PAGES,
     *discover("book",("*.html","*.pdf")),
     *discover("worksheets",("*.html",)),
     *discover("assets",("*.css","*.js","*.svg")),

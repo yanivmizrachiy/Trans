@@ -1,10 +1,14 @@
 {
- "_comment": "Technical inventory of the published artifacts. Decisions and requirements live only in SOURCE_OF_TRUTH.md; this file is what the build and the checks read so that counts, ids, order and page ranges exist in one place. The booklet is one continuous reading sequence ordered by mathematical topic: book.chapters lists every item (s = numbered teacher summary, m = Ministry source page, w = worksheet id, c = file-backed component) exactly in the order of book/complete.html and of book/transformations-complete.pdf. Page ranges, totals and bookmark counts are derived from it by scripts/manifest.py.",
+ "_comment": "Technical inventory of the booklet. Requirements and decisions live only in SOURCE_OF_TRUTH.md; this file holds what the build and the checks read, so that ids, titles, page counts, the shared footer and the reading order exist in one place. book.chapters lists every item in booklet order (s = teacher summary page n, m = Ministry source page p, w = worksheet id, c = file-backed component). Page ranges, totals and bookmarks are derived from it by scripts/manifest.py.",
  "site": {
   "base_url": "https://transformations-math.vercel.app",
   "root_pages": [
    "index.html"
   ]
+ },
+ "footer": {
+  "credit": "יניב רז - מדריך מחוזי חט\"ב בעיר ירושלים",
+  "district": "הדרכה במחוז ירושלים והעיר ירושלים - מנח\"י, בהובלת איילת קריספין"
  },
  "worksheets": {
   "original": [
@@ -139,10 +143,6 @@
   "file_pattern": "grade7-p{page:03}.webp",
   "heading": "שאלות מתוך תוכנית הלימודים"
  },
- "teacher": {
-  "html": "book/teacher.html",
-  "summaries": 8
- },
  "book": {
   "file": "book/transformations-complete.pdf",
   "html": "book/complete.html",
@@ -169,8 +169,7 @@
     "label": "מעבדת המורה — שלושה חקרי טרנספורמציות",
     "file": "book/sadna.pdf",
     "html": "book/sadna.html",
-    "pages": 3,
-    "credit": "יניב רז - מדריך מחוזי חט\"ב בעיר ירושלים"
+    "pages": 3
    },
    "workshop": {
     "label": "סדנת מורים",

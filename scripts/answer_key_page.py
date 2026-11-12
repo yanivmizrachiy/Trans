@@ -6,7 +6,6 @@ For print, its worksheet sections follow the booklet pages, each opens with a he
 holding its booklet page, and every answer is a row: the question badge on the right,
 the answer beside it. Coordinates are set as left-to-right mathematics in the text font.
 """
-import html as H
 import re
 from markdown import markdown
 import manifest as M

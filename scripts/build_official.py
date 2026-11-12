@@ -9,8 +9,8 @@ from playwright.sync_api import sync_playwright
 from pypdf import PdfReader
 import manifest as M
 
-SOURCE = M.ROOT / "book" / "official.html"
-OUTPUT = M.ROOT / "book" / "official.pdf"
+SOURCE = M.ROOT / M.COMPONENTS["official"]["html"]
+OUTPUT = M.ROOT / M.COMPONENTS["official"]["file"]
 
 AUDIT = """() => [...document.querySelectorAll('.qpage')].flatMap(p => {
   const e = [], box = p.getBoundingClientRect(), foot = p.querySelector('.page-foot'), logo = p.querySelector('.ws-logo');

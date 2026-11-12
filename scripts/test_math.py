@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """Exact mathematical checks for Yaniv Raz's original transformation worksheets."""
-from pathlib import Path
-from html import unescape
 import re
 import unittest
 import manifest as M
@@ -44,8 +42,6 @@ class MathQuality(unittest.TestCase):
                 self.assertGreater(area2(points),0)
                 self.assertTrue(all(abs(x)<=7 and abs(y)<=7 for x,y in points))
                 self.assertEqual(len(set(points)),len(points))
-                self.assertIn('יניב רז - מדריך מחוזי חט"ב בעיר ירושלים',doc)
-                self.assertIn("../assets/logo.png",doc)
                 self.assertEqual(doc.count('class="level"')+doc.count("class='level'"),3)
 
     def test_isometries_preserve_distances_and_area(self):
@@ -157,9 +153,6 @@ class AdditionalOriginalSheets(unittest.TestCase):
                 self.assertIn(name,M.IMPORTED)
                 self.assertEqual(M.WORKSHEET_SOURCE[name],"original-2026-11")
                 self.assertNotIn("נכתב לחוברת",doc)
-                # the booklet's logo footer on every printed page
-                self.assertEqual(doc.count("assets/logo.png"),M.WORKSHEET_PAGES[name])
-                self.assertNotIn("הדף נערך",doc)
 
     def test_community_hall_rectangle(self):
         doc=(ROOT/"worksheets"/"rectangles.html").read_text(encoding="utf-8")

@@ -14,7 +14,7 @@ import argparse
 import sys
 import tempfile
 from pathlib import Path
-import fitz
+import pymupdf as fitz
 from playwright.sync_api import sync_playwright
 from manifest import WORKSHEETS, WORKSHEET_PAGES
 

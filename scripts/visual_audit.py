@@ -7,9 +7,8 @@ missing text/scans, and to preserve contact sheets for human inspection.
 Every page is portrait A4 and carries the running page number; which pages
 are Ministry scans is derived from the manifest's reading sequence.
 """
-from pathlib import Path
 from PIL import Image, ImageDraw, ImageOps
-import fitz
+import pymupdf as fitz
 import manifest as M
 
 ROOT=M.ROOT
@@ -42,7 +41,6 @@ def main():
     for i,page in enumerate(doc):
         n=i+1
         chapter,item=PAGE_MAP[n]
-        is_official=item[0]=="m"
         width,height=page.rect.width,page.rect.height
         if not (height>width and abs(width-595.28)<.5 and abs(height-841.89)<.5):
             raise RuntimeError(f"Book page {n}: A4 portrait page size missing")

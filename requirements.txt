@@ -1,0 +1,8 @@
+# The one list of Python packages the build and the checks need. Pinned to the set the
+# last green CI build installed, so a new release cannot change or break the booklet.
+markdown==3.11.2
+pillow==13.0.0
+playwright==1.64.1
+pymupdf==2.1
+pypdf==6.21.4
+reportlab==5.1.0
