@@ -114,6 +114,9 @@ def check_pdf_links(target_pdf, page_html, base_url):
     if missing:
         raise RuntimeError(f"{target_pdf.name}: relative links were not published as absolute URLs: {missing}")
 
+# The one weight rule of the book (assets/book.css) also applies to the pages rendered here.
+WEIGHTS=re.search(r"/\* weights:start \*/(.*?)/\* weights:end \*/",(ROOT/"assets"/"book.css").read_text(encoding="utf-8"),re.S).group(1)
+
 # Flowing teacher texts: the top margin holds the booklet's header and the bottom margin its
 # logo footer; both are laid over every page.
 MD_MARGIN={"top":"25mm","right":"15mm","bottom":"27mm","left":"15mm"}
@@ -128,7 +131,7 @@ def foot_overlay(browser):
               f"<link rel='stylesheet' href='{(ROOT/'assets'/'page-foot.css').as_uri()}'>"
               "<style>@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
               "body{font-family:Arial,'Noto Sans Hebrew',sans-serif}.page-foot{position:fixed;left:0;right:0;bottom:0}"
-              ".page-foot .ws-footline{height:0;background:none;border-top:2px solid #14296e}</style></head><body>"
+              ".page-foot .ws-footline{height:0;background:none;border-top:2px solid #14296e}"+WEIGHTS+"</style></head><body>"
               "<footer class='page-foot'><div class='ws-footline'></div><div class='ws-brand'>"
               f"<img class='ws-logo' src='{logo}' alt='' width='64' height='64'><p class='ws-credit'>"
               f"<strong>{M.FOOTER_CREDIT}</strong><span>{M.FOOTER_DISTRICT}</span></p></div></footer></body></html>")
@@ -173,7 +176,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
         raise RuntimeError(f"Cannot render unstructured {source}")
     body=to_html(content) if to_html else markdown(content,extensions=["tables","fenced_code","sane_lists"])
     html=rewrite_book_links(body,target_html)
-    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title>"+head+"<style>@page{size:A4}"+style+"</style></head><body>"+html+"</body></html>"
+    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title>"+head+"<style>@page{size:A4}"+style+WEIGHTS+"</style></head><body>"+html+"</body></html>"
     target_html.write_text(page_html,encoding="utf-8",newline="\n")
     public_url=M.BASE_URL.rstrip("/")+"/book/"+target_html.name
     tab=browser.new_page(viewport={"width":1100,"height":1500})
