@@ -17,6 +17,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen.canvas import Canvas
 from urllib.parse import unquote, urlsplit, urljoin
+import hashlib
 import re
 import tempfile
 import manifest as M
@@ -318,6 +319,23 @@ def number_stamps(numbers):
     buffer.seek(0)
     return PdfReader(buffer)
 
+# The booklet is read on phones: a regression in deduplication must stop the build.
+MAX_BOOK_BYTES=6_000_000
+
+def check_packed(path):
+    """Fail when the published booklet stores one image twice or grows past MAX_BOOK_BYTES."""
+    seen={}
+    with fitz.open(str(path)) as doc:
+        for xref in range(1,doc.xref_length()):
+            if doc.xref_is_stream(xref) and doc.xref_get_key(xref,"Subtype")[1]=="/Image":
+                digest=hashlib.sha256(doc.xref_stream_raw(xref)).hexdigest()
+                if digest in seen:
+                    raise RuntimeError(f"{path.name}: image objects {seen[digest]} and {xref} are identical copies")
+                seen[digest]=xref
+    size=path.stat().st_size
+    if size>MAX_BOOK_BYTES:
+        raise RuntimeError(f"{path.name} is {size} bytes, more than {MAX_BOOK_BYTES}")
+
 def build():
     M.validate()
     validate_pdf(BOOK/"teacher.pdf",M.component_pages("teacher"))
@@ -380,14 +398,14 @@ def build():
                          "/Subject":"חפיפת צורות, הזזה, סיבוב ושיקוף — סיכומים למורה, דפי עבודה, שאלות מתוך תוכנית הלימודים ומפתח תשובות",
                          "/Author":"מאגר הוראה במתמטיקה — Trans"})
     dest=ROOT/M.BOOK_FILE
-    with dest.open("wb") as f:writer.write(f)
-    # Every part PDF embeds its own copy of the footer logo. Identical objects are merged in
-    # two passes: the first unites the logos' transparency masks, which makes the logo
-    # images themselves identical for the second.
-    for _ in range(2):
-        packed=PdfWriter(clone_from=PdfReader(BytesIO(dest.read_bytes())))
-        packed.compress_identical_objects(remove_identicals=True,remove_orphans=True)
-        with dest.open("wb") as f:packed.write(f)
+    merged=BytesIO()
+    writer.write(merged)
+    # Every part PDF embeds its own copy of the footer logo and fonts. MuPDF merges identical
+    # objects (garbage=4) and packs the rest into object streams; pypdf's own deduplication
+    # left 26 copies of the logo in CI builds and doubled the download.
+    with fitz.open(stream=merged.getvalue(),filetype="pdf") as packed:
+        packed.save(str(dest),garbage=4,deflate=True,use_objstms=1)
+    check_packed(dest)
     verify=PdfReader(str(dest))
     if len(verify.pages)!=M.TOTAL_PAGES:
         raise RuntimeError(f"Book missing pages: {len(verify.pages)} expected {M.TOTAL_PAGES} (data/manifest.json)")

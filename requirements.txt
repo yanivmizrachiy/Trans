@@ -1,0 +1,8 @@
+# The one list of Python packages the build and the checks need, pinned so CI renders
+# with the same versions that were verified locally.
+markdown==3.10
+pillow==12.0.0
+playwright==1.57.0
+pymupdf==1.27.1
+pypdf==6.7.4
+reportlab==5.0.0

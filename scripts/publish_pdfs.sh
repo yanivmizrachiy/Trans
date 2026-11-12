@@ -28,7 +28,7 @@ fi
 # makes this build stale; it must then publish nothing.
 # Keep in line with the paths that trigger .github/workflows/build-pdfs.yml.
 SOURCES=(
-  worksheets/ data/ assets/ sources/ministry/ docs/ scripts/
+  worksheets/ data/ assets/ sources/ministry/ docs/ scripts/ requirements.txt
   book/teacher.html book/official.html book/sadna.html book/krispin-video.html
 )
 # The one file the build publishes. Every other build output stays out of Git.

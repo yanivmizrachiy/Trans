@@ -36,7 +36,7 @@ jobs:
       - name: Check links, wording and PDFs
         run: python3 scripts/validate_site.py
       - name: Install the PDF reader
-        run: python3 -m pip install --disable-pip-version-check pypdf
+        run: python3 -m pip install --disable-pip-version-check "$(grep '^pypdf==' requirements.txt)"
       - name: Check the source of truth and the credits
         run: python3 scripts/check_contract.py
       - name: Check every inventory consumer against data/manifest.json
