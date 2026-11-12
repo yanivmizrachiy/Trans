@@ -8,7 +8,7 @@ workshop, worksheets, curriculum pages and answer key), so each part keeps its
 own layout and only its place in the merged booklet is decided here.
 """
 from io import BytesIO
-import fitz
+import pymupdf as fitz
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader, PdfWriter

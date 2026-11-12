@@ -8,7 +8,7 @@ Every page is portrait A4 and carries the running page number; which pages
 are Ministry scans is derived from the manifest's reading sequence.
 """
 from PIL import Image, ImageDraw, ImageOps
-import fitz
+import pymupdf as fitz
 import manifest as M
 
 ROOT=M.ROOT
