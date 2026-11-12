@@ -28,6 +28,7 @@ def main():
         for word in RETIRED:
             assert word not in html, (p.name, "retired wording", word)
         assert not re.search(r"href\s*=\s*['\"](?:#|javascript:|\s*)['\"]", html, re.I), (p.name, "empty link")
+        assert "razpages" not in html and "MathJax" not in html, (p.name, "pages load nothing from other repositories")
         links = Links(); links.feed(html)
         for link in links.urls:
             url = urlsplit(link)

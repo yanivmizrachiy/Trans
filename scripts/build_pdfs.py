@@ -23,14 +23,14 @@ def main():
                     page.goto(source.as_uri(), wait_until="load", timeout=60000)
                     if stem.startswith("orig-"):
                         page.wait_for_function(
-                            '() => Array.from(document.querySelectorAll("svg[data-shape]")).every(s => !!s.querySelector("polygon"))',
+                            '() => Array.from(document.querySelectorAll("svg[data-fig]")).every(s => !!s.querySelector("polygon"))',
                             timeout=15000
                         )
                         ok = page.evaluate("""() => {
                           const img = document.querySelector('img.ws-logo[alt="יחידת מתמטיקה — מחוז ירושלים והעיר ירושלים"]');
                           const credit = document.querySelector('.ws-foot .ws-credit strong');
                           const line = document.querySelector('.ws-foot .ws-footline');
-                          const graph = document.querySelector('svg[data-shape] polygon');
+                          const graph = document.querySelector('svg[data-fig] polygon');
                           const sheet = document.querySelector('article.sheet');
                           return !!(img && img.complete && img.naturalWidth > 0 && credit && line && line.getBoundingClientRect().width > 0.9 * sheet.querySelector('.ws-foot').getBoundingClientRect().width &&
                                     graph && sheet && getComputedStyle(document.documentElement).direction === 'rtl');
@@ -62,15 +62,7 @@ def main():
                         }""")
                         if bad:
                             raise RuntimeError(f"Printed layout of {stem}: the footer must close every A4 sheet, every question needs writing space and each plane stays in its frame ({bad})")
-                    page.evaluate("""async () => {
-                      if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
-                        await Promise.race([
-                           window.MathJax.startup.promise,
-                           new Promise(resolve => setTimeout(resolve, 8000))
-                        ]);
-                      }
-                      await document.fonts.ready;
-                    }""")
+                    page.evaluate("document.fonts.ready")
                     target = DEST / (stem + ".pdf")
                     page.pdf(path=str(target), format="A4", print_background=True,
                              prefer_css_page_size=True, margin={"top": "0", "right": "0", "bottom": "0", "left": "0"})
