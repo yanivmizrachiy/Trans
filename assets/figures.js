@@ -29,9 +29,12 @@
     flipY: function (p) { return [-p[0], p[1]]; }
   };
 
+  // Professional hairline weights (mm). Shapes read above the axes, axes above the grid.
+  var W = { shape: .35, inner: .3, grid: .15, axis: .3, axisDash: .26, aux: .35, mirror: .4, seg: .3, motion: .45 };
+
   var STYLES = {
-    original: { fill: '#dbe9f7', line: INK, width: .6 },
-    image: { fill: '#fde8d3', line: '#b45f06', width: .6 }
+    original: { fill: '#dbe9f7', line: INK, width: W.shape },
+    image: { fill: '#fde8d3', line: '#b45f06', width: W.shape }
   };
 
   function move(points, poly) {
@@ -89,18 +92,18 @@
     }
 
     if (f.grid) {
-      for (var gx = Math.ceil(f.x[0]); gx <= f.x[1]; gx++) line([gx, f.y[0]], [gx, f.y[1]], { stroke: GRID, 'stroke-width': .2 });
-      for (var gy = Math.ceil(f.y[0]); gy <= f.y[1]; gy++) line([f.x[0], gy], [f.x[1], gy], { stroke: GRID, 'stroke-width': .2 });
+      for (var gx = Math.ceil(f.x[0]); gx <= f.x[1]; gx++) line([gx, f.y[0]], [gx, f.y[1]], { stroke: GRID, 'stroke-width': W.grid });
+      for (var gy = Math.ceil(f.y[0]); gy <= f.y[1]; gy++) line([f.x[0], gy], [f.x[1], gy], { stroke: GRID, 'stroke-width': W.grid });
     }
     (f.lines || []).forEach(function (l) {
-      line(l[0], l[1], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': .45, stroke: '#27384a' });
+      line(l[0], l[1], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': W.aux, stroke: '#27384a' });
     });
     (f.vlines || []).forEach(function (v) {
-      line([v.at, f.y[0]], [v.at, f.y[1]], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': .5, stroke: '#27384a' });
+      line([v.at, f.y[0]], [v.at, f.y[1]], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': W.mirror, stroke: '#27384a' });
       if (v.label) text([v.at, f.y[1]], v.label, { dx: 1.2 + v.label.length * 1.1, dy: 2.2, size: 3.2 });
     });
     (f.hlines || []).forEach(function (v) {
-      line([f.x[0], v.at], [f.x[1], v.at], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': .5, stroke: '#27384a' });
+      line([f.x[0], v.at], [f.x[1], v.at], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': W.mirror, stroke: '#27384a' });
       if (v.label) text([f.x[0], v.at], v.label, { dx: 1.2 + v.label.length * 1.1, dy: -2.2, size: 3.2 });
     });
     (f.polys || []).forEach(function (poly) {
@@ -109,10 +112,10 @@
       add(poly.open ? 'polyline' : 'polygon', {
         points: pts.map(function (p) { return X(p[0]) + ',' + Y(p[1]); }).join(' '),
         fill: poly.open ? 'none' : poly.fill === undefined ? '#b4bcc4' : poly.fill, stroke: poly.line || '#27384a',
-        'stroke-width': poly.width || .4, 'stroke-linejoin': 'round', 'fill-opacity': poly.opacity || 1
+        'stroke-width': Math.min(poly.width || W.shape, W.shape), 'stroke-linejoin': 'round', 'fill-opacity': poly.opacity || 1
       });
       var inner = poly.inner || (poly.base && bases[poly.base].inner) || [];
-      inner.forEach(function (s) { var q = move(s, poly); line(q[0], q[1], { stroke: poly.line || '#27384a', 'stroke-width': .4 }); });
+      inner.forEach(function (s) { var q = move(s, poly); line(q[0], q[1], { stroke: poly.line || '#27384a', 'stroke-width': W.inner }); });
       if (poly.label) {
         var cx = poly.label.at || pts.reduce(function (a, p) { return [a[0] + p[0] / pts.length, a[1] + p[1] / pts.length]; }, [0, 0]);
         text(cx, poly.label.t, { rot: poly.label.rot, size: 4.2, halo: 0, color: '#10202e', rtl: true });
@@ -128,7 +131,7 @@
     });
     if (f.axes) {
       var dash = f.axes === 'dash' ? { 'stroke-dasharray': '1.4 1.1' } : {};
-      var ax = Object.assign({ stroke: f.axes === 'dash' ? '#51606e' : INK, 'stroke-width': f.axes === 'dash' ? .3 : .45 }, dash);
+      var ax = Object.assign({ stroke: f.axes === 'dash' ? '#51606e' : INK, 'stroke-width': f.axes === 'dash' ? W.axisDash : W.axis }, dash);
       var ox = f.ox || 0, oy = f.oy || 0;
       line([f.x[0], oy], [f.x[1], oy], ax);
       line([ox, f.y[0]], [ox, f.y[1]], ax);
@@ -146,16 +149,16 @@
         text([ox, f.y[1]], 'y', { dx: 2.6, dy: -2.4, size: 3.2 });
       }
     }
-    (f.segs || []).forEach(function (s) { line(s[0], s[1], { stroke: '#27384a', 'stroke-width': .4 }); });
+    (f.segs || []).forEach(function (s) { line(s[0], s[1], { stroke: '#27384a', 'stroke-width': W.seg }); });
     (f.arrows || []).forEach(function (a) {
-      line(a[0], a[1], { stroke: '#7b8794', 'stroke-width': .5 });
+      line(a[0], a[1], { stroke: '#7b8794', 'stroke-width': W.motion });
       head([X(a[1][0]), Y(a[1][1])], [X(a[0][0]), Y(a[0][1])], '#7b8794');
     });
     (f.arcs || []).forEach(function (a) {
       var rad = function (d) { return d * Math.PI / 180; };
       var S = [X(a.c[0] + a.r * Math.cos(rad(a.from))), Y(a.c[1] + a.r * Math.sin(rad(a.from)))];
       var E = [X(a.c[0] + a.r * Math.cos(rad(a.to))), Y(a.c[1] + a.r * Math.sin(rad(a.to)))];
-      add('path', { d: 'M' + S + ' A' + a.r * u + ',' + a.r * u + ' 0 0 1 ' + E, fill: 'none', stroke: '#7b8794', 'stroke-width': .5 });
+      add('path', { d: 'M' + S + ' A' + a.r * u + ',' + a.r * u + ' 0 0 1 ' + E, fill: 'none', stroke: '#7b8794', 'stroke-width': W.motion });
       var back = rad(a.to + 18);
       if (a.head !== false) head(E, [X(a.c[0] + a.r * Math.cos(back)), Y(a.c[1] + a.r * Math.sin(back))], '#7b8794');
     });
