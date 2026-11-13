@@ -72,7 +72,7 @@ html body main.content .micro-teach { border-top: 1px solid var(--book-rule); co
 html body main.content .micro-teach strong { color: var(--book-ink); }
 html body main.content .byline { margin: 0 0 1.5mm; color: var(--book-muted); font-size: 12.5px; }
 html body main.content .tag, html body main.content .chip { background: none; color: var(--book-accent); font-size: 12px; font-weight: 800; padding: 0; margin-inline-end: 1.5mm; }
-html body main.content .pr { border-color: var(--book-rule); border-radius: 1.2mm; }
+html body main.content .pr { border-color: var(--book-rule); border-radius: 0; }
 html body main.content .pr .pb { background: none; padding: 1.4mm 2.6mm 1.6mm; }
 html body main.content .pr h4 { font-size: 15px; color: var(--book-ink); margin: 0 0 .8mm; }
 html body main.content .pr .pg { font-size: 13px; line-height: 1.42; }
@@ -80,16 +80,16 @@ html body main.content .pr .say { background: var(--book-tint); }
 html body main.content .pr .avoid { background: none; border: 1px solid var(--book-rule); }
 html body main.content .pr .avoid b, html body main.content .pr .say b { color: var(--book-ink); }
 html body main.content .pr .pn { font-size: 20px; }
-html body main.content .st, html body main.content .mi { border-color: var(--book-rule); border-radius: 1.2mm; font-size: 13px; line-height: 1.42; }
+html body main.content .st, html body main.content .mi { border-color: var(--book-rule); border-radius: 0; font-size: 13px; line-height: 1.42; }
 html body main.content .st .q, html body main.content .mi .w { background: var(--book-tint); }
 html body main.content .mi .w { border-right: 1mm solid var(--book-ink); }
 html body main.content .mi .r b, html body main.content .st b { color: var(--book-ink); }
-html body main.content .ex { border: 1px solid var(--book-rule); border-radius: 1.2mm; font-size: 13px; }
+html body main.content .ex { border: 1px solid var(--book-rule); border-radius: 0; font-size: 13px; }
 html body main.content .ex .n { background: var(--book-ink); }
 html body main.content .ex .ans { color: var(--book-ink); font-size: 12.5px; }
 html body main.content .ex .chk { color: var(--book-muted); font-size: 12px; }
 html body main.content .diff .box, html body main.content .diff .box.up { border-top: 0; }
-html body main.content figure { border: 1px solid var(--book-rule); border-radius: 1.2mm; }
+html body main.content figure { border: 1px solid var(--book-rule); border-radius: 0; }
 html body main.content figcaption { font-size: 12px; color: var(--book-muted); }
 html body main.content .duo + .duo { border-top: 1px solid var(--book-rule); }
 
@@ -148,7 +148,7 @@ html body .chapter-bar .chapter-name { color: var(--book-ink); }
 .qpage .figs figure { margin: 0; text-align: center; }
 .qpage .figs figcaption { font-size: 12.5px; font-weight: 700; color: var(--book-ink); margin-top: 1mm; }
 .qpage .icon { display: inline-block; width: 6mm; height: 6mm; vertical-align: -1.6mm; margin: 0; }
-.qpage .work { flex: 1 1 10mm; min-height: 10mm; border: .3mm solid #9fb3c6; border-radius: 1.2mm;
+.qpage .work { flex: 1 1 10mm; min-height: 10mm; border: .3mm solid #9fb3c6; border-radius: 0;
   background-image: linear-gradient(var(--book-cell) .2mm, transparent .2mm), linear-gradient(90deg, var(--book-cell) .2mm, transparent .2mm);
   background-size: 5mm 5mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 @media print { .qpage { margin: 0; } }
@@ -163,7 +163,7 @@ html body article.fill .q > p { margin: .6mm 0 1.2mm; }
 html body article.fill .q b, html body article.fill .who { color: var(--book-ink); }
 html body article.fill .n { background: var(--book-ink); color: #fff; border-radius: 2mm; font-size: 13px; }
 html body article.fill .grid { flex: 3 1 auto; min-height: 0; align-items: stretch; }
-html body article.fill .graph { align-self: start; border-color: var(--book-rule); border-radius: 1.2mm; }
+html body article.fill .graph { align-self: start; border-color: var(--book-rule); border-radius: 0; }
 html body article.fill .grid > .questions { display: flex; flex-direction: column; }
 html body article.fill .ans { flex: 1 1 auto; align-items: stretch; gap: 3mm; margin-top: 1mm; }
 html body article.fill .ans > .work { flex: 1 1 auto !important; min-width: 0; }
@@ -176,10 +176,10 @@ html body article.fill .tbl th, html body article.fill .tbl td { border-color: v
 html body article.fill .tbl th { background: var(--book-tint); color: var(--book-ink); font-weight: 800; }
 html body article.fill .box { background: var(--book-tint); border: 0; border-right: 1mm solid var(--book-ink); border-radius: 1mm; padding: 2mm 3mm; font-size: 14px; margin-bottom: 3mm; }
 html body article.fill > .page-foot { margin-top: 0; padding-top: 2mm; }
-html body article.fill .work { flex: 1 1 10mm; min-height: 10mm; border: .3mm solid #9fb3c6; border-radius: 1.2mm;
+html body article.fill .work { flex: 1 1 10mm; min-height: 10mm; border: .3mm solid #9fb3c6; border-radius: 0;
   background-image: linear-gradient(var(--book-cell) .2mm, transparent .2mm), linear-gradient(90deg, var(--book-cell) .2mm, transparent .2mm);
   background-size: 5mm 5mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-html body article.practice-sheet .key span { border-color: var(--book-rule); border-radius: 1.2mm; }
+html body article.practice-sheet .key span { border-color: var(--book-rule); border-radius: 0; }
 
 /* ---------- Imported worksheets: plain question blocks that share the height of the page ---------- */
 html body .a4-page { display: flex; flex-direction: column; }
