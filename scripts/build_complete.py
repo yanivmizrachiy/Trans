@@ -324,14 +324,20 @@ def number_stamps(numbers):
 
 # The booklet is read on phones: a regression in deduplication must stop the build.
 MAX_BOOK_BYTES=6_000_000
+# Below this, an image is a CSS answer-grid tile (a few dozen bytes), not a scan or the
+# district logo. Two identical tiles waste nothing, so only substantial images are deduped.
+MIN_DEDUP_BYTES=1024
 
 def check_packed(path):
-    """Fail when the published booklet stores one image twice or grows past MAX_BOOK_BYTES."""
+    """Fail when the published booklet stores one substantial image twice or grows past MAX_BOOK_BYTES."""
     seen={}
     with fitz.open(str(path)) as doc:
         for xref in range(1,doc.xref_length()):
             if doc.xref_is_stream(xref) and doc.xref_get_key(xref,"Subtype")[1]=="/Image":
-                digest=hashlib.sha256(doc.xref_stream_raw(xref)).hexdigest()
+                raw=doc.xref_stream_raw(xref)
+                if not raw or len(raw)<MIN_DEDUP_BYTES:
+                    continue
+                digest=hashlib.sha256(raw).hexdigest()
                 if digest in seen:
                     raise RuntimeError(f"{path.name}: image objects {seen[digest]} and {xref} are identical copies")
                 seen[digest]=xref

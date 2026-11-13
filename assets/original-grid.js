@@ -33,7 +33,7 @@ for(const node of nodes){
     for(let j=1;j<rows;j++){const y=(j*h/rows).toFixed(2);d+=`M0 ${y}H${w}`;}
     const svg=document.createElementNS(NS,"svg");
     svg.setAttribute("viewBox",`0 0 ${w} ${h}`);svg.setAttribute("aria-hidden","true");
-    svg.innerHTML=`<path d="${d}" fill="none" stroke="#c3d8dd" stroke-width=".7"/><rect x=".5" y=".5" width="${w-1}" height="${h-1}" rx="3" fill="none" stroke="#7fa9b2" stroke-width="1"/>`;
+    svg.innerHTML=`<path d="${d}" fill="none" stroke="#c3d8dd" stroke-width=".7"/><rect x=".5" y=".5" width="${w-1}" height="${h-1}" fill="none" stroke="#7fa9b2" stroke-width="1"/>`;
     box.replaceChildren(svg);
   }
   function snap(){
