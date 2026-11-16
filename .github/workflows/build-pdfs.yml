@@ -67,6 +67,8 @@ jobs:
         run: python scripts/test_pdf_viewer.py
       - name: Audit every booklet page
         run: python scripts/visual_audit.py
+      - name: Inventory real embedded PDF fonts and text sizes
+        run: python scripts/audit_pdf_fonts.py
       - name: Check links, wording and PDFs
         run: python scripts/validate_site.py
       - name: Check every inventory consumer against data/manifest.json
