@@ -22,6 +22,7 @@ import re
 import tempfile
 import manifest as M
 import answer_key_page
+from print_font import require_book_font
 
 ROOT=M.ROOT
 BOOK=ROOT/"book"
@@ -115,7 +116,9 @@ def check_pdf_links(target_pdf, page_html, base_url):
         raise RuntimeError(f"{target_pdf.name}: relative links were not published as absolute URLs: {missing}")
 
 # The one weight rule of the book (assets/book.css) also applies to the pages rendered here.
-WEIGHTS=re.search(r"/\* weights:start \*/(.*?)/\* weights:end \*/",(ROOT/"assets"/"book.css").read_text(encoding="utf-8"),re.S).group(1)
+BOOK_STYLES=(ROOT/"assets"/"book.css").read_text(encoding="utf-8")
+WEIGHTS=re.search(r"/\* weights:start \*/(.*?)/\* weights:end \*/",BOOK_STYLES,re.S).group(1)
+FONT_CSS=re.search(r"/\* fonts:start.*?\*/(.*?)/\* fonts:end \*/",BOOK_STYLES,re.S).group(1)
 
 # Flowing teacher texts: the top margin holds the booklet's header and the bottom margin its
 # logo footer; both are laid over every page.
@@ -129,7 +132,7 @@ def foot_overlay(browser):
         logo=(ROOT/"assets"/"logo.png").as_uri()
         html=("<!doctype html><html lang='he' dir='rtl'><head><meta charset='utf-8'>"
               f"<link rel='stylesheet' href='{(ROOT/'assets'/'page-foot.css').as_uri()}'>"
-              "<style>@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
+              "<style>"+FONT_CSS+"@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
               "body{font-family:Arial,'Noto Sans Hebrew',sans-serif}.page-foot{position:fixed;left:0;right:0;bottom:0}"
               ".page-foot .ws-footline{height:0;background:none;border-top:2px solid #14296e}"+WEIGHTS+"</style></head><body>"
               "<footer class='page-foot'><div class='ws-footline'></div><div class='ws-brand'>"
@@ -140,6 +143,7 @@ def foot_overlay(browser):
             page=Path(temp)/"foot.html"
             page.write_text(html,encoding="utf-8")
             tab.goto(page.as_uri(),wait_until="load")
+            require_book_font(tab)
             if not tab.evaluate("() => document.querySelector('img').naturalWidth > 0"):
                 raise RuntimeError("Footer logo did not load")
             data=tab.pdf(format="A4",print_background=False,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
@@ -151,7 +155,7 @@ def head_overlay(browser, title):
     """One transparent A4 page holding only the booklet's header, to lay over flowing pages."""
     html=("<!doctype html><html lang='he' dir='rtl'><head><meta charset='utf-8'>"
           f"<link rel='stylesheet' href='{(ROOT/'assets'/'book.css').as_uri()}'>"
-          "<style>@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
+          "<style>"+FONT_CSS+"@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
           "body{font-family:Arial,'Noto Sans Hebrew',sans-serif;padding:8mm 15mm 0}</style></head><body>"
           f"<header class='head'><div><h1>{title}</h1><p class='series'>{SERIES}</p></div></header></body></html>")
     tab=browser.new_page()
@@ -159,6 +163,7 @@ def head_overlay(browser, title):
         page=Path(temp)/"head.html"
         page.write_text(html,encoding="utf-8")
         tab.goto(page.as_uri(),wait_until="load")
+        require_book_font(tab)
         data=tab.pdf(format="A4",print_background=False,prefer_css_page_size=True,margin={"top":"0","right":"0","bottom":"0","left":"0"})
     tab.close()
     return PdfReader(BytesIO(data)).pages[0]
@@ -176,7 +181,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
         raise RuntimeError(f"Cannot render unstructured {source}")
     body=to_html(content) if to_html else markdown(content,extensions=["tables","fenced_code","sane_lists"])
     html=rewrite_book_links(body,target_html)
-    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title>"+head+"<style>@page{size:A4}"+style+WEIGHTS+"</style></head><body>"+html+"</body></html>"
+    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title>"+head+"<style>"+FONT_CSS+"@page{size:A4}"+style+WEIGHTS+"</style></head><body>"+html+"</body></html>"
     target_html.write_text(page_html,encoding="utf-8",newline="\n")
     public_url=M.BASE_URL.rstrip("/")+"/book/"+target_html.name
     tab=browser.new_page(viewport={"width":1100,"height":1500})
@@ -186,6 +191,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
         print_html=Path(temp)/target_html.name
         print_html.write_text(absolute_links(page_html,public_url),encoding="utf-8",newline="\n")
         tab.goto(print_html.as_uri(),wait_until="load")
+        require_book_font(tab)
         tab.emulate_media(media="print")
         if fonts:
             missing=tab.evaluate("""async (families) => {
@@ -238,6 +244,7 @@ def render_sadna(browser):
     errors=[]
     tab.on("pageerror",lambda e:errors.append(str(e)))
     tab.goto(path.as_uri(),wait_until="load")
+    require_book_font(tab)
     tab.emulate_media(media="print")
     tab.evaluate("() => window.fitSheets && window.fitSheets()")
     check=tab.evaluate("""(credit) => {
@@ -269,6 +276,7 @@ def render_video(browser):
     errors=[]
     tab.on("pageerror",lambda e:errors.append(str(e)))
     tab.goto(path.as_uri(),wait_until="load")
+    require_book_font(tab)
     tab.emulate_media(media="print")
     check=tab.evaluate("""() => {
       const pages=Array.from(document.querySelectorAll('article.sheet'));
