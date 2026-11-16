@@ -24,10 +24,10 @@
         });};
         var wide=function(){return figs.some(function(f){
           var r=f.getBoundingClientRect(),row=f.closest('.solved');
-          return row?r.width>full*.56:(f.closest('.sym')?r.width>full*.31:r.width>full);
+          return row?r.width>full*.62:(f.closest('.sym')?r.width>full*.35:r.width>full);
         });};
         var k=1;
-        while(k<1.5){size(k+.04);if(bad()||wide()){size(k);break;}k=Math.round((k+.04)*100)/100;}
+        while(k<1.7){size(k+.04);if(bad()||wide()){size(k);break;}k=Math.round((k+.04)*100)/100;}
       }
       var heads=[].slice.call(m.children).filter(function(e,i){return i>0&&/^H[2-4]$/.test(e.tagName);});
       var rows=[].slice.call(m.querySelectorAll('tr')).filter(function(r){return r.querySelector('td');}),spare=room();
@@ -37,13 +37,14 @@
           var b=parseFloat(getComputedStyle(c).paddingTop)+pad;c.style.paddingTop=b+'px';c.style.paddingBottom=b+'px';c.setAttribute('data-spread','');
         });});
       }
+      // Spread the leftover room evenly between every block, not dumped before one heading:
+      // the page fills gently and no section (e.g. "דוגמאות פתורות") opens after a big gap.
       var left=room();
-      var parts=heads.length?heads:[].slice.call(m.children).slice(1);
+      var parts=[].slice.call(m.children).slice(1);
       if(left>8&&parts.length){
-        var add=Math.min(left/parts.length,110*z);
+        var add=Math.min(left/parts.length,48*z);
         parts.forEach(function(h){
-          if(heads.length)h.style.paddingTop=(add/z)+'px';
-          else h.style.marginTop=(parseFloat(getComputedStyle(h).marginTop)+add/z)+'px';
+          h.style.marginTop=(parseFloat(getComputedStyle(h).marginTop)+add/z)+'px';
           h.setAttribute('data-spread','');
         });
       }
