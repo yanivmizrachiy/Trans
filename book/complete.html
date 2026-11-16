@@ -25,43 +25,142 @@ body{overflow-x:clip}
 <div class="bar"><div class="load" id="load"></div><a class="get" href="transformations-complete.pdf" download="transformations-complete.pdf">הורדת החוברת להדפסה (PDF, A4)</a></div>
 <main class="book" id="book" aria-label="חוברת טרנספורמציות וחפיפת צורות"></main>
 <noscript><iframe class="fallback" src="transformations-complete.pdf" title="חוברת טרנספורמציות וחפיפת צורות"></iframe></noscript>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 "use strict";
-// The reading view shows the printed A4 booklet itself, page after page, with nothing added.
-const PDF="transformations-complete.pdf";
-const BOOK=document.getElementById("book");
-function fallback(){BOOK.innerHTML="";const f=document.createElement("iframe");f.className="fallback";f.src=PDF;f.title="חוברת טרנספורמציות וחפיפת צורות";BOOK.appendChild(f);}
-async function show(){
-  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  const task=pdfjsLib.getDocument({url:PDF,disableAutoFetch:true}),load=document.getElementById("load");
-  task.onProgress=p=>{if(p.total)load.style.width=Math.min(100,100*p.loaded/p.total)+"%";};
-  const doc=await task.promise;
-  const slots=[];
-  for(let n=1;n<=doc.numPages;n++){
-    const page=await doc.getPage(n);
-    const box=page.getViewport({scale:1});
-    const slot=document.createElement("div");slot.className="page";slot.id="page-"+n;
-    slot.style.aspectRatio=box.width+" / "+box.height;
-    slot.setAttribute("role","img");slot.setAttribute("aria-label","עמוד "+n);
-    BOOK.appendChild(slot);slots.push([slot,page]);
-  }
-  const drawn=new WeakMap();
-  const draw=async(slot,page)=>{
-    const width=slot.clientWidth;if(!width)return;const ratio=Math.min(2,window.devicePixelRatio||1);
-    if(drawn.get(slot)===width)return;drawn.set(slot,width);
-    const view=page.getViewport({scale:width*ratio/page.getViewport({scale:1}).width});
-    const canvas=document.createElement("canvas");canvas.width=Math.ceil(view.width);canvas.height=Math.ceil(view.height);
-    await page.render({canvasContext:canvas.getContext("2d"),viewport:view}).promise;
-    slot.replaceChildren(canvas);
-  };
-  const pages=new Map(slots);
-  load.remove();
-  const watch=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting)draw(e.target,pages.get(e.target)).catch(()=>{});},{rootMargin:"1600px 0px"});
-  slots.forEach(([slot])=>watch.observe(slot));
-  addEventListener("resize",()=>{for(const [slot,page] of slots){const r=slot.getBoundingClientRect();if(r.bottom>-1600&&r.top<innerHeight+1600)draw(slot,page).catch(()=>{});}});
+// Keep the PDF and its real A4 pages as the single source for the reading view.
+const PDF = "transformations-complete.pdf";
+const BOOK = document.getElementById("book");
+const PDFJS_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.min.mjs";
+const PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.worker.min.mjs";
+let observer;
+let failed = false;
+
+function fallback(error) {
+  if (failed) return;
+  failed = true;
+  if (error) console.error("Unable to render the PDF booklet", error);
+  if (observer) observer.disconnect();
+  BOOK.replaceChildren();
+  const frame = document.createElement("iframe");
+  frame.className = "fallback";
+  frame.src = PDF;
+  frame.title = "חוברת טרנספורמציות וחפיפת צורות";
+  BOOK.appendChild(frame);
 }
-if(window.pdfjsLib)show().catch(fallback);else fallback();
+
+async function show() {
+  // A matching, patched PDF.js module and worker are required. No PDF JavaScript eval.
+  const pdfjsLib = await import(PDFJS_URL);
+  pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+  const task = pdfjsLib.getDocument({ url: PDF, disableAutoFetch: true, isEvalSupported: false });
+  const load = document.getElementById("load");
+  task.onProgress = progress => {
+    if (load && progress.total) {
+      load.style.width = Math.min(100, 100 * progress.loaded / progress.total) + "%";
+    }
+  };
+  const doc = await task.promise;
+  if (!doc.numPages) throw new Error("Empty PDF booklet");
+  const firstPage = await doc.getPage(1);
+  const firstSize = firstPage.getViewport({ scale: 1 });
+  const pages = [];
+  for (let n = 1; n <= doc.numPages; n++) {
+    const slot = document.createElement("div");
+    slot.className = "page";
+    slot.id = "page-" + n;
+    slot.style.aspectRatio = firstSize.width + " / " + firstSize.height;
+    slot.setAttribute("role", "img");
+    slot.setAttribute("aria-label", "עמוד " + n);
+    BOOK.appendChild(slot);
+    pages.push(slot);
+  }
+  if (load) load.remove();
+  if (!("IntersectionObserver" in window)) return fallback(new Error("Unsupported browser"));
+
+  const completed = new WeakMap(); // Only mark a page complete AFTER PDF.js finishes rendering.
+  const inflight = new WeakMap();
+  const retries = new WeakMap();
+
+  const desiredPixels = slot => {
+    const ratio = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    return Math.round(slot.clientWidth * ratio);
+  };
+  const near = slot => {
+    const rect = slot.getBoundingClientRect();
+    return rect.bottom >= -1000 && rect.top <= window.innerHeight + 1000;
+  };
+
+  async function draw(slot, n) {
+    if (failed || !near(slot)) return;
+    const pixels = desiredPixels(slot);
+    if (!pixels || completed.get(slot) === pixels) return;
+    const running = inflight.get(slot);
+    if (running) { running.desired = pixels; return; }
+    const job = { desired: pixels };
+    inflight.set(slot, job);
+    try {
+      // Don't request/parse all 59 PDF pages just to paint the first visible page.
+      const page = n === 1 ? firstPage : await doc.getPage(n);
+      const viewport = page.getViewport({ scale: pixels / page.getViewport({ scale: 1 }).width });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      canvas.setAttribute("aria-hidden", "true");
+      const ctx = canvas.getContext("2d", { alpha: false });
+      if (!ctx) throw new Error("Canvas unavailable");
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      if (!failed && job.desired === pixels && near(slot)) {
+        slot.replaceChildren(canvas);
+        completed.set(slot, pixels);
+        retries.delete(slot);
+      }
+    } catch (error) {
+      if (!failed && job.desired === pixels && near(slot)) {
+        const attempts = (retries.get(slot) || 0) + 1;
+        retries.set(slot, attempts);
+        if (attempts >= 2) fallback(error);
+        else requestAnimationFrame(() => draw(slot, n));
+      }
+    } finally {
+      inflight.delete(slot);
+      // Resize/DPR changes during a render must not leave a stale, blurry canvas.
+      if (!failed && job.desired !== pixels && near(slot)) {
+        requestAnimationFrame(() => draw(slot, n));
+      }
+    }
+  }
+  observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      const slot = entry.target;
+      const n = Number(slot.id.slice(5));
+      if (entry.isIntersecting) {
+        void draw(slot, n);
+      } else {
+        // Canvas bitmaps are large; evict distant pages instead of holding 59 of them.
+        slot.replaceChildren();
+        completed.delete(slot);
+      }
+    }
+  }, { rootMargin: "1000px 0px" });
+  for (const slot of pages) observer.observe(slot);
+
+  const redrawVisible = () => {
+    if (failed) return;
+    for (let i = 0; i < pages.length; i++) {
+      if (near(pages[i])) void draw(pages[i], i + 1);
+    }
+  };
+  window.addEventListener("resize", redrawVisible, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", redrawVisible, { passive: true });
+  }
+  // Container-width changes may occur without a window resize (e.g. split-screen).
+  if (window.ResizeObserver) {
+    const resizeObserver = new ResizeObserver(redrawVisible);
+    resizeObserver.observe(BOOK);
+  }
+}
+show().catch(fallback);
 </script>
 </body>
 </html>
