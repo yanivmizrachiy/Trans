@@ -63,6 +63,8 @@ jobs:
         run: python scripts/build_official.py
       - name: Build the booklet
         run: python scripts/build_complete.py
+      - name: Verify live PDF.js canvas rendering and resize in Chromium
+        run: python scripts/test_pdf_viewer.py
       - name: Audit every booklet page
         run: python scripts/visual_audit.py
       - name: Check links, wording and PDFs
