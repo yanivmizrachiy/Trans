@@ -25,43 +25,97 @@ body{overflow-x:clip}
 <div class="bar"><div class="load" id="load"></div><a class="get" href="transformations-complete.pdf" download="transformations-complete.pdf">הורדת החוברת להדפסה (PDF, A4)</a></div>
 <main class="book" id="book" aria-label="חוברת טרנספורמציות וחפיפת צורות"></main>
 <noscript><iframe class="fallback" src="transformations-complete.pdf" title="חוברת טרנספורמציות וחפיפת צורות"></iframe></noscript>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 "use strict";
-// The reading view shows the printed A4 booklet itself, page after page, with nothing added.
+// Keep the viewer library and worker on one pinned, supported release.
+const PDFJS_BASE="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/build/";
 const PDF="transformations-complete.pdf";
 const BOOK=document.getElementById("book");
-function fallback(){BOOK.innerHTML="";const f=document.createElement("iframe");f.className="fallback";f.src=PDF;f.title="חוברת טרנספורמציות וחפיפת צורות";BOOK.appendChild(f);}
-async function show(){
-  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  const task=pdfjsLib.getDocument({url:PDF,disableAutoFetch:true}),load=document.getElementById("load");
-  task.onProgress=p=>{if(p.total)load.style.width=Math.min(100,100*p.loaded/p.total)+"%";};
+function fallback(){
+  BOOK.replaceChildren();
+  const frame=document.createElement("iframe");
+  frame.className="fallback";
+  frame.src=PDF;
+  frame.title="חוברת טרנספורמציות וחפיפת צורות";
+  BOOK.appendChild(frame);
+}
+async function show(pdfjsLib){
+  pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_BASE+"pdf.worker.mjs";
+  const load=document.getElementById("load");
+  const task=pdfjsLib.getDocument({url:PDF,disableAutoFetch:true,isEvalSupported:false});
+  task.onProgress=p=>{if(load&&p.total)load.style.width=Math.min(100,100*p.loaded/p.total)+"%";};
   const doc=await task.promise;
+  const first=await doc.getPage(1);
+  const viewport=first.getViewport({scale:1});
+  const pages=new Map();
+  const rendered=new WeakMap();
+  const active=new WeakMap();
+  const attempts=new WeakMap();
   const slots=[];
   for(let n=1;n<=doc.numPages;n++){
-    const page=await doc.getPage(n);
-    const box=page.getViewport({scale:1});
-    const slot=document.createElement("div");slot.className="page";slot.id="page-"+n;
-    slot.style.aspectRatio=box.width+" / "+box.height;
-    slot.setAttribute("role","img");slot.setAttribute("aria-label","עמוד "+n);
-    BOOK.appendChild(slot);slots.push([slot,page]);
+    const slot=document.createElement("div");
+    slot.className="page";
+    slot.id="page-"+n;
+    slot.style.aspectRatio=viewport.width+" / "+viewport.height;
+    slot.setAttribute("role","img");
+    slot.setAttribute("aria-label","עמוד "+n);
+    BOOK.appendChild(slot);
+    slots.push([slot,n]);
   }
-  const drawn=new WeakMap();
-  const draw=async(slot,page)=>{
-    const width=slot.clientWidth;if(!width)return;const ratio=Math.min(2,window.devicePixelRatio||1);
-    if(drawn.get(slot)===width)return;drawn.set(slot,width);
-    const view=page.getViewport({scale:width*ratio/page.getViewport({scale:1}).width});
-    const canvas=document.createElement("canvas");canvas.width=Math.ceil(view.width);canvas.height=Math.ceil(view.height);
-    await page.render({canvasContext:canvas.getContext("2d"),viewport:view}).promise;
-    slot.replaceChildren(canvas);
-  };
-  const pages=new Map(slots);
-  load.remove();
-  const watch=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting)draw(e.target,pages.get(e.target)).catch(()=>{});},{rootMargin:"1600px 0px"});
+  if(load)load.remove();
+  async function draw(slot,n){
+    if(!slot.isConnected)return;
+    const width=Math.round(slot.getBoundingClientRect().width);
+    if(!width)return;
+    const ratio=Math.min(2.5,Math.max(1,window.devicePixelRatio||1));
+    const key=width+"/"+ratio;
+    if(rendered.get(slot)===key||active.get(slot)===key)return;
+    active.set(slot,key);
+    try{
+      if(!pages.has(n))pages.set(n,doc.getPage(n));
+      const page=await pages.get(n);
+      const view=page.getViewport({scale:width*ratio/page.getViewport({scale:1}).width});
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.ceil(view.width);
+      canvas.height=Math.ceil(view.height);
+      const context=canvas.getContext("2d",{alpha:false});
+      if(!context)throw new Error("Canvas is unavailable");
+      await page.render({canvasContext:context,viewport:view}).promise;
+      if(active.get(slot)!==key||!slot.isConnected||Math.abs(slot.getBoundingClientRect().width-width)>1)return;
+      slot.replaceChildren(canvas);
+      rendered.set(slot,key);
+      attempts.delete(slot);
+    }catch(error){
+      console.warn("Unable to draw booklet page",n,error);
+      if(active.get(slot)===key){
+        const retry=(attempts.get(slot)||0)+1;
+        attempts.set(slot,retry);
+        if(retry<=2)setTimeout(()=>draw(slot,n),1200*retry);
+        else fallback();
+      }
+    }finally{
+      if(active.get(slot)===key)active.delete(slot);
+    }
+  }
+  const visible=()=>slots.filter(([slot])=>{
+    const r=slot.getBoundingClientRect();
+    return r.bottom>-1600&&r.top<innerHeight+1600;
+  });
+  const watch=new IntersectionObserver(entries=>{
+    for(const entry of entries)if(entry.isIntersecting){
+      const n=Number(entry.target.id.slice(5));
+      draw(entry.target,n);
+    }
+  },{rootMargin:"1600px 0px"});
   slots.forEach(([slot])=>watch.observe(slot));
-  addEventListener("resize",()=>{for(const [slot,page] of slots){const r=slot.getBoundingClientRect();if(r.bottom>-1600&&r.top<innerHeight+1600)draw(slot,page).catch(()=>{});}});
+  const redraw=()=>visible().forEach(([slot,n])=>draw(slot,n));
+  addEventListener("resize",redraw);
+  if("ResizeObserver" in window)new ResizeObserver(redraw).observe(BOOK);
 }
-if(window.pdfjsLib)show().catch(fallback);else fallback();
+import(PDFJS_BASE+"pdf.mjs").then(show).catch(error=>{
+  console.warn("PDF preview unavailable; falling back to native PDF viewer",error);
+  fallback();
+});
 </script>
 </body>
 </html>
