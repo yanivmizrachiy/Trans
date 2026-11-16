@@ -1,3 +1,16 @@
+/* Hebrew typography: use the actual Hebrew font on the PDF build runner.
+   The build workflow installs fonts-noto-core. Avoid silently mapping Arial
+   to a different font on Linux; math-specific LTR spans retain their styles. */
+:root { --book-hebrew-font: "Noto Sans Hebrew", Arial, sans-serif; }
+html body,
+html body .sheet,
+html body .qpage,
+html body .a4-page,
+html body main.content,
+html body .ws-credit {
+  font-family: var(--book-hebrew-font);
+}
+
 /* The book's one look. Change a token or a rule here and every printed page follows.
    Load it last on every page. `html body` makes it win over the older per-page styles. */
 :root {
