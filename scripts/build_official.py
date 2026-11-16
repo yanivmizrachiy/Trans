@@ -8,6 +8,7 @@ sources/ministry/ as the reference for the wording and the figures.
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader
 import manifest as M
+from print_font import require_book_font
 
 SOURCE = M.ROOT / M.COMPONENTS["official"]["html"]
 OUTPUT = M.ROOT / M.COMPONENTS["official"]["file"]
@@ -34,6 +35,7 @@ def main():
             errors = []
             tab.on("pageerror", lambda e: errors.append(str(e)))
             tab.goto(SOURCE.as_uri(), wait_until="load")
+            require_book_font(tab)
             tab.emulate_media(media="print")
             ids = tab.evaluate("() => [...document.querySelectorAll('.qpage')].map(p => p.id)")
             if ids != [f"p{n}" for n in pages]:
