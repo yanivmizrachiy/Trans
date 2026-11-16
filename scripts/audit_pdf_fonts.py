@@ -6,6 +6,7 @@ the font can change geometry, Hebrew line wraps and official question wording.
 """
 from collections import Counter
 from pathlib import Path
+import re
 import pymupdf as fitz
 import manifest as M
 
@@ -13,6 +14,9 @@ import manifest as M
 def main():
     path = Path(M.ROOT) / M.BOOK_FILE
     usages = Counter()
+    hebrew_by_font = Counter()
+    noto_embedded = set()
+    first_page_noto = False
     font_objects = {}
     pages_without_text = []
     with fitz.open(path) as doc:
@@ -25,6 +29,11 @@ def main():
                             continue
                         found_text = True
                         usages[(span["font"], round(span["size"], 1))] += len(span["text"])
+                        hebrew_letters = len(re.findall(r"[\u05d0-\u05ea]", span["text"]))
+                        if hebrew_letters:
+                            hebrew_by_font[span["font"]] += hebrew_letters
+                            if i == 1 and "NotoSansHebrew" in span["font"]:
+                                first_page_noto = True
             if not found_text:
                 pages_without_text.append(i)
             for record in page.get_fonts(full=True):
@@ -45,6 +54,8 @@ def main():
                 continue
             if not data:
                 missing.append(name)
+            if data and "NotoSansHebrew" in name:
+                noto_embedded.add(name)
             print(f"  FONT {xref} {name}: {'embedded' if data else 'not embedded or base-14'}"
                   f" ({len(data)} bytes)")
         print(f"NOTICE: PDF fonts requiring manual verification: {sorted(set(missing))}")
@@ -52,6 +63,19 @@ def main():
             raise AssertionError(f"Pages with no extractable text: {pages_without_text}")
         if not usages:
             raise AssertionError("No extractable PDF text")
+        if not noto_embedded:
+            raise AssertionError("No real Noto Sans Hebrew font embedded in the generated PDF")
+        total_hebrew = sum(hebrew_by_font.values())
+        noto_hebrew = sum(count for family, count in hebrew_by_font.items()
+                          if "NotoSansHebrew" in family)
+        print(f"Hebrew glyph coverage: {noto_hebrew}/{total_hebrew} in Noto Sans Hebrew")
+        if total_hebrew < 100 or noto_hebrew * 2 < total_hebrew:
+            raise AssertionError(
+                f"Noto Sans Hebrew is not rendering the majority of Hebrew letters: "
+                f"{noto_hebrew}/{total_hebrew}"
+            )
+        if not first_page_noto:
+            raise AssertionError("The teacher summary on page 1 is not using the canonical Hebrew font")
     print("PASS: PDF font inventory generated; no automatic typographic approval claimed")
 
 
