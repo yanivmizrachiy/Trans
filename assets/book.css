@@ -1,5 +1,32 @@
-/* fonts:start — one font definition for all booklet components */
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap');
+/* fonts:start — static, pinned OFL-licensed Hebrew TrueType faces, not a variable WOFF2 font */
+@font-face {
+  font-family: "Assistant";
+  src: url("https://raw.githubusercontent.com/googlefonts/Assistant/2b5ffdccb0216ccbdbdc8a623f3b935fc5b5e04a/fonts/ttf/Assistant-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Assistant";
+  src: url("https://raw.githubusercontent.com/googlefonts/Assistant/2b5ffdccb0216ccbdbdc8a623f3b935fc5b5e04a/fonts/ttf/Assistant-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Assistant";
+  src: url("https://raw.githubusercontent.com/googlefonts/Assistant/2b5ffdccb0216ccbdbdc8a623f3b935fc5b5e04a/fonts/ttf/Assistant-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Assistant";
+  src: url("https://raw.githubusercontent.com/googlefonts/Assistant/2b5ffdccb0216ccbdbdc8a623f3b935fc5b5e04a/fonts/ttf/Assistant-ExtraBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
 :root { --book-font: "Assistant", Arial, "Noto Sans Hebrew", sans-serif; }
 html body { font-family: var(--book-font); }
 html body svg text { font-family: var(--book-font); }
