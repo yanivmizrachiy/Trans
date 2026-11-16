@@ -66,7 +66,7 @@ def check_asset_usage():
             return
         used.add(path)
         if path.suffix.lower() == ".css":
-            for rel in re.findall(r"""@import\\s+(?:url\\()?\\s*['"]([^'"]+)['"]""",
+            for rel in re.findall(r"""@import[^'\"]+['\"]([^'\"]+)['\"]""",
                                   path.read_text(encoding="utf-8")):
                 visit(path.parent / rel)
 
