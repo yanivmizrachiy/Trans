@@ -3,6 +3,7 @@
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader
 import manifest as M
+from print_font import require_book_font
 
 SOURCE = M.ROOT / M.TEACHER_HTML
 OUTPUT = M.ROOT / M.COMPONENTS["teacher"]["file"]
@@ -18,6 +19,7 @@ def main():
             js_errors = []
             page.on("pageerror", lambda e: js_errors.append(str(e)))
             page.goto(SOURCE.as_uri(), wait_until="load", timeout=60000)
+            require_book_font(page)
             page.emulate_media(media="print")
             page.evaluate("document.fonts.ready")
             page.evaluate("() => window.fitSheets && window.fitSheets()")
