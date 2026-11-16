@@ -38,7 +38,9 @@ def main():
         p=Levels();p.feed(sheet)
         if len(p.levels)!=3:raise AssertionError(f"{ident}: expected three distinct questions")
         texts=[" ".join(z).strip() for z in p.levels]
-        if any(len(t)<65 for t in texts):raise AssertionError(f"{ident}: truncated or empty problem")
+        # Questions carry only a number, not a descriptive heading, so the prompt itself
+        # must still be a full sentence (not truncated or empty), without the old heading padding.
+        if any(len(t)<50 for t in texts):raise AssertionError(f"{ident}: truncated or empty problem")
         if len({re.sub(r"\d+","0",t) for t in texts})!=3:
             raise AssertionError(f"{ident}: duplicated level with changed numbers")
         for i,t in enumerate(texts):
