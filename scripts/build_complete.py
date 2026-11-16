@@ -118,7 +118,7 @@ def check_pdf_links(target_pdf, page_html, base_url):
 BOOK_CSS=(ROOT/"assets"/"book.css").read_text(encoding="utf-8")
 WEIGHTS=re.search(r"/\\* weights:start \\*/(.*?)/\\* weights:end \\*/",BOOK_CSS,re.S).group(1)
 # Pull the one canonical print-font stack from assets/book.css: no second font policy.
-FONT_STACK=re.search(r"--book-hebrew-font:\\s*([^;]+);",BOOK_CSS).group(1)
+FONT_STACK=BOOK_CSS.split("--book-hebrew-font:",1)[1].split(";",1)[0].strip()
 FONT_STYLE=f"html body, html body *{{font-family:{FONT_STACK}!important}}"
 
 
