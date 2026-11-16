@@ -116,7 +116,7 @@ def check_pdf_links(target_pdf, page_html, base_url):
 
 # The one weight rule of the book (assets/book.css) also applies to the pages rendered here.
 BOOK_CSS=(ROOT/"assets"/"book.css").read_text(encoding="utf-8")
-WEIGHTS=re.search(r"/\\* weights:start \\*/(.*?)/\\* weights:end \\*/",BOOK_CSS,re.S).group(1)
+WEIGHTS=BOOK_CSS.split("/* weights:start */",1)[1].split("/* weights:end */",1)[0]
 # Pull the one canonical print-font stack from assets/book.css: no second font policy.
 FONT_STACK=BOOK_CSS.split("--book-hebrew-font:",1)[1].split(";",1)[0].strip()
 FONT_STYLE=f"html body, html body *{{font-family:{FONT_STACK}!important}}"
