@@ -262,30 +262,6 @@
     ]
    },
    {
-    "key": "video",
-    "label": "סיכום סרטון ההמחשה — איילת קריספין",
-    "items": [
-     [
-      "c",
-      "krispin-video"
-     ]
-    ]
-   },
-   {
-    "key": "teaching",
-    "label": "מעבדת המורה וסדנה",
-    "items": [
-     [
-      "c",
-      "sadna"
-     ],
-     [
-      "c",
-      "workshop"
-     ]
-    ]
-   },
-   {
     "key": "worksheets",
     "label": "דפי עבודה לכיתה",
     "items": [
@@ -418,6 +394,30 @@
      [
       "m",
       91
+     ]
+    ]
+   },
+   {
+    "key": "video",
+    "label": "סיכום סרטון ההמחשה — איילת קריספין",
+    "items": [
+     [
+      "c",
+      "krispin-video"
+     ]
+    ]
+   },
+   {
+    "key": "teaching",
+    "label": "מעבדת המורה וסדנה",
+    "items": [
+     [
+      "c",
+      "sadna"
+     ],
+     [
+      "c",
+      "workshop"
      ]
     ]
    },
