@@ -115,7 +115,12 @@ def check_pdf_links(target_pdf, page_html, base_url):
         raise RuntimeError(f"{target_pdf.name}: relative links were not published as absolute URLs: {missing}")
 
 # The one weight rule of the book (assets/book.css) also applies to the pages rendered here.
-WEIGHTS=re.search(r"/\* weights:start \*/(.*?)/\* weights:end \*/",(ROOT/"assets"/"book.css").read_text(encoding="utf-8"),re.S).group(1)
+BOOK_CSS=(ROOT/"assets"/"book.css").read_text(encoding="utf-8")
+WEIGHTS=re.search(r"/\\* weights:start \\*/(.*?)/\\* weights:end \\*/",BOOK_CSS,re.S).group(1)
+# Pull the one canonical print-font stack from assets/book.css: no second font policy.
+FONT_STACK=re.search(r"--book-hebrew-font:\\s*([^;]+);",BOOK_CSS).group(1)
+FONT_STYLE=f"html body, html body *{{font-family:{FONT_STACK}!important}}"
+
 
 # Flowing teacher texts: the top margin holds the booklet's header and the bottom margin its
 # logo footer; both are laid over every page.
@@ -176,7 +181,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
         raise RuntimeError(f"Cannot render unstructured {source}")
     body=to_html(content) if to_html else markdown(content,extensions=["tables","fenced_code","sane_lists"])
     html=rewrite_book_links(body,target_html)
-    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title>"+head+"<style>@page{size:A4}"+style+WEIGHTS+"</style></head><body>"+html+"</body></html>"
+    page_html="<html lang='he' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+label+"</title>"+head+"<style>@page{size:A4}"+style+WEIGHTS+FONT_STYLE+"</style></head><body>"+html+"</body></html>"
     target_html.write_text(page_html,encoding="utf-8",newline="\n")
     public_url=M.BASE_URL.rstrip("/")+"/book/"+target_html.name
     tab=browser.new_page(viewport={"width":1100,"height":1500})
