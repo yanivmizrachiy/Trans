@@ -40,6 +40,51 @@ def check_files():
     demand(scans == expected, f"sources/ministry differs from manifest: {scans ^ expected}")
 
 
+def check_asset_usage():
+    """Do not accumulate stale asset CSS/JS files; follow real HTML and CSS imports."""
+    from html.parser import HTMLParser
+    from urllib.parse import urlsplit, unquote
+
+    class RefParser(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.refs = []
+
+        def handle_starttag(self, tag, attrs):
+            d = dict(attrs)
+            self.refs.extend(d[k] for k in ("href", "src") if d.get(k))
+
+    assets = (ROOT / "assets").resolve()
+    tracked = {p.resolve() for p in assets.iterdir()
+               if p.suffix.lower() in {".css", ".js", ".png", ".webp"}}
+    used = set()
+
+    def visit(path):
+        path = path.resolve()
+        demand(path.is_file(), f"Missing referenced asset: {path}")
+        if assets not in path.parents or path in used:
+            return
+        used.add(path)
+        if path.suffix.lower() == ".css":
+            for rel in re.findall(r"""@import\\s+(?:url\\()?\\s*['"]([^'"]+)['"]""",
+                                  path.read_text(encoding="utf-8")):
+                visit(path.parent / rel)
+
+    pages = [ROOT / "index.html", *(ROOT / "book").glob("*.html"),
+             *(ROOT / "worksheets").glob("*.html")]
+    for page in pages:
+        parser = RefParser()
+        parser.feed(page.read_text(encoding="utf-8"))
+        for ref in parser.refs:
+            url = urlsplit(ref)
+            if not url.scheme and not url.netloc and url.path:
+                candidate = (page.parent / unquote(url.path)).resolve()
+                if candidate in tracked:
+                    visit(candidate)
+    orphaned = sorted(str(p.relative_to(ROOT)) for p in tracked - used)
+    demand(not orphaned, f"Unused asset files (review before removal): {orphaned}")
+
+
 def check_curriculum_pages():
     official = read("book/official.html")
     pages = re.findall(r'<article class="qpage" id="p(\d+)">', official)
@@ -123,6 +168,7 @@ def check_pdfs():
 
 def main():
     check_files()
+    check_asset_usage()
     check_curriculum_pages()
     check_continuous_book()
     # The check workflow sets CHECK_BUILT_PDFS=0: build outputs are not in Git,
