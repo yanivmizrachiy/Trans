@@ -3,6 +3,7 @@
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader
 from manifest import ROOT, WORKSHEETS, WORKSHEET_PAGES
+from print_font import require_book_font
 
 SOURCE = ROOT / "worksheets"
 DEST = ROOT / "pdf"
@@ -21,6 +22,7 @@ def main():
                     page_errors = []
                     page.on("pageerror", lambda err: page_errors.append(str(err)))
                     page.goto(source.as_uri(), wait_until="load", timeout=60000)
+                    require_book_font(page)
                     if stem.startswith("orig-"):
                         page.wait_for_function(
                             '() => Array.from(document.querySelectorAll("svg[data-fig]")).every(s => !!s.querySelector("polygon"))',
