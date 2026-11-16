@@ -135,7 +135,7 @@ def foot_overlay(browser):
         html=("<!doctype html><html lang='he' dir='rtl'><head><meta charset='utf-8'>"
               f"<link rel='stylesheet' href='{(ROOT/'assets'/'page-foot.css').as_uri()}'>"
               "<style>@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
-              "body{font-family:Arial,'Noto Sans Hebrew',sans-serif}.page-foot{position:fixed;left:0;right:0;bottom:0}"
+              f"body{{font-family:{FONT_STACK}}}.page-foot{{position:fixed;left:0;right:0;bottom:0}}"
               ".page-foot .ws-footline{height:0;background:none;border-top:2px solid #14296e}"+WEIGHTS+"</style></head><body>"
               "<footer class='page-foot'><div class='ws-footline'></div><div class='ws-brand'>"
               f"<img class='ws-logo' src='{logo}' alt='' width='64' height='64'><p class='ws-credit'>"
@@ -157,7 +157,7 @@ def head_overlay(browser, title):
     html=("<!doctype html><html lang='he' dir='rtl'><head><meta charset='utf-8'>"
           f"<link rel='stylesheet' href='{(ROOT/'assets'/'book.css').as_uri()}'>"
           "<style>@page{size:A4;margin:0}html,body{margin:0;background:transparent}"
-          "body{font-family:Arial,'Noto Sans Hebrew',sans-serif;padding:8mm 15mm 0}</style></head><body>"
+          f"body{{font-family:{FONT_STACK};padding:8mm 15mm 0}}</style></head><body>"
           f"<header class='head'><div><h1>{title}</h1><p class='series'>{SERIES}</p></div></header></body></html>")
     tab=browser.new_page()
     with tempfile.TemporaryDirectory() as temp:
