@@ -1,3 +1,10 @@
+/* fonts:start — one font definition for all booklet components */
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap');
+:root { --book-font: "Assistant", Arial, "Noto Sans Hebrew", sans-serif; }
+html body { font-family: var(--book-font); }
+html body svg text { font-family: var(--book-font); }
+/* fonts:end */
+
 /* The book's one look. Change a token or a rule here and every printed page follows.
    Load it last on every page. `html body` makes it win over the older per-page styles. */
 :root {
@@ -50,7 +57,7 @@ html body article.sheet > .sub {
 html body .title-wrap { display: block; }
 
 /* ---------- Teacher pages: one palette, one type size, one kind of box ---------- */
-html body main.content { font-family: Arial, "Noto Sans Hebrew", sans-serif; color: var(--book-text); }
+html body main.content { font-family: var(--book-font); color: var(--book-text); }
 html body main.content p, html body main.content li, html body main.content dd { font-size: 13.5px; line-height: 1.5; }
 html body main.content h3, html body main.content h3.band { margin: 3.2mm 0 1.4mm; padding: 0 0 .8mm; background: none; border-radius: 0;
   border-bottom: 1px solid var(--book-rule); font-size: 14.5px; font-weight: 800; color: var(--book-ink); }
@@ -99,7 +106,7 @@ html body .chapter-bar .chapter-name { color: var(--book-ink); }
 
 /* ---------- Pages of questions from the curriculum ---------- */
 .qpage { display: flex; flex-direction: column; height: 297mm; width: 210mm; margin: 10px auto 25px; padding: 8mm 15mm 0; background: #fff;
-  color: var(--book-text); font: 13.5px/1.45 Arial, "Noto Sans Hebrew", sans-serif; break-after: page; overflow: hidden; }
+  color: var(--book-text); font: 13.5px/1.45 var(--book-font); break-after: page; overflow: hidden; }
 .qpage:last-of-type { break-after: auto; }
 .qpage .page-foot { margin: auto -15mm 0; }
 .qpage .qbody { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 2mm; padding-bottom: 3mm; }
@@ -212,5 +219,5 @@ html body .q-card h3, html body .level h2 { font-size: 14.5px; }
 
 /* ---------- Bold only where it is needed: the page title and the section headings ---------- */
 /* weights:start */
-html body :not(h1, h1 *, h2, h2 *) { font-weight: 400 !important; }
+html body :not(h1, h1 *, h2, h2 *, h3, h3 *, h4, h4 *) { font-weight: 400 !important; }
 /* weights:end */
