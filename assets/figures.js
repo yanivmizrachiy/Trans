@@ -85,6 +85,28 @@
       if (o.rtl) a.direction = 'rtl';
       return add('text', a, t);
     }
+    // Every vertex dot and label (mm boxes): an axis number that would touch one is left out,
+    // so a letter is never hidden or read next to the wrong vertex.
+    var marks = [];
+    function mark(x, y, t, size) { marks.push([x, y, t ? .32 * size * t.length + .5 : 1.1, t ? .5 * size + .35 : 1.1]); }
+    function clear(x, y, t, size) {
+      var hw = .3 * size * t.length + .2, hh = .5 * size;
+      return marks.every(function (m) { return Math.abs(x - m[0]) > hw + m[2] || Math.abs(y - m[1]) > hh + m[3]; });
+    }
+    (f.polys || []).forEach(function (poly) {
+      if (!poly.names) return;
+      var pts = move(poly.pts || bases[poly.base].pts, poly);
+      var mid = pts.reduce(function (a, p) { return [a[0] + p[0] / pts.length, a[1] + p[1] / pts.length]; }, [0, 0]);
+      pts.forEach(function (p, i) {
+        var dx = p[0] - mid[0], dy = p[1] - mid[1], l = Math.hypot(dx, dy) || 1;
+        mark(X(p[0]), Y(p[1]));
+        mark(X(p[0]) + 2.8 * dx / l, Y(p[1]) - 2.8 * dy / l, poly.names[i] || '', 3.5);
+      });
+    });
+    (f.points || []).forEach(function (p) {
+      if (p.dot !== false) mark(X(p.at[0]), Y(p.at[1]));
+      if (p.t) mark(X(p.at[0]) + (p.dx === undefined ? 2.8 : p.dx), Y(p.at[1]) + (p.dy === undefined ? -2.6 : p.dy), p.t, p.size || 3.5);
+    });
     function head(tip, from, color) {
       var dx = tip[0] - from[0], dy = tip[1] - from[1], l = Math.hypot(dx, dy) || 1, s = 1.7;
       dx /= l; dy /= l;
@@ -95,17 +117,7 @@
       for (var gx = Math.ceil(f.x[0]); gx <= f.x[1]; gx++) line([gx, f.y[0]], [gx, f.y[1]], { stroke: GRID, 'stroke-width': W.grid });
       for (var gy = Math.ceil(f.y[0]); gy <= f.y[1]; gy++) line([f.x[0], gy], [f.x[1], gy], { stroke: GRID, 'stroke-width': W.grid });
     }
-    (f.lines || []).forEach(function (l) {
-      line(l[0], l[1], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': W.aux, stroke: '#27384a' });
-    });
-    (f.vlines || []).forEach(function (v) {
-      line([v.at, f.y[0]], [v.at, f.y[1]], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': W.mirror, stroke: '#27384a' });
-      if (v.label) text([v.at, f.y[1]], v.label, { dx: 1.2 + v.label.length * 1.1, dy: 2.2, size: 3.2 });
-    });
-    (f.hlines || []).forEach(function (v) {
-      line([f.x[0], v.at], [f.x[1], v.at], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': W.mirror, stroke: '#27384a' });
-      if (v.label) text([f.x[0], v.at], v.label, { dx: 1.2 + v.label.length * 1.1, dy: -2.2, size: 3.2 });
-    });
+    var late = [];
     (f.polys || []).forEach(function (poly) {
       poly = Object.assign({}, STYLES[poly.style], poly);
       var pts = move(poly.pts || bases[poly.base].pts, poly);
@@ -124,10 +136,23 @@
         var mid = pts.reduce(function (a, p) { return [a[0] + p[0] / pts.length, a[1] + p[1] / pts.length]; }, [0, 0]);
         pts.forEach(function (p, i) {
           var dx = p[0] - mid[0], dy = p[1] - mid[1], l = Math.hypot(dx, dy) || 1;
-          add('circle', { cx: X(p[0]), cy: Y(p[1]), r: .75, fill: poly.line || INK });
-          text(p, poly.names[i] || '', { dx: 2.8 * dx / l, dy: -2.8 * dy / l, color: poly.line || INK });
+          late.push(function () {
+            add('circle', { cx: X(p[0]), cy: Y(p[1]), r: .75, fill: poly.line || INK });
+            text(p, poly.names[i] || '', { dx: 2.8 * dx / l, dy: -2.8 * dy / l, color: poly.line || INK });
+          });
         });
       }
+    });
+    (f.lines || []).forEach(function (l) {
+      line(l[0], l[1], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': W.aux, stroke: '#27384a' });
+    });
+    (f.vlines || []).forEach(function (v) {
+      line([v.at, f.y[0]], [v.at, f.y[1]], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': W.mirror, stroke: '#27384a' });
+      if (v.label) text([v.at, f.y[1]], v.label, { dx: 1.2 + v.label.length * 1.1, dy: 2.2, size: 3.2 });
+    });
+    (f.hlines || []).forEach(function (v) {
+      line([f.x[0], v.at], [f.x[1], v.at], { 'stroke-dasharray': '1.8 1.2', 'stroke-width': W.mirror, stroke: '#27384a' });
+      if (v.label) text([f.x[0], v.at], v.label, { dx: 1.2 + v.label.length * 1.1, dy: -2.2, size: 3.2 });
     });
     if (f.axes) {
       var dash = f.axes === 'dash' ? { 'stroke-dasharray': '1.4 1.1' } : {};
@@ -141,14 +166,16 @@
       }
       if (f.numbers) {
         var nx = f.numbers.x || f.x, ny = f.numbers.y || f.y, step = f.numbers.step || 1;
-        for (var n = Math.ceil(nx[0] / step) * step; n <= nx[1]; n += step) if (n) text([n, oy], String(n).replace('-', '−'), { dy: 2.6, size: 2.5, weight: 400, color: '#27384a' });
-        for (var m = Math.ceil(ny[0] / step) * step; m <= ny[1]; m += step) if (m) text([ox, m], String(m).replace('-', '−'), { dx: -2.6, size: 2.5, weight: 400, color: '#27384a' });
+        var tick = function (at, t, o) { if (clear(X(at[0]) + (o.dx || 0), Y(at[1]) + (o.dy || 0), t, 2.5)) text(at, t, Object.assign({ size: 2.5, weight: 400, color: '#27384a' }, o)); };
+        for (var n = Math.ceil(nx[0] / step) * step; n <= nx[1]; n += step) if (n) tick([n, oy], String(n).replace('-', '−'), { dy: 2.6 });
+        for (var m = Math.ceil(ny[0] / step) * step; m <= ny[1]; m += step) if (m) tick([ox, m], String(m).replace('-', '−'), { dx: -2.6 });
       }
       if (f.axisNames) {
         text([f.x[1], oy], 'x', { dx: 3.2, dy: -2.2, size: 3.2 });
         text([ox, f.y[1]], 'y', { dx: 2.6, dy: -2.4, size: 3.2 });
       }
     }
+    late.forEach(function (fn) { fn(); });
     (f.segs || []).forEach(function (s) { line(s[0], s[1], { stroke: '#27384a', 'stroke-width': W.seg }); });
     (f.arrows || []).forEach(function (a) {
       line(a[0], a[1], { stroke: '#7b8794', 'stroke-width': W.motion });

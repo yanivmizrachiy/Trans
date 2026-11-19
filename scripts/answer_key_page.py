@@ -56,9 +56,14 @@ def iso(text):
     return "<bdi class='m' dir='ltr'>"+text.replace("-","−").replace("'","′")+"</bdi>"
 
 def code(escaped):
-    # a list of points breaks between its points, never inside one
-    parts=re.split(r"(?<=\)),\s*|,\s+",escaped)
-    return ", ".join(iso(p) for p in parts)
+    # a list of points breaks between its points, never inside one: split only on commas outside brackets
+    parts,depth,cur=[],0,""
+    for ch in escaped:
+        depth+=(ch=="(")-(ch==")")
+        if ch=="," and depth==0: parts.append(cur.strip()); cur=""
+        else: cur+=ch
+    parts.append(cur.strip())
+    return ", ".join(iso(p) for p in parts if p)
 
 def inline(text):
     out=markdown(text).strip()

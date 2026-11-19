@@ -214,3 +214,6 @@ html body .q-card h3, html body .level h2 { font-size: 14.5px; }
 /* weights:start */
 html body :not(h1, h1 *, h2, h2 *) { font-weight: 400 !important; }
 /* weights:end */
+
+/* Keep a short math phrase and its question mark on one line. */
+.nowrap { white-space: nowrap; }
