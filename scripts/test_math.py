@@ -280,10 +280,13 @@ class PrintedSelectionDiagramAccuracy(unittest.TestCase):
         self.assertEqual(doc.count("חשבו את היקף ושטח המלבן"),1)
 
     def test_385_unambiguous_numbering(self):
+        # Preserve distinct lines and prompts for questions 4 and 5.
         doc=(ROOT/"worksheets"/"385.html").read_text(encoding="utf-8")
         for number in range(1,6):
             self.assertIn(f"{number}.",doc)
         self.assertEqual(re.findall(r'<span class="qn">(\d+)</span>',doc),["6"])
+        self.assertIn('<span class="subl">4.</span>',doc)
+        self.assertIn('<span class="subl">5.</span>',doc)
 
     def test_349_source_and_teacher_key_agree(self):
         source=(ROOT/"book"/"official.html").read_text(encoding="utf-8")
