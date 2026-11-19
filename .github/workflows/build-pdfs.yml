@@ -71,6 +71,17 @@ jobs:
         run: python scripts/check_manifest.py
       - name: Test the publication step
         run: python scripts/test_publish_pdfs.py
+      # Temporary print-proof artifact for PR #85; PR #75 has the permanent audit upload.
+      - name: Save PDF and page previews for mathematical visual verification
+        if: github.event_name == 'pull_request' && github.head_ref == 'fix/verified-transformations-geometry-20261119'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: transformations-geometry-print-proof
+          path: |
+            book/transformations-complete.pdf
+            qa/previews/*.jpg
+          if-no-files-found: error
+          retention-days: 3
       - name: Publish the booklet only when sources are still current
         if: github.event_name != 'pull_request'
         env:
