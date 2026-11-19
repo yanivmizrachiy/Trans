@@ -267,6 +267,24 @@ class PrintedSelectionDiagramAccuracy(unittest.TestCase):
         for distance in distances:
             self.assertAlmostEqual(distance,72**2,places=2)
 
+
+    def test_349_ordered_source_sections(self):
+        doc=(ROOT/"worksheets"/"349.html").read_text(encoding="utf-8")
+        labels=re.findall(r'<span class="subl">([ב-ד])\.</span>',doc)
+        self.assertEqual(labels[:3],["ב","ג","ד"])
+        a=doc.find("<b>א.</b>")
+        b=doc.find('<span class="subl">ב.</span>')
+        g=doc.find('<span class="subl">ג.</span>')
+        d=doc.find('<span class="subl">ד.</span>')
+        self.assertTrue(0<a<b<g<d)
+        self.assertEqual(doc.count("חשבו את היקף ושטח המלבן"),1)
+
+    def test_385_unambiguous_numbering(self):
+        doc=(ROOT/"worksheets"/"385.html").read_text(encoding="utf-8")
+        for number in range(1,6):
+            self.assertIn(f"{number}.",doc)
+        self.assertEqual(re.findall(r'<span class="qn">(\d+)</span>',doc),["6"])
+
     def test_349_source_and_teacher_key_agree(self):
         source=(ROOT/"book"/"official.html").read_text(encoding="utf-8")
         worksheet=(ROOT/"worksheets"/"349.html").read_text(encoding="utf-8")
