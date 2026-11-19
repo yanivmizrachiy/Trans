@@ -85,17 +85,38 @@
       if (o.rtl) a.direction = 'rtl';
       return add('text', a, t);
     }
-    // Every vertex dot and label (mm boxes): an axis number that would touch one is left out,
-    // so a letter is never hidden or read next to the wrong vertex.
-    var marks = [];
+    // Every vertex dot and label (mm boxes) and every shape edge or mirror line: an axis number moves
+    // to the other side of its axis when it would touch one, and is left out only when both sides are
+    // taken, so a letter is never hidden or read next to the wrong vertex and no number sits on an edge.
+    var marks = [], edges = [];
     function mark(x, y, t, size) { marks.push([x, y, t ? .32 * size * t.length + .5 : 1.1, t ? .5 * size + .35 : 1.1]); }
+    function hits(e, x, y, hw, hh) {
+      // does segment e cross the box centred at (x, y)? (Liang-Barsky clipping)
+      var t0 = 0, t1 = 1, dx = e[2] - e[0], dy = e[3] - e[1];
+      var tests = [[-dx, e[0] - (x - hw)], [dx, (x + hw) - e[0]], [-dy, e[1] - (y - hh)], [dy, (y + hh) - e[1]]];
+      for (var i = 0; i < 4; i++) {
+        var pp = tests[i][0], q = tests[i][1];
+        if (pp === 0) { if (q < 0) return false; continue; }
+        var r = q / pp;
+        if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+      }
+      return true;
+    }
     function clear(x, y, t, size) {
       var hw = .3 * size * t.length + .2, hh = .5 * size;
-      return marks.every(function (m) { return Math.abs(x - m[0]) > hw + m[2] || Math.abs(y - m[1]) > hh + m[3]; });
+      return marks.every(function (m) { return Math.abs(x - m[0]) > hw + m[2] || Math.abs(y - m[1]) > hh + m[3]; }) &&
+        edges.every(function (e) { return !hits(e, x, y, hw, hh); });
     }
+    function edge(a, b) { edges.push([X(a[0]), Y(a[1]), X(b[0]), Y(b[1])]); }
+    (f.lines || []).forEach(function (l) { edge(l[0], l[1]); });
+    (f.vlines || []).forEach(function (v) { edge([v.at, f.y[0]], [v.at, f.y[1]]); });
+    (f.hlines || []).forEach(function (v) { edge([f.x[0], v.at], [f.x[1], v.at]); });
+    (f.segs || []).forEach(function (sg) { edge(sg[0], sg[1]); });
     (f.polys || []).forEach(function (poly) {
-      if (!poly.names) return;
       var pts = move(poly.pts || bases[poly.base].pts, poly);
+      pts.forEach(function (p, i) { if (!poly.open || i) edge(pts[(i + pts.length - 1) % pts.length], p); });
+      (poly.inner || (poly.base && bases[poly.base].inner) || []).forEach(function (sg) { var q = move(sg, poly); edge(q[0], q[1]); });
+      if (!poly.names) return;
       var mid = pts.reduce(function (a, p) { return [a[0] + p[0] / pts.length, a[1] + p[1] / pts.length]; }, [0, 0]);
       pts.forEach(function (p, i) {
         var dx = p[0] - mid[0], dy = p[1] - mid[1], l = Math.hypot(dx, dy) || 1;
@@ -166,9 +187,12 @@
       }
       if (f.numbers) {
         var nx = f.numbers.x || f.x, ny = f.numbers.y || f.y, step = f.numbers.step || 1;
-        var tick = function (at, t, o) { if (clear(X(at[0]) + (o.dx || 0), Y(at[1]) + (o.dy || 0), t, 2.5)) text(at, t, Object.assign({ size: 2.5, weight: 400, color: '#27384a' }, o)); };
-        for (var n = Math.ceil(nx[0] / step) * step; n <= nx[1]; n += step) if (n) tick([n, oy], String(n).replace('-', '−'), { dy: 2.6 });
-        for (var m = Math.ceil(ny[0] / step) * step; m <= ny[1]; m += step) if (m) tick([ox, m], String(m).replace('-', '−'), { dx: -2.6 });
+        var tick = function (at, t, o, alt) {
+          var where = [o, alt].filter(function (w) { return clear(X(at[0]) + (w.dx || 0), Y(at[1]) + (w.dy || 0), t, 2.5); })[0];
+          if (where) { text(at, t, Object.assign({ size: 2.5, weight: 400, color: '#27384a' }, where)); mark(X(at[0]) + (where.dx || 0), Y(at[1]) + (where.dy || 0), t, 2.5); }
+        };
+        for (var n = Math.ceil(nx[0] / step) * step; n <= nx[1]; n += step) if (n) tick([n, oy], String(n).replace('-', '−'), { dy: 2.6 }, { dy: -2.6 });
+        for (var m = Math.ceil(ny[0] / step) * step; m <= ny[1]; m += step) if (m) tick([ox, m], String(m).replace('-', '−'), { dx: -2.6 }, { dx: 2.6 });
       }
       if (f.axisNames) {
         text([f.x[1], oy], 'x', { dx: 3.2, dy: -2.2, size: 3.2 });

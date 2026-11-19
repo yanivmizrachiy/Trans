@@ -318,6 +318,17 @@ class PrintedReading(unittest.TestCase):
               for p in pages for t in [self.visible(p)] for m in self.FLIP.finditer(t)]
         self.assertEqual(hits,[],"Latin letters that the page would print in the wrong order:\n"+"\n".join(hits))
 
+    # A bare pair with a minus sign, "(−y,−x)" or "(3,−2)", prints as "(y,−x−)" in Hebrew text unless it
+    # is isolated. After a Latin letter ("A(−4,−1)") the letter already makes the run left-to-right.
+    BARE=re.compile(r"(?<![A-Za-z′″'\w])\([^()א-ת]*[−\-][^()א-ת]*\)")
+
+    def test_bare_coordinate_pairs_are_isolated(self):
+        pages=sorted((ROOT/"book").glob("*.html"))+sorted((ROOT/"worksheets").glob("*.html"))
+        hits=[f"{p.relative_to(ROOT)}: …{t[max(0,m.start()-20):m.end()+5]}…"
+              for p in pages if p.name not in ("answers.html","workshop.html","complete.html")
+              for t in [self.visible(p)] for m in self.BARE.finditer(t)]
+        self.assertEqual(hits,[],"Coordinate pairs that would print reversed:\n"+"\n".join(hits))
+
     def test_every_choice_question_is_drawn_at_one_scale(self):
         # Requirement 35: the original and every option of a question share one scale (mm per unit).
         for name in ("350","351","352"):
