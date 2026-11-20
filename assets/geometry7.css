@@ -22,6 +22,7 @@
 /* כרטיס שאלה */
 .geo7-page .q { border: 1px solid var(--border-light); border-radius: 10px; background: #fff; padding: 6px 12px 7px; break-inside: avoid; page-break-inside: avoid; }
 .geo7-page .qrow { display: flex; align-items: flex-start; }
+.geo7-page .qn { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 23px; height: 23px; margin-left: 10px; padding: 0 6px; background: var(--bg-subtle); color: var(--title-blue); border: 1px solid var(--border-light); border-radius: 6px; font-weight: 800; font-size: 14px; }
 .geo7-page .qbody { flex: 1; font-size: 15px; line-height: 1.5; }
 
 /* LTR למספרים, נקודות ואותיות לועזיות */

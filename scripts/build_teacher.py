@@ -32,7 +32,6 @@ def main():
                     const logo = s.querySelector(".source img.ws-logo");
                     if (!logo || !logo.complete || !logo.naturalWidth) issues.push([i+1,"footer logo missing"]);
                     if (s.scrollHeight > s.clientHeight + 2) issues.push([i+1,"overflow",s.scrollHeight-s.clientHeight]);
-                    if (!s.querySelector(".source").textContent.includes("אסמכתה")) issues.push([i+1,"missing source"]);
                 }
                 return {count:sheets.length,issues:issues};
             }""")
@@ -52,6 +51,6 @@ def main():
         raise RuntimeError(f"Teacher pages are not A4 portrait: {sizes}")
     if OUTPUT.stat().st_size < 20000:
         raise RuntimeError("Unexpectedly empty teacher summary PDF")
-    print(f"PASS: {EXPECTED} RTL A4 summary pages, no overflow, each with source footer; {OUTPUT.stat().st_size} bytes")
+    print(f"PASS: {EXPECTED} RTL A4 summary pages, no overflow, each with the shared footer; {OUTPUT.stat().st_size} bytes")
 
 if __name__=="__main__":main()

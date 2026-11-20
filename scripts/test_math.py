@@ -216,4 +216,126 @@ class AdditionalOriginalSheets(unittest.TestCase):
         self.assertEqual([half(cw(p)) for p in pqr],images[4])
         self.assertEqual([(p[1],p[0]) for p in (flip_h(q) for q in pqr)],images[4])
 
+
+class PrintedSelectionDiagramAccuracy(unittest.TestCase):
+    """Verify actual SVG choice geometry, not only transformation helper functions."""
+
+    @staticmethod
+    def polygons(name):
+        html=(ROOT/"worksheets"/name).read_text(encoding="utf-8")
+        result=[]
+        for raw in re.findall(r'<polygon points="([^"]+)"',html):
+            result.append([tuple(map(float,xy.split(","))) for xy in raw.split()])
+        return result
+
+    def test_350_all_choices_are_exact_transforms_at_one_scale(self):
+        pts=self.polygons("350.html")
+        self.assertEqual(len(pts),5)
+        source=pts[0]
+        self.assertEqual(source,[(62.,78.),(62.,26.),(126.,52.)])
+        origin=(62.,92.)
+        target=(75.,75.)
+        operations=[
+            lambda x,y:(-y,x), # quarter turn clockwise in screen coordinates
+            lambda x,y:(x,-y), # horizontal-axis reflection
+            lambda x,y:(y,-x), # quarter turn counterclockwise
+            lambda x,y:(-x,-y), # half turn
+        ]
+        for index,operation in enumerate(operations,1):
+            expected=[]
+            for x,y in source:
+                dx,dy=operation(x-origin[0],y-origin[1])
+                expected.append((target[0]+dx,target[1]+dy))
+            self.assertEqual(pts[index],expected,f"option {index}: not an exact isometry")
+        html=(ROOT/"worksheets"/"350.html").read_text(encoding="utf-8")
+        self.assertEqual(len(re.findall(r'<svg class="chart"[^>]+width="140"',html)),5)
+
+    def test_351_reflection_followed_by_exact_quarter_turn(self):
+        pts=self.polygons("351.html")
+        self.assertGreaterEqual(len(pts),3)
+        first,second,third=pts[:3]
+        self.assertEqual(second,[(95-x,y) for x,y in first])
+        clockwise={(94-y,x) for x,y in second}
+        self.assertEqual(set(third),clockwise)
+        html=(ROOT/"worksheets"/"351.html").read_text(encoding="utf-8")
+        self.assertIn('<line x1="16" y1="48" x2="48" y2="48"',html)
+
+    def test_352_equilateral_triangle_has_three_equal_sides(self):
+        points=self.polygons("352.html")[-1]
+        self.assertEqual(len(points),3)
+        distances=[squared(points[i],points[(i+1)%3]) for i in range(3)]
+        for distance in distances:
+            self.assertAlmostEqual(distance,72**2,places=2)
+
+
+    def test_349_ordered_source_sections(self):
+        doc=(ROOT/"worksheets"/"349.html").read_text(encoding="utf-8")
+        labels=re.findall(r'<span class="subl">([ב-ד])\.</span>',doc)
+        self.assertEqual(labels[:3],["ב","ג","ד"])
+        a=doc.find("<b>א.</b>")
+        b=doc.find('<span class="subl">ב.</span>')
+        g=doc.find('<span class="subl">ג.</span>')
+        d=doc.find('<span class="subl">ד.</span>')
+        self.assertTrue(0<a<b<g<d)
+        self.assertEqual(doc.count("חשבו את היקף ושטח המלבן"),1)
+
+    def test_385_unambiguous_numbering(self):
+        # Preserve distinct lines and prompts for questions 4 and 5.
+        doc=(ROOT/"worksheets"/"385.html").read_text(encoding="utf-8")
+        for number in range(1,6):
+            self.assertIn(f"{number}.",doc)
+        self.assertEqual(re.findall(r'<span class="qn">(\d+)</span>',doc),["6"])
+        self.assertIn('<span class="subl">4.</span>',doc)
+        self.assertIn('<span class="subl">5.</span>',doc)
+
+    def test_349_source_and_teacher_key_agree(self):
+        source=(ROOT/"book"/"official.html").read_text(encoding="utf-8")
+        worksheet=(ROOT/"worksheets"/"349.html").read_text(encoding="utf-8")
+        key=(ROOT/"docs"/"ANSWER_KEY.md").read_text(encoding="utf-8")
+        self.assertIn("(-3,-5)",source)
+        self.assertIn('<span class="ltr">(-3,-5)</span>',worksheet)
+        self.assertNotIn('<span class="ltr">(-5,-3)</span>',worksheet)
+        self.assertIn("G(-3,-5), H(-3,-1), K(2,-1), L(2,-5)",key)
+
+class PrintedReading(unittest.TestCase):
+    """What the reader sees on paper: one scale per question, and Latin letters in Hebrew text
+    that keep their order."""
+
+    ISOLATED=re.compile(r"""<(span|bdi)[^>]*(?:class=["'][^"']*\b(?:math|m|ltr|math-ltr|pair|ordered-pair)\b[^"']*["']|dir=["']ltr["'])[^>]*>.*?</\1>""",re.S)
+    # A Hebrew prefix glued to a Latin list ("ל-G, B ל-H") makes "G, B" one left-to-right run, so the
+    # page reads "ל-B" first. A right-to-left mark after the comma (&rlm;) or an isolating span keeps it.
+    FLIP=re.compile(r"[א-ת][־\-]\s?[A-Z][′″'0-9₁]*(?:\([^)]*\))?,(?!‏)\s*[A-Z0-9(]")
+
+    def visible(self,path):
+        s=path.read_text(encoding="utf-8")
+        s=re.sub(r"<script.*?</script>|<style.*?</style>|<svg.*?</svg>|data-fig='[^']*'","",s,flags=re.S)
+        s=self.ISOLATED.sub("◊",s)
+        return unescape(re.sub(r"<[^>]+>","",s))
+
+    def test_latin_lists_keep_their_reading_order(self):
+        pages=sorted((ROOT/"book").glob("*.html"))+sorted((ROOT/"worksheets").glob("*.html"))
+        hits=[f"{p.relative_to(ROOT)}: …{t[max(0,m.start()-20):m.end()+10]}…"
+              for p in pages for t in [self.visible(p)] for m in self.FLIP.finditer(t)]
+        self.assertEqual(hits,[],"Latin letters that the page would print in the wrong order:\n"+"\n".join(hits))
+
+    # A bare pair with a minus sign, "(−y,−x)" or "(3,−2)", prints as "(y,−x−)" in Hebrew text unless it
+    # is isolated. After a Latin letter ("A(−4,−1)") the letter already makes the run left-to-right.
+    BARE=re.compile(r"(?<![A-Za-z′″'\w])\([^()א-ת]*[−\-][^()א-ת]*\)")
+
+    def test_bare_coordinate_pairs_are_isolated(self):
+        pages=sorted((ROOT/"book").glob("*.html"))+sorted((ROOT/"worksheets").glob("*.html"))
+        hits=[f"{p.relative_to(ROOT)}: …{t[max(0,m.start()-20):m.end()+5]}…"
+              for p in pages if p.name not in ("answers.html","workshop.html","complete.html")
+              for t in [self.visible(p)] for m in self.BARE.finditer(t)]
+        self.assertEqual(hits,[],"Coordinate pairs that would print reversed:\n"+"\n".join(hits))
+
+    def test_every_choice_question_is_drawn_at_one_scale(self):
+        # Requirement 35: the original and every option of a question share one scale (mm per unit).
+        for name in ("350","351","352"):
+            html=(ROOT/"worksheets"/f"{name}.html").read_text(encoding="utf-8")
+            for n,q in enumerate(html.split('<div class="q">')[1:],1):
+                scales={round(float(w)/float(box.split()[2]),4)
+                        for box,w in re.findall(r'<svg class="chart" viewBox="([^"]+)" width="([\d.]+)"',q)}
+                self.assertLessEqual(len(scales),1,f"{name}.html question {n} mixes scales {sorted(scales)}")
+
 if __name__=="__main__":unittest.main(verbosity=2)

@@ -28,7 +28,7 @@ window.FIG_BASES = {
   m0: { frame: { u: 10, x: [-.3,5.3], y: [-.3,3.3], pad: 1, polys: [mark({ pts: TRAP }, "א'")] } },
   m1: { frame: { u: 13, x: [-5.4,5.4], y: [-.5,3.7], pad: 1, lines: [[[0,-.5],[0,3.7]]],
         polys: [mark({ pts: TRAP }, "א'"), mark({ pts: TRAP, ops: ['flipY'], fill: RED }, "ב'")] } },
-  m2: { frame: { u: 11, x: [-.3,5.3], y: [-5.2,3.3], pad: 1, arrows: [[[1.5,-.3],[1.5,-1.7]]],
+  m2: { frame: { u: 11, x: [-.3,5.3], y: [-5.2,3.3], pad: 1, arrows: [[[2.5,-.3],[2.5,-1.7]]],
         polys: [mark({ pts: TRAP }, "א'"), mark({ pts: TRAP, shift: [0,-5] }, "ג'")] } },
   m3: { frame: { u: 7.6, x: [-5.4,3.4], y: [-.7,5.4], pad: 1,
         polys: [mark({ pts: TRAP_P }, "א'"), mark({ pts: TRAP_P, ops: ['rot90cw'], fill: ORANGE }, "ד'", 90)],
@@ -37,7 +37,7 @@ window.FIG_BASES = {
   e1: { frame: { u: 5.2, x: [0,12], y: [0,12], grid: true, axes: 'solid', numbers: true, axisNames: true, pad: 6,
         polys: [{ pts: [[1,2],[1,7],[4,7],[4,5]], fill: 'none', line: '#1f6f8b', width: .6 },
                 { pts: [[6,6],[11,6],[11,3]], open: true, line: '#1f6f8b', width: .6 }],
-        points: [{ at: [0,0], t: '0', dot: false, dx: -2.3, dy: 2.5, size: 2.5, color: '#27384a' }, { at: [1,2], t: 'A', dx: -.2, dy: 3.2 }, { at: [1,7], t: 'B', dx: -.4, dy: -2.8 }, { at: [4,7], t: 'C', dx: .4, dy: -2.8 }, { at: [4,5], t: 'D', dx: 2.8, dy: 1.2 },
+        points: [{ at: [0,0], t: '0', dot: false, dx: -2.3, dy: 2.5, size: 2.5, color: '#27384a' }, { at: [1,2], t: 'A', dx: -.2, dy: 3.2 }, { at: [1,7], t: 'B', dx: -.4, dy: -2.8 }, { at: [4,7], t: 'C', dx: .4, dy: -2.8 }, { at: [4,5], t: 'D', dx: .6, dy: 3.1 },
                  { at: [6,6], t: 'K', dx: -.2, dy: -2.8 }, { at: [11,6], t: 'L', dx: .4, dy: -2.8 }, { at: [11,3], t: 'M', dx: .2, dy: 3.1 }] } },
   e2: { frame: { u: 5.6, x: [0,12], y: [-1,8], grid: true, axes: 'solid', numbers: true, pad: 6,
         polys: [{ pts: [[1,2],[1,7],[4,7],[4,5]], fill: 'none', line: '#3c4650', width: .6 },
@@ -47,7 +47,7 @@ window.FIG_BASES = {
                  { at: [6,6], t: 'K', color: '#3f3fc4', dx: 1.4, dy: -2.8 }, { at: [11,6], t: 'L', color: '#3f3fc4', dx: 1.4, dy: -2.8 }, { at: [11,3], t: 'M', color: '#3f3fc4', dx: 2.4, dy: -2.6 },
                  { at: [6,4.8], t: 'P = (6, 4.8)', color: '#3f3fc4', dx: -1, dy: 3.2, size: 2.8 }, { at: [9,3], t: 'N = (9, 3)', color: '#3f3fc4', dx: 2, dy: 3.2, size: 2.8 },
                  { at: [2.5,7], t: 'g', dot: false, dx: 0, dy: 2.6, size: 2.8, color: '#10202e' }, { at: [4,6], t: 'h', dot: false, dx: -2, dy: 0, size: 2.8, color: '#10202e' },
-                 { at: [1,4.5], t: 'f', dot: false, dx: 2.2, dy: 0, size: 2.8, color: '#10202e' }, { at: [2.5,3.5], t: 'i', dot: false, dx: 2.2, dy: 1.6, size: 2.8, color: '#10202e' },
+                 { at: [1,4.5], t: 'f', dot: false, dx: 2.2, dy: 0, size: 2.8, color: '#10202e' }, { at: [2.5,3.5], t: 'i', dot: false, dx: -2.2, dy: -1.6, size: 2.8, color: '#10202e' },
                  { at: [8.5,6], t: 'k₁', dot: false, dx: 0, dy: 2.6, size: 2.8, color: '#2f9e28' }, { at: [11,4.5], t: 'l₁', dot: false, dx: -2.2, dy: 0, size: 2.8, color: '#2f9e28' },
                  { at: [8.5,3.9], t: 'm₁', dot: false, dx: 1, dy: -2, size: 2.8, color: '#2f9e28' }, { at: [6,5.4], t: 'p₁', dot: false, dx: 2.4, dy: 0, size: 2.8, color: '#2f9e28' },
                  { at: [7.5,4.5], t: 'n', dot: false, dx: 1.8, dy: -1.4, size: 2.8, color: '#a0522d' }, { at: [10,3], t: 'm', dot: false, dx: 0, dy: -2, size: 2.8, color: '#a0522d' }] } }
@@ -64,7 +64,7 @@ window.FIG_BASES = {
     <p class="kicker">קישוריות למערכת צירים</p>
     <div class="qline"><span class="qnum">1</span><div>
       <p>לפניכם מלבן ABCD.</p>
-      <p>אם נזיז את המלבן ונסרטט מלבן GHKL כך ש-A מוזז ל-G, B ל-H, C ל-K ו-D ל-L יהיה שיעור הנקודה G <span class="ltr">(-3,-5)</span>.</p>
+      <p>אם נזיז את המלבן ונסרטט מלבן GHKL כך ש-A מוזז ל-G,&rlm; B ל-H,&rlm; C ל-K ו-D ל-L יהיה שיעור הנקודה G <span class="ltr">(-3,-5)</span>.</p>
     </div></div>
     <div class="side">
       <div class="stack">
@@ -181,7 +181,7 @@ window.FIG_BASES = {
         </div>
         <svg data-fig='{"u":5.4,"x":[-7,7],"y":[-7,7],"grid":true,"axes":"solid","numbers":{"x":[-6,6],"y":[-6,6]},"axisNames":true,"pad":6,
       "polys":[{"pts":[[-6,4],[-6,1],[-1,1]],"fill":"#dbe9f7","line":"#0b3a75","width":0.7}],
-      "points":[{"at":[0,0],"t":"O","dot":false,"dx":-2.4,"dy":2.6,"size":3}]}'></svg>
+      "points":[{"at":[0,0],"t":"O","dot":false,"dx":-1.5,"dy":2.2,"size":3}]}'></svg>
       </div>
     </div></div>
     <div class="qline"><span class="qnum">14</span><div class="grow-col">
@@ -229,7 +229,7 @@ window.FIG_BASES = {
         <div class="part"><b>2.</b><span>האם השינוי שעברה החללית מבחינה הגאומטרית הוא הזזה/סיבוב/שיקוף ? נמקו את תשובתכם.</span></div>
         <div class="work"></div>
       </div>
-      <svg data-fig='{"u":5.2,"x":[-7,7],"y":[-6,6],"grid":true,"axes":"solid","numbers":true,"axisNames":true,"pad":6}'></svg>
+      <svg data-fig='{"u":5.2,"x":[-7,7],"y":[-6,6],"grid":true,"axes":"solid","numbers":{"x":[-6,6],"y":[-5,5]},"axisNames":true,"pad":6}'></svg>
     </div>
   </div>
 </article>
@@ -239,7 +239,7 @@ window.FIG_BASES = {
   <div class="qbody">
     <div class="part"><b>3.</b><span>חשבו את שטח החללית המקורית ABC ואת שטח החללית החדשה DEF? האם ה"באג" (התקלה) שינה את שטח החללית?</span></div><div class="work r4"></div>
     <div class="part"><b>4.</b><span>אם היינו רוצים לשקף את החללית המקורית ABC ביחס <strong>לציר ה-Y</strong> (כך שהיא תופיע ברביע השני), מה היו השיעורים החדשים של הקודקודים שלה?</span></div><div class="work r4"></div>
-    <div class="part"><b>5.</b><span><strong>שאלת אתגר:</strong> נסו לנסח כללים: מה קורה לנקודה <span class="ltr">(x,y)</span> בשיקוף ביחס לציר ה-x? מה קורה לנקודה <span class="ltr">(x,y)</span> בשיקוף ביחס לציר ה-y?</span></div><div class="work r4"></div>
+    <div class="part"><b>5.</b><span><strong>שאלת אתגר:</strong> נסו לנסח כללים: מה קורה לנקודה <span class="ltr">(x,y)</span> בשיקוף ביחס <span class="nowrap">לציר ה-x?</span> מה קורה לנקודה <span class="ltr">(x,y)</span> בשיקוף ביחס <span class="nowrap">לציר ה-y?</span></span></div><div class="work r4"></div>
     <p class="subhead">ב. ניווט אל יעד המטרה</p>
     <p>לאחר תיקון התקלה, עליכם לתכנת את תנועת החללית אל עבר תחנת העגינה.</p>
     <p>החללית נמצאת כרגע במיקום המוגדר על ידי הקודקודים: <span class="ltr">K(-4, 2), L(-1, 2), M(-2, 5)</span></p>
@@ -251,7 +251,7 @@ window.FIG_BASES = {
         <div class="part"><b>2.</b><span>חשבו את אורך הצלע KL ואת הגובה לצלע זו במשולש KLM. חשבו את שטח החללית.</span></div><div class="work"></div>
         <div class="part"><b>3.</b><span>האם לאחר ההזזה שטח החללית השתנה? נמקו ללא חישוב נוסף, על סמך תכונות ההזזה.</span></div><div class="work"></div>
       </div>
-      <svg data-fig='{"u":4.8,"x":[-7,7],"y":[-6,6],"grid":true,"axes":"solid","numbers":true,"axisNames":true,"pad":6}'></svg>
+      <svg data-fig='{"u":4.8,"x":[-7,7],"y":[-6,6],"grid":true,"axes":"solid","numbers":{"x":[-6,6],"y":[-5,5]},"axisNames":true,"pad":6}'></svg>
     </div>
     <p class="lead">שאלה לדיון: מה ההבדל בין הזזה לשיקוף מבחינת ההתמצאות של הצורה? (האם החללית "מסתכלת" לאותו כיוון?)</p>
     <div class="work"></div>

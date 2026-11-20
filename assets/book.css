@@ -228,3 +228,5 @@ html body .ws-credit {
   font-family: var(--book-hebrew-font);
 }
 
+/* Keep a short math phrase and its question mark on one line. */
+.nowrap { white-space: nowrap; }
