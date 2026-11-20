@@ -297,4 +297,45 @@ class PrintedSelectionDiagramAccuracy(unittest.TestCase):
         self.assertNotIn('<span class="ltr">(-5,-3)</span>',worksheet)
         self.assertIn("G(-3,-5), H(-3,-1), K(2,-1), L(2,-5)",key)
 
+class PrintedReading(unittest.TestCase):
+    """What the reader sees on paper: one scale per question, and Latin letters in Hebrew text
+    that keep their order."""
+
+    ISOLATED=re.compile(r"""<(span|bdi)[^>]*(?:class=["'][^"']*\b(?:math|m|ltr|math-ltr|pair|ordered-pair)\b[^"']*["']|dir=["']ltr["'])[^>]*>.*?</\1>""",re.S)
+    # A Hebrew prefix glued to a Latin list ("ל-G, B ל-H") makes "G, B" one left-to-right run, so the
+    # page reads "ל-B" first. A right-to-left mark after the comma (&rlm;) or an isolating span keeps it.
+    FLIP=re.compile(r"[א-ת][־\-]\s?[A-Z][′″'0-9₁]*(?:\([^)]*\))?,(?!‏)\s*[A-Z0-9(]")
+
+    def visible(self,path):
+        s=path.read_text(encoding="utf-8")
+        s=re.sub(r"<script.*?</script>|<style.*?</style>|<svg.*?</svg>|data-fig='[^']*'","",s,flags=re.S)
+        s=self.ISOLATED.sub("◊",s)
+        return unescape(re.sub(r"<[^>]+>","",s))
+
+    def test_latin_lists_keep_their_reading_order(self):
+        pages=sorted((ROOT/"book").glob("*.html"))+sorted((ROOT/"worksheets").glob("*.html"))
+        hits=[f"{p.relative_to(ROOT)}: …{t[max(0,m.start()-20):m.end()+10]}…"
+              for p in pages for t in [self.visible(p)] for m in self.FLIP.finditer(t)]
+        self.assertEqual(hits,[],"Latin letters that the page would print in the wrong order:\n"+"\n".join(hits))
+
+    # A bare pair with a minus sign, "(−y,−x)" or "(3,−2)", prints as "(y,−x−)" in Hebrew text unless it
+    # is isolated. After a Latin letter ("A(−4,−1)") the letter already makes the run left-to-right.
+    BARE=re.compile(r"(?<![A-Za-z′″'\w])\([^()א-ת]*[−\-][^()א-ת]*\)")
+
+    def test_bare_coordinate_pairs_are_isolated(self):
+        pages=sorted((ROOT/"book").glob("*.html"))+sorted((ROOT/"worksheets").glob("*.html"))
+        hits=[f"{p.relative_to(ROOT)}: …{t[max(0,m.start()-20):m.end()+5]}…"
+              for p in pages if p.name not in ("answers.html","workshop.html","complete.html")
+              for t in [self.visible(p)] for m in self.BARE.finditer(t)]
+        self.assertEqual(hits,[],"Coordinate pairs that would print reversed:\n"+"\n".join(hits))
+
+    def test_every_choice_question_is_drawn_at_one_scale(self):
+        # Requirement 35: the original and every option of a question share one scale (mm per unit).
+        for name in ("350","351","352"):
+            html=(ROOT/"worksheets"/f"{name}.html").read_text(encoding="utf-8")
+            for n,q in enumerate(html.split('<div class="q">')[1:],1):
+                scales={round(float(w)/float(box.split()[2]),4)
+                        for box,w in re.findall(r'<svg class="chart" viewBox="([^"]+)" width="([\d.]+)"',q)}
+                self.assertLessEqual(len(scales),1,f"{name}.html question {n} mixes scales {sorted(scales)}")
+
 if __name__=="__main__":unittest.main(verbosity=2)

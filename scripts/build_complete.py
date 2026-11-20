@@ -44,6 +44,12 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere}
 code{direction:ltr;unicode-bidi:isolate;display:inline-block;font-family:inherit;font-size:.94em;background:#eef3f9;padding:0 3px}
 a{color:#0b3a75;overflow-wrap:anywhere}
 blockquote{border-right:3px solid #0b3a75;padding-right:12px;margin-right:0;color:#536f79}
+/* writing area in whole 5 mm squares: --z is the print zoom, so a square stays 5 mm on paper */
+.write-label{margin:9px 0 3px;color:#0b3a75}
+.squares-5{width:calc(170mm / var(--z,1));height:calc(20mm / var(--z,1));border:1px solid #cfdbe6;break-inside:avoid;
+  background-image:linear-gradient(#cfdbe6 1px,transparent 1px),linear-gradient(90deg,#cfdbe6 1px,transparent 1px);
+  background-size:calc(5mm / var(--z,1)) calc(5mm / var(--z,1));background-position:right top}
+@media screen and (max-width:820px){.squares-5{width:100%}}
 """
 def validate_pdf(path, expected=None):
     path=Path(path)
@@ -196,7 +202,7 @@ def render_markdown(browser, source, target_html, target_pdf, label, pages, to_h
             if missing:
                 raise RuntimeError(f"{label}: web fonts did not load: {missing}")
         def fits(z):
-            tab.evaluate("z => { document.body.style.zoom = z; }",z)
+            tab.evaluate("z => { document.body.style.zoom = z; document.body.style.setProperty('--z', z); }",z)
             data=tab.pdf(format="A4",print_background=True,prefer_css_page_size=True,margin=MD_MARGIN)
             return data if len(PdfReader(BytesIO(data)).pages)<=pages else None
         fitted=None
