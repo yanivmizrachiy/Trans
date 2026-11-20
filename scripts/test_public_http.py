@@ -21,7 +21,7 @@ ROUTES = (
     *ROOT_PAGES,
     *discover("book",("*.html","*.pdf")),
     *discover("worksheets",("*.html",)),
-    *discover("assets",("*.css","*.js","*.svg")),
+    *discover("assets",("*.css","*.js","*.svg","*.png","*.webp")),
     *discover("sources/ministry",("*.webp",)),
 )
 assert len(ROUTES)==len(set(ROUTES)), "Duplicate public asset route"
