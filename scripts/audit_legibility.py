@@ -11,7 +11,7 @@ import pymupdf as fitz
 import manifest as M
 
 SHORT = 3          # vertex letters (A, A′, P₁) and axis numbers (−4, 12)
-DOT_MIN, DOT_MAX = 3, 4.5
+DOT_MIN, DOT_MAX = 3, 4.5   # pt: vertex dots are 1.5 mm across (4.25 pt); dotted-grid points are smaller
 
 
 def is_label(text):
@@ -22,7 +22,7 @@ def is_label(text):
     failures. Actual letter/number labels remain subject to both checks below.
     """
     t = text.strip()
-    return bool(t and len(t) <= SHORT and any(ch.isalnum() for ch in t))   # pt: vertex dots are 1.5 mm across (4.25 pt); dotted-grid points are smaller
+    return bool(t and len(t) <= SHORT and any(ch.isalnum() for ch in t))
 
 
 def spans(page):
