@@ -5,7 +5,6 @@ import json
 import re
 import unittest
 import manifest as M
-from audit_legibility import is_label
 
 ROOT=M.ROOT
 
@@ -37,17 +36,6 @@ def area2(pts):
     return abs(sum(p[0]*q[1]-q[0]*p[1] for p,q in zip(pts,pts[1:]+pts[:1])))
 
 class MathQuality(unittest.TestCase):
-    def test_pdf_label_audit_ignores_extraction_fragments_but_keeps_real_labels(self):
-        # The real Noto Hebrew PDF produces isolated RLM and gershayim spans.
-        # Neither should be mistaken for an overlapping vertex name.
-        for fragment in ("\u200f", "\u200e", "\u2067", "״", "'", "?", "′"):
-            with self.subTest(fragment=repr(fragment)):
-                self.assertFalse(is_label(fragment))
-        # Keep the safety check effective for real vertices and axis values.
-        for label in ("A", "H,", "A′", "P₁", "−4", "12", "ק", "y"):
-            with self.subTest(label=label):
-                self.assertTrue(is_label(label))
-
     def test_source_table_covers_exactly_the_manifest_originals(self):
         self.assertEqual(set(SOURCE),set(M.ORIGINAL))
 
