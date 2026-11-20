@@ -11,7 +11,18 @@ import pymupdf as fitz
 import manifest as M
 
 SHORT = 3          # vertex letters (A, A′, P₁) and axis numbers (−4, 12)
-DOT_MIN, DOT_MAX = 3, 4.5   # pt: vertex dots are 1.5 mm across (4.25 pt); dotted-grid points are smaller
+DOT_MIN, DOT_MAX = 3, 4.5
+
+
+def is_label(text):
+    """Recognize a meaningful short figure label, not PDF bidi/punctuation fragments.
+
+    Hebrew PDF extraction can expose RLM/LRM and quote marks as standalone
+    one-character spans. Those are not labels and must not cause false overlap
+    failures. Actual letter/number labels remain subject to both checks below.
+    """
+    t = text.strip()
+    return bool(t and len(t) <= SHORT and any(ch.isalnum() for ch in t))   # pt: vertex dots are 1.5 mm across (4.25 pt); dotted-grid points are smaller
 
 
 def spans(page):
@@ -20,7 +31,7 @@ def spans(page):
         for line in block.get("lines", []):
             for s in line["spans"]:
                 t = s["text"].strip()
-                if t and len(t) <= SHORT:
+                if is_label(t):
                     r = fitz.Rect(s["bbox"])
                     # the glyph box is taller than the ink: keep the middle 60 % of its height
                     pad = r.height * .2
