@@ -89,7 +89,7 @@
     // to the other side of its axis when it would touch one, and is left out only when both sides are
     // taken, so a letter is never hidden or read next to the wrong vertex and no number sits on an edge.
     var marks = [], edges = [];
-    function mark(x, y, t, size) { marks.push([x, y, t ? .32 * size * t.length + .5 : 1.1, t ? .5 * size + .35 : 1.1]); }
+    function mark(x, y, t, size) { marks.push([x, y, t ? .32 * size * t.length + .5 : 1.6, t ? .5 * size + .35 : 1.6]); }
     function hits(e, x, y, hw, hh) {
       // does segment e cross the box centred at (x, y)? (Liang-Barsky clipping)
       var t0 = 0, t1 = 1, dx = e[2] - e[0], dy = e[3] - e[1];
@@ -102,9 +102,11 @@
       }
       return true;
     }
-    function clear(x, y, t, size) {
+    function clear(x, y, t, size, own) {
       var hw = .3 * size * t.length + .2, hh = .5 * size;
-      return marks.every(function (m) { return Math.abs(x - m[0]) > hw + m[2] || Math.abs(y - m[1]) > hh + m[3]; }) &&
+      return marks.every(function (m) {
+        return (own && m[0] === own[0] && m[1] === own[1]) || Math.abs(x - m[0]) > hw + m[2] || Math.abs(y - m[1]) > hh + m[3];
+      }) &&
         edges.every(function (e) { return !hits(e, x, y, hw, hh); });
     }
     function edge(a, b) { edges.push([X(a[0]), Y(a[1]), X(b[0]), Y(b[1])]); }
@@ -112,16 +114,29 @@
     (f.vlines || []).forEach(function (v) { edge([v.at, f.y[0]], [v.at, f.y[1]]); });
     (f.hlines || []).forEach(function (v) { edge([f.x[0], v.at], [f.x[1], v.at]); });
     (f.segs || []).forEach(function (sg) { edge(sg[0], sg[1]); });
+    (f.arrows || []).forEach(function (a) { edge(a[0], a[1]); });
     (f.polys || []).forEach(function (poly) {
       var pts = move(poly.pts || bases[poly.base].pts, poly);
       pts.forEach(function (p, i) { if (!poly.open || i) edge(pts[(i + pts.length - 1) % pts.length], p); });
       (poly.inner || (poly.base && bases[poly.base].inner) || []).forEach(function (sg) { var q = move(sg, poly); edge(q[0], q[1]); });
-      if (!poly.names) return;
+      if (poly.names) pts.forEach(function (p) { mark(X(p[0]), Y(p[1])); });
+    });
+    // A vertex name sits 2.8 mm out from the shape's centre. When that spot is on an edge, an arrow or
+    // another label, the name turns around its vertex (30° at a time) to the nearest clear spot.
+    var nameAt = (f.polys || []).map(function (poly) {
+      if (!poly.names) return null;
+      var pts = move(poly.pts || bases[poly.base].pts, poly);
       var mid = pts.reduce(function (a, p) { return [a[0] + p[0] / pts.length, a[1] + p[1] / pts.length]; }, [0, 0]);
-      pts.forEach(function (p, i) {
-        var dx = p[0] - mid[0], dy = p[1] - mid[1], l = Math.hypot(dx, dy) || 1;
-        mark(X(p[0]), Y(p[1]));
-        mark(X(p[0]) + 2.8 * dx / l, Y(p[1]) - 2.8 * dy / l, poly.names[i] || '', 3.5);
+      return pts.map(function (p, i) {
+        var t = poly.names[i] || '', a0 = Math.atan2(p[1] - mid[1], p[0] - mid[0]), pick = null;
+        [0, 30, -30, 60, -60, 90, -90].some(function (d) {
+          var a = a0 + d * Math.PI / 180, o = { dx: 2.8 * Math.cos(a), dy: -2.8 * Math.sin(a) };
+          if (!t || clear(X(p[0]) + o.dx, Y(p[1]) + o.dy, t, 3.5, [X(p[0]), Y(p[1])])) { pick = o; return true; }
+          return false;
+        });
+        pick = pick || { dx: 2.8 * Math.cos(a0), dy: -2.8 * Math.sin(a0) };
+        mark(X(p[0]) + pick.dx, Y(p[1]) + pick.dy, t, 3.5);
+        return pick;
       });
     });
     (f.points || []).forEach(function (p) {
@@ -139,7 +154,7 @@
       for (var gy = Math.ceil(f.y[0]); gy <= f.y[1]; gy++) line([f.x[0], gy], [f.x[1], gy], { stroke: GRID, 'stroke-width': W.grid });
     }
     var late = [];
-    (f.polys || []).forEach(function (poly) {
+    (f.polys || []).forEach(function (poly, k) {
       poly = Object.assign({}, STYLES[poly.style], poly);
       var pts = move(poly.pts || bases[poly.base].pts, poly);
       add(poly.open ? 'polyline' : 'polygon', {
@@ -154,12 +169,10 @@
         text(cx, poly.label.t, { rot: poly.label.rot, size: 4.2, halo: 0, color: '#10202e', rtl: true });
       }
       if (poly.names) {
-        var mid = pts.reduce(function (a, p) { return [a[0] + p[0] / pts.length, a[1] + p[1] / pts.length]; }, [0, 0]);
         pts.forEach(function (p, i) {
-          var dx = p[0] - mid[0], dy = p[1] - mid[1], l = Math.hypot(dx, dy) || 1;
           late.push(function () {
             add('circle', { cx: X(p[0]), cy: Y(p[1]), r: .75, fill: poly.line || INK });
-            text(p, poly.names[i] || '', { dx: 2.8 * dx / l, dy: -2.8 * dy / l, color: poly.line || INK });
+            text(p, poly.names[i] || '', { dx: nameAt[k][i].dx, dy: nameAt[k][i].dy, color: poly.line || INK });
           });
         });
       }
