@@ -30,8 +30,10 @@ body{overflow-x:clip}
 // Keep the PDF and its real A4 pages as the single source for the reading view.
 const PDF="transformations-complete.pdf";
 const BOOK = document.getElementById("book");
-const PDFJS_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.min.mjs";
-const PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.worker.min.mjs";
+// The legacy build carries the polyfills that school browsers need (the modern build calls
+// Map.prototype.getOrInsertComputed, missing in Chromium 143 and older Safari, and fell back).
+const PDFJS_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/legacy/build/pdf.min.mjs";
+const PDFJS_WORKER = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/legacy/build/pdf.worker.min.mjs";
 let observer;
 let failed = false;
 
