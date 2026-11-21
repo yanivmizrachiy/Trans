@@ -292,9 +292,9 @@ class PrintedSelectionDiagramAccuracy(unittest.TestCase):
         source=(ROOT/"book"/"official.html").read_text(encoding="utf-8")
         worksheet=(ROOT/"worksheets"/"349.html").read_text(encoding="utf-8")
         key=(ROOT/"docs"/"ANSWER_KEY.md").read_text(encoding="utf-8")
-        self.assertIn("(-3,-5)",source)
-        self.assertIn('<span class="ltr">(-3,-5)</span>',worksheet)
-        self.assertNotIn('<span class="ltr">(-5,-3)</span>',worksheet)
+        self.assertIn("(−3,−5)",source)
+        self.assertIn('<span class="ltr">(−3,−5)</span>',worksheet)
+        self.assertNotIn('<span class="ltr">(−5,−3)</span>',worksheet)
         self.assertIn("G(-3,-5), H(-3,-1), K(2,-1), L(2,-5)",key)
 
 class PrintedReading(unittest.TestCase):

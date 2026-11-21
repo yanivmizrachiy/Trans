@@ -215,5 +215,18 @@ html body .q-card h3, html body .level h2 { font-size: 14.5px; }
 html body :not(h1, h1 *, h2, h2 *) { font-weight: 400 !important; }
 /* weights:end */
 
+/* Hebrew typography: use the actual Hebrew font on the PDF build runner.
+   The build workflow installs fonts-noto-core. Avoid silently mapping Arial
+   to a different font on Linux; math-specific LTR spans retain their styles. */
+:root { --book-hebrew-font: "Noto Sans Hebrew", Arial, sans-serif; }
+html body,
+html body .sheet,
+html body .qpage,
+html body .a4-page,
+html body main.content,
+html body .ws-credit {
+  font-family: var(--book-hebrew-font);
+}
+
 /* Keep a short math phrase and its question mark on one line. */
 .nowrap { white-space: nowrap; }
