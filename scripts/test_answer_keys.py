@@ -118,6 +118,22 @@ class AnswerToWorksheetAlignment(unittest.TestCase):
         self.assertEqual(area2(result),9)
 
 
+    def test_350_half_turn_uses_the_external_centre_from_the_prompt(self):
+        sheet=(ROOT/"worksheets"/"350.html").read_text(encoding="utf-8")
+        section=ANSWER.split("### עמוד 350",1)[1].split("### עמוד 351",1)[0]
+        self.assertIn("סמנו מחוץ לה נקודה",sheet)
+        self.assertIn("מרכז הסיבוב בשאלה הוא O שמחוץ לצורה",section)
+        self.assertNotIn("כי חצי סיבוב סביב מרכז המלבן מחזיר אותו לעצמו",section)
+        rect=[(0,0),(4,0),(4,2),(0,2)]
+        image=[half(p,(7,5)) for p in rect]
+        self.assertNotEqual(set(rect),set(image))
+        self.assertEqual(area2(rect),area2(image))
+        self.assertEqual(
+            [sum((a-b)**2 for a,b in zip(rect[i],rect[(i+1)%4])) for i in range(4)],
+            [sum((a-b)**2 for a,b in zip(image[i],image[(i+1)%4])) for i in range(4)]
+        )
+
+
 class AdditionalOriginalKeys(unittest.TestCase):
     """The printed key for the three sheets written in 11.2026 must match independently computed images."""
 
