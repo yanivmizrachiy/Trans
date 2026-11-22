@@ -105,6 +105,12 @@ def main():
     for path in sorted((ROOT/"book").glob("*.html")):
         if "בגודל מלא" in path.read_text(encoding="utf-8"):
             raise AssertionError(f"book/{path.name}: full-size link in the print booklet")
+    # The prescribed axis need not be restated by pupils who supply a valid explanation.
+    workshop=(ROOT/"docs"/"TEACHER_WORKSHOP.md").read_text(encoding="utf-8")
+    if "*מלאה: השיעורים נכונים, והנימוק מתייחס להיפוך הכיווניות." not in workshop:
+        raise AssertionError("Teacher workshop wrongly penalizes a complete reflection explanation")
+    if "כאשר ישר השיקוף, מרכז הסיבוב והזווית או חץ ההזזה **נתונים בשאלה**" not in workshop:
+        raise AssertionError("Assessment must distinguish given transformation data from data to identify")
     # Ministry-source question wording must stay unchanged; added practice is labeled separately.
     official=(ROOT/"book"/"official.html").read_text(encoding="utf-8")
     def source_page(page):
