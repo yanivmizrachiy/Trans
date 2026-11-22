@@ -105,6 +105,27 @@ def main():
     for path in sorted((ROOT/"book").glob("*.html")):
         if "בגודל מלא" in path.read_text(encoding="utf-8"):
             raise AssertionError(f"book/{path.name}: full-size link in the print booklet")
+    # Ministry-source question wording must stay unchanged; added practice is labeled separately.
+    official=(ROOT/"book"/"official.html").read_text(encoding="utf-8")
+    def source_page(page):
+        match=re.search(r'<article class="qpage" id="p'+str(page)+r'">([\s\S]*?)</article>',official)
+        if not match:raise AssertionError(f"Ministry page {page} is missing")
+        return match.group(1)
+    if "נמקו" in source_page(34):
+        raise AssertionError("Official p34: supplemental instructions have leaked into original questions")
+    if "נמקו את תשובתכם" in source_page(35):
+        raise AssertionError("Official p35: supplemental explanation was added to the copied question")
+    if "לנוע (הזזה), להביט במראה (שיקוף) או להסתובב" not in source_page(50):
+        raise AssertionError("Official p50: sequence differs from Ministry text")
+    source_tags={
+        "349":"שאלת מקור ותרגול נוסף",
+        "385":"שאלת מקור ותרגול נוסף",
+        "549":"תרגול הזזה במערכת צירים",
+    }
+    for ident,label in source_tags.items():
+        sheet=(ROOT/"worksheets"/f"{ident}.html").read_text(encoding="utf-8")
+        if f'<div class="src-tag">{label}</div>' not in sheet:
+            raise AssertionError(f"{ident}: misleading source attribution")
     print(f"PASS: {len(ORIGINAL)} original worksheets, {len(seen)} problems, 11 complete answer-key sections, no near-duplicates")
 
 if __name__=="__main__":main()
